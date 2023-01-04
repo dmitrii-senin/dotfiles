@@ -3,7 +3,7 @@
 autoload -Uz colors && colors
 
 prog_name=$(basename $0)
-root_dir="${0:A:h}"
+repo_root="${0:A:h}"
 
 function subcmd_help() {
 	echo "Usage: ${fg_bold[white]}${prog_name}${reset_color} <subcommand> [options]"
@@ -21,8 +21,26 @@ function subcmd_help() {
 }
 
 function subcmd_pull() {
-	git -C "$root_dir" pull > /dev/null 2>&1
+	git -C "$repo_root" pull > /dev/null 2>&1
 	if [ $? -ne 0 ]; then echo "Error: Failed to pull dotfiles repo" && return 1; fi
+}
+
+function subcmd_deploy() {
+	local dest_dir=${1:-$HOME}
+	local prefix_black_list=(.git/ README.md LICENSE manager)
+	for repo_path in $(find "$repo_root" -type f ); do
+		local rel_path="${repo_path##"${repo_root}"/}"
+		local in_black_list="no"
+		for prefix in $prefix_black_list; do
+			if [[ "$rel_path" =~ "^${prefix}*" ]]; then
+				local in_black_list="yes"
+				break
+			fi
+		done
+		if [ $in_black_list = "no" ]; then
+			cp "$repo_path" "$dest_dir/$rel_path"
+		fi
+	done
 }
 
 subcommand=$1
