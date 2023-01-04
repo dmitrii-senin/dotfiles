@@ -55,10 +55,20 @@ function subcmd_pull() {
 }
 
 function subcmd_deploy() {
-	_build_deploy_paths
+	local dest_dir=${1:-$HOME}
+	_build_deploy_paths "$dest_dir"
 	for repo_path dest_path in ${(kv)deploy_paths}; do
 		echo "'$repo_path' => '$dest_path'"
 		mkdir -p $(dirname "$dest_path") && cp "$repo_path" "$dest_path"
+	done
+}
+
+function subcmd_sync() {
+	local deploy_dir=${1:-$HOME}
+	_build_deploy_paths "$deploy_dir"
+	for repo_path deploy_path in ${(kv)deploy_paths}; do
+		echo "'$deploy_path' => '$repo_path'"
+		[ -f "$deploy_path" ] && cp "$deploy_path" "$repo_path"
 	done
 }
 
