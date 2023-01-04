@@ -1,0 +1,43 @@
+#! /bin/zsh
+
+autoload -Uz colors && colors
+
+prog_name=$(basename $0)
+root_dir="${0:A:h}"
+
+function subcmd_help() {
+	echo "Usage: ${fg_bold[white]}${prog_name}${reset_color} <subcommand> [options]"
+	echo
+	echo "SUBCOMMANDS"
+	echo "    ${fg_bold[white]}pull${reset_color}      Pull the last dotfiles repo changes"
+	echo "    ${fg_bold[white]}deploy${reset_color}   Copy dotfiles to destination directories"
+	echo "    ${fg_bold[white]}sync${reset_color}      Sync deployed dotfiles with the repo"
+	echo "    ${fg_bold[white]}push${reset_color}      Add and push local dotfiles changes to the repo"
+	echo
+	echo "DETAILS"
+	echo "${fg_bold[white]}deploy${reset_color} <dest-dir>"
+	echo "   ${fg_bold[white]}dest-dir${reset_color}"
+	echo "        Directory to where the dotfiles will be deployed (default: \$HOME)."
+}
+
+function subcmd_pull() {
+	git -C "$root_dir" pull > /dev/null 2>&1
+	if [ $? -ne 0 ]; then echo "Error: Failed to pull dotfiles repo" && return 1; fi
+}
+
+subcommand=$1
+case $subcommand in
+	"" | "-h" | "--help")
+		subcmd_help
+		;;
+
+	*)
+		shift
+		subcmd_${subcommand} $@
+		if [ $? = 127 ]; then
+			echo "Error: '$subcommand' is not a known subcommand." >&2
+			echo "Please run '$prog_name --help' to get a list of supported subcommands." >&2
+			exit 1
+		fi
+		;;
+esac
