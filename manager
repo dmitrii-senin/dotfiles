@@ -5,6 +5,33 @@ autoload -Uz colors && colors
 prog_name=$(basename $0)
 repo_root="${0:A:h}"
 
+function _build_deploy_paths() {
+	local dest_root=${1:-$HOME}
+
+	declare -gA deploy_paths
+	deploy_paths=()
+
+	local prefix_black_list=(.git/ README.md LICENSE manager)
+	for repo_path in $(find "$repo_root" -type f ); do
+		local rel_path="${repo_path##"${repo_root}"/}"
+		local in_black_list="no"
+
+		# check all black list prefixes
+		for prefix in $prefix_black_list; do
+			if [[ "$rel_path" =~ "^${prefix}*" ]]; then
+				local in_black_list="yes"
+				break
+			fi
+		done
+
+		if [ $in_black_list = "no" ]; then
+			# if we didn't find this path in black list
+			local dest_path="$dest_root/$rel_path"
+			deploy_paths[$repo_path]="$dest_path"
+		fi
+	done
+}
+
 function subcmd_help() {
 	echo "Usage: ${fg_bold[white]}${prog_name}${reset_color} <subcommand> [options]"
 	echo
@@ -21,26 +48,17 @@ function subcmd_help() {
 }
 
 function subcmd_pull() {
-	git -C "$repo_root" pull > /dev/null 2>&1
+	git -C "$repo_root" pull -q > /dev/null 2>&1
 	if [ $? -ne 0 ]; then echo "Error: Failed to pull dotfiles repo" && return 1; fi
+	remote_url=$(git -C "$repo_root" remote -v | grep fetch | grep -Eo "[[:space:]].*[[:space:]]" | tr -d '[:space:]')
+	echo "Successfull git pull from $remote_url"
 }
 
 function subcmd_deploy() {
-	local dest_root=${1:-$HOME}
-	local prefix_black_list=(.git/ README.md LICENSE manager)
-	for repo_path in $(find "$repo_root" -type f ); do
-		local rel_path="${repo_path##"${repo_root}"/}"
-		local in_black_list="no"
-		for prefix in $prefix_black_list; do
-			if [[ "$rel_path" =~ "^${prefix}*" ]]; then
-				local in_black_list="yes"
-				break
-			fi
-		done
-		if [ $in_black_list = "no" ]; then
-			local dest_path="$dest_root/$rel_path"
-			mkdir -p $(dirname "$dest_path") && cp "$repo_path" "$dest_path"
-		fi
+	_build_deploy_paths
+	for repo_path dest_path in ${(kv)deploy_paths}; do
+		echo "'$repo_path' => '$dest_path'"
+		mkdir -p $(dirname "$dest_path") && cp "$repo_path" "$dest_path"
 	done
 }
 
