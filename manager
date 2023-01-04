@@ -26,7 +26,7 @@ function subcmd_pull() {
 }
 
 function subcmd_deploy() {
-	local dest_dir=${1:-$HOME}
+	local dest_root=${1:-$HOME}
 	local prefix_black_list=(.git/ README.md LICENSE manager)
 	for repo_path in $(find "$repo_root" -type f ); do
 		local rel_path="${repo_path##"${repo_root}"/}"
@@ -38,7 +38,8 @@ function subcmd_deploy() {
 			fi
 		done
 		if [ $in_black_list = "no" ]; then
-			cp "$repo_path" "$dest_dir/$rel_path"
+			local dest_path="$dest_root/$rel_path"
+			mkdir -p $(dirname "$dest_path") && cp "$repo_path" "$dest_path"
 		fi
 	done
 }
