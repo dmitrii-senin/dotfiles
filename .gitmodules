@@ -1,3 +1,6 @@
 [submodule "plugins/zsh-meta-platforms"]
 	path = .config/zsh/plugins/zsh-meta-platforms
 	url = git@github.com:dmitrii-senin/zsh-meta-platforms.git
+[submodule ".config/zsh/plugins/zsh-syntax-highlighting"]
+	path = .config/zsh/plugins/zsh-syntax-highlighting
+	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
