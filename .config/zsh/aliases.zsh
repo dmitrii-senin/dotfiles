@@ -2,7 +2,7 @@
 alias ez="$EDITOR $ZDOTDIR/.zshrc"
 alias eza="$EDITOR $ZDOTDIR/aliases.zsh"
 alias ezf="$EDITOR $ZDOTDIR/functions.zsh"
-alias sz="source $ZDORDIR/.zshrc"
+alias sz="source $ZDOTDIR/.zshrc"
 
 # dotfiles aliases
 alias dotpull="${DOTFILES:-$HOME/.dotfiles}/manager pull"
