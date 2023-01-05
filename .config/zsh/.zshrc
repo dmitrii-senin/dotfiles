@@ -33,4 +33,13 @@ bindkey -v
 source "$ZDOTDIR/functions.zsh"
 source "$ZDOTDIR/aliases.zsh"
 
+# ================================================================================
+# Apply PLUGINS
+for plugin_dir in $(ls "$ZDOTDIR"/plugins); do
+	local plugin_name=$(basename "$plugin_dir")
+	source_if_exists "$plugin_dir/$plugin_name.zsh"
+	source_if_exists "$plugin_dir/$plugin_name.plugin.zsh"
+done
+# ================================================================================
+
 source_if_exists ~/.fzf.zsh
