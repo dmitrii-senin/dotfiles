@@ -1,0 +1,3 @@
+[submodule "plugins/zsh-meta-platforms"]
+	path = plugins/zsh-meta-platforms
+	url = git@github.com:dmitrii-senin/zsh-meta-platforms.git
