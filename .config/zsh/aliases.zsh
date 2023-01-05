@@ -77,11 +77,13 @@ alias ping="ping -c 5"
 case "$(uname -s)" in
 Darwin)
 	# Mac OS X
-	alias ls='ls -G -l -h'
+	alias ls='ls -G -h'
+	alias ll='ls -G -l -h'
 	;;
 
 Linux)
-	alias ls='ls --color=auto -l -h'
+	alias ls="ls --color=auto -h"
+	alias ll='ls --color=auto -l -h'
 	;;
 
 CYGWIN* | MINGW32* | MSYS* | MINGW*)
