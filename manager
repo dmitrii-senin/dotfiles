@@ -50,14 +50,14 @@ function subcmd_help() {
 function subcmd_pull() {
 	git -C "$repo_root" pull -q > /dev/null 2>&1
 	if [ $? -ne 0 ]; then echo "Error: Failed to pull dotfiles repo" && return 1; fi
-	echo "Successfull pull from $(git -C "$repo_root" config --get remote.origin.url)"
+	[ "x$VERBOSE" != "x" ] && echo "Successfull pull from $(git -C "$repo_root" config --get remote.origin.url)"
 }
 
 function subcmd_deploy() {
 	local dest_dir=${1:-$HOME}
 	_build_deploy_paths "$dest_dir"
 	for repo_path dest_path in ${(kv)deploy_paths}; do
-		echo "'$repo_path' => '$dest_path'"
+		[ "x$VERBOSE" != "x" ] && echo "'$repo_path' => '$dest_path'"
 		mkdir -p $(dirname "$dest_path") && cp "$repo_path" "$dest_path"
 	done
 }
@@ -66,19 +66,17 @@ function subcmd_sync() {
 	local deploy_dir=${1:-$HOME}
 	_build_deploy_paths "$deploy_dir"
 	for repo_path deploy_path in ${(kv)deploy_paths}; do
-		echo "'$deploy_path' => '$repo_path'"
+		[ "x$VERBOSE" != "x" ] && echo "'$deploy_path' => '$repo_path'"
 		[ -f "$deploy_path" ] && cp "$deploy_path" "$repo_path"
 	done
 }
 
 function subcmd_push() {
 	commit_msg=${1:-"dotfiles sync from $(hostname)"}
-	echo "repo root: $repo_root"
-	echo "commit msg: $commit_msg"
 	git -C "$repo_root" commit --all --message "$commit_msg" -q > /dev/null 2>&1
 	git -C "$repo_root" push -uq origin master > /dev/null 2>&1
 	if [ $? -ne 0 ]; then echo "Error: Failed to push dotfiles repo" && return 1; fi
-	echo "Successfull push from $(git -C "$repo_root" config --get remote.origin.url)"
+	[ "x$VERBOSE" != "x" ] && echo "Successfull push from $(git -C "$repo_root" config --get remote.origin.url)"
 }
 
 subcommand=$1
