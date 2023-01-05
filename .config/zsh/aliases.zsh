@@ -1,8 +1,14 @@
 # Zsh aliases
-alias update_zsh_plugins="find $ZDOTDIR/plugins -type d -exec test -e '{}/.git' ';' -print0 | xargs -I {} -0 git -C {} pull -q"
 alias ez="$EDITOR $ZDOTDIR/.zshrc"
 alias eza="$EDITOR $ZDOTDIR/aliases.zsh"
+alias ezf="$EDITOR $ZDOTDIR/functions.zsh"
 alias sz="source $ZDORDIR/.zshrc"
+
+# dotfiles aliases
+alias dotpull="${DOTFILES:-$HOME/.dotfiles}/manager pull"
+alias dotdeploy="${DOTFILES:-$HOME/.dotfiles}/manager deploy"
+alias dotsync"${DOTFILES:-$HOME/.dotfiles}/manager sync"
+alias dotpush="${DOTFILES:-$HOME/.dotfiles}/manager push"
 
 # NeovVim aliases
 alias vim="nvim"
