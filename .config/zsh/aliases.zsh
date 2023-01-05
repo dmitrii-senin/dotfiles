@@ -7,7 +7,7 @@ alias sz="source $ZDOTDIR/.zshrc"
 # dotfiles aliases
 alias dotpull="${DOTFILES:-$HOME/.dotfiles}/manager pull"
 alias dotdeploy="${DOTFILES:-$HOME/.dotfiles}/manager deploy"
-alias dotsync"${DOTFILES:-$HOME/.dotfiles}/manager sync"
+alias dotsync="${DOTFILES:-$HOME/.dotfiles}/manager sync"
 alias dotpush="${DOTFILES:-$HOME/.dotfiles}/manager push"
 
 # NeovVim aliases
