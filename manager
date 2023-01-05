@@ -50,8 +50,7 @@ function subcmd_help() {
 function subcmd_pull() {
 	git -C "$repo_root" pull -q > /dev/null 2>&1
 	if [ $? -ne 0 ]; then echo "Error: Failed to pull dotfiles repo" && return 1; fi
-	remote_url=$(git -C "$repo_root" remote -v | grep fetch | grep -Eo "[[:space:]].*[[:space:]]" | tr -d '[:space:]')
-	echo "Successfull pull from $remote_url"
+	echo "Successfull pull from $(git -C "$repo_root" config --get remote.origin.url)"
 }
 
 function subcmd_deploy() {
@@ -79,8 +78,7 @@ function subcmd_push() {
 	git -C "$repo_root" commit --all --message "$commit_msg" -q > /dev/null 2>&1
 	git -C "$repo_root" push -uq origin master > /dev/null 2>&1
 	if [ $? -ne 0 ]; then echo "Error: Failed to push dotfiles repo" && return 1; fi
-	remote_url=$(git -C "$repo_root" remote -v | grep push | grep -Eo "[[:space:]].*[[:space:]]" | tr -d '[:space:]')
-	echo "Successfull push from $remote_url"
+	echo "Successfull push from $(git -C "$repo_root" config --get remote.origin.url)"
 }
 
 subcommand=$1
