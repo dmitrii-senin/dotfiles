@@ -72,9 +72,9 @@ function subcmd_sync() {
 }
 
 function subcmd_push() {
-	commit_msg=${1:-"dotfiles sync from $(hostname)"}
+	commit_msg=${1:-"dotfiles sync from ${USER}@$(hostname)"}
 	git -C "$repo_root" commit --all --message "$commit_msg" -q > /dev/null 2>&1
-	git -C "$repo_root" push -uq origin master > /dev/null 2>&1
+	git -C "$repo_root" push -q origin master > /dev/null 2>&1
 	if [ $? -ne 0 ]; then echo "Error: Failed to push dotfiles repo" && return 1; fi
 	[ "x$VERBOSE" != "x" ] && echo "Successfull push from $(git -C "$repo_root" config --get remote.origin.url)"
 }
