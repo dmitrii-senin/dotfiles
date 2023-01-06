@@ -58,8 +58,11 @@ alias pscpu='ps auxf | sort -nr -k 3 | head -5'
 
 # Git aliases
 alias g="git"
-alias gm="git checkout master"
-alias gs="git checkout stable"
+
+alias gco="git checkout"
+alias gcm="git checkout master"
+alias gcs="git checkout stable"
+
 alias gst="git status"
 alias ga="git add"
 alias gaa="git add --all"
@@ -68,6 +71,11 @@ alias gcl="git config --edit --local"
 alias gr="git reset -- "
 alias guc="git reset --hard HEAD"
 alias gcc="git clean -f -d -x"
+
+alias gc="git commit"
+alias gca="git commit --all"
+alias gcm="git commit --message"
+alias gcam="git commit --all --message"
 
 # Create parent directories (verbose)
 alias mkdir="mkdir -pv"

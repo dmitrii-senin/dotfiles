@@ -34,9 +34,9 @@ function () {
 	local cmd_status="%(?.${retcode_ok}.${retcode_error})"
 	local retcode_value="%(?..%{%B%F{red}%}(%? ↵%)%{%f%b%})"
 
-	local user="%(!.%{%F{red}%}%n%{%f%}.%{%F{green}%}%n%{%f%})"
+	local user="%(!.%{%B%F{red}%}%n%{%f%b%}.%{%F{green}%}%n%{%f%})"
 	if [[ -n "$SSH_CLIENT"  ||  -n "$SSH2_CLIENT" ]]; then
-		local host="%{%F{red}%}@%M%{%f%}"
+		local host="%{%B%F{red}%}@%M%{%f%b%}"
 	else
 		local host="%{%F{green}%}@%M%{%f%}"
 	fi
