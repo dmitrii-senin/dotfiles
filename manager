@@ -12,7 +12,7 @@ function _build_deploy_paths() {
 	deploy_paths=()
 
 	local prefix_black_list=(.git/ README.md LICENSE manager)
-	for repo_path in $(find "$repo_root" -type f ); do
+	for repo_path in $(find "$repo_root" -type f -not -path '*/\.git/*' ); do
 		local rel_path="${repo_path##"${repo_root}"/}"
 		local in_black_list="no"
 
