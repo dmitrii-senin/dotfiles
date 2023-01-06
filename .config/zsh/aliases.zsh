@@ -72,8 +72,10 @@ alias gr="git reset -- "
 alias guc="git reset --hard HEAD"
 alias gcc="git clean -f -d -x"
 
-alias gc="git commit"
-alias gca="git commit --all"
+alias gc="git commit --verbose"
+alias gc!="git commit --verbose --amend"
+alias gcn!="git commit --verbose --no-edit --amend"
+alias gca="git commit --verbose --all"
 alias gcm="git commit --message"
 alias gcam="git commit --all --message"
 
