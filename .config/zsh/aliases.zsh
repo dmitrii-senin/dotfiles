@@ -2,6 +2,7 @@
 alias ez="$EDITOR $ZDOTDIR/.zshrc"
 alias eza="$EDITOR $ZDOTDIR/aliases.zsh"
 alias ezf="$EDITOR $ZDOTDIR/functions.zsh"
+alias ezp="$EDITOR $ZDOTDIR/prompt.zsh"
 alias sz="source $ZDOTDIR/.zshrc"
 
 # dotfiles aliases
