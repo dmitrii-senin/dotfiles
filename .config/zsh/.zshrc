@@ -30,6 +30,7 @@ export EDITOR="nvim"
 # --------------------------------------------------------------------------------
 setopt AUTO_CD
 setopt NO_CASE_GLOB
+setopt EXTENDED_GLOB
 # ================================================================================
 
 # ================================================================================
@@ -40,9 +41,11 @@ bindkey -v
 
 source "$ZDOTDIR/functions.zsh"
 source "$ZDOTDIR/aliases.zsh"
+source "$ZDOTDIR/prompt.zsh"
 
 # ================================================================================
 # Apply PLUGINS
+# --------------------------------------------------------------------------------
 for plugin_dir in $(command ls "$ZDOTDIR/plugins"); do
 	local plugin_name=$(basename "$plugin_dir")
 	source_if_exists "$ZDOTDIR/plugins/$plugin_dir/$plugin_name.zsh"
