@@ -62,8 +62,8 @@ alias pscpu='ps auxf | sort -nr -k 3 | head -5'
 alias g="git"
 
 alias gco="git checkout"
-alias gcm="git checkout master"
-alias gcs="git checkout stable"
+alias gcom="git checkout master"
+alias gcos="git checkout stable"
 
 alias gst="git status"
 
@@ -81,7 +81,7 @@ alias gc="git commit --verbose"
 alias gc!="git commit --verbose --amend"
 alias gcn!="git commit --verbose --no-edit --amend"
 alias gca="git commit --verbose --all"
-alias gcm="git commit --message"
+alias gcm="git commit -m"
 alias gcam="git commit --all --message"
 
 alias gd="git diff"
