@@ -24,7 +24,7 @@ function __hg_prompt_info() {
 	local summary=$1
 
 	local bookmark=$(command grep 'bookmarks:' <<< $summary | command grep -oP '(?<=\*)\S+')
-	local commit_id=$(command grep 'parent:' <<< $summary | command awk '{print $2}')
+	local commit_id=$(command grep 'parent:' <<< $summary | command awk '{print $2}' | tr '\n' ' ')
 	local commit_info=$(command grep 'commit:' <<< $summary)
 
 	local added=$(command grep -oP '\d+(?= added)' <<< $commit_info)
@@ -41,7 +41,7 @@ function __hg_prompt_info() {
 	fi
 
 	local bookmark_color="%{%B%F{green}%}"
-	if ! command grep 'clean' -q <<< $commit_info ; then
+	if [ -n "$added" ] || [ -n "$deleted" ]  || [ -n "$modified" ] ; then
 		local bookmark_color="%{%B%F{red}%}"
 	fi
 	local bookmark_info="${bookmark_color}${bookmark:-$commit_id}%{%f%b%}"
