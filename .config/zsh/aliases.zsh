@@ -90,19 +90,29 @@ alias gds="git diff --staged"
 # Create parent directories (verbose)
 alias mkdir="mkdir -pv"
 
+# LS aliases
+if exa 2> /dev/null 1>&2; then
+	alias l="exa --color=auto"
+	alias ls="exa --color=auto"
+	alias la="exa --color=auto -la"
+	alias ll="exa --color=auto -l"
+else
+	alias l="ls --color=auto -h"
+	alias ls="ls --color=auto -h"
+	alias la="ls --color=auto -al -h"
+	alias ll="ls --color=auto -l -h"
+fi
+
+
 # Stop after 5 pings
 alias ping="ping -c 5"
 
 case "$(uname -s)" in
 Darwin)
 	# Mac OS X
-	alias ls='ls -G -h'
-	alias ll='ls -G -l -h'
 	;;
 
 Linux)
-	alias ls="ls --color=auto -h"
-	alias ll='ls --color=auto -l -h'
 	;;
 
 CYGWIN* | MINGW32* | MSYS* | MINGW*)
