@@ -92,10 +92,11 @@ alias mkdir="mkdir -pv"
 
 # LS aliases
 if exa 2> /dev/null 1>&2; then
-	alias l="exa --color=auto"
-	alias ls="exa --color=auto"
-	alias la="exa --color=auto -la"
-	alias ll="exa --color=auto -l"
+	alias l="exa --color=auto --icons"
+	alias ls="exa --color=auto --icons"
+	alias la="exa --color=auto -la --icons"
+	alias ll="exa --color=auto -l --icons"
+	alias tree="exa --color=auto --icons --tree"
 else
 	alias l="ls --color=auto -h"
 	alias ls="ls --color=auto -h"
