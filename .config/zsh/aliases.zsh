@@ -91,7 +91,7 @@ alias gds="git diff --staged"
 alias mkdir="mkdir -pv"
 
 # LS aliases
-if exa 2> /dev/null 1>&2; then
+if exa 2> /dev/null 1>&2 ; then
 	alias l="exa --color=auto --icons"
 	alias ls="exa --color=auto --icons"
 	alias la="exa --color=auto -la --icons"
@@ -102,6 +102,10 @@ else
 	alias ls="ls --color=auto -h"
 	alias la="ls --color=auto -al -h"
 	alias ll="ls --color=auto -l -h"
+fi
+
+if bat -V 2> /dev/null 1>&2 ; then
+	alias cat="bat --style=plain --paging=never"
 fi
 
 

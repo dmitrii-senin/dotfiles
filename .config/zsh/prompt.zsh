@@ -8,7 +8,7 @@ function __fillbar_precmd_hook() {
 
 	local term_width=$(( COLUMNS - ${ZLE_RPROMPT_INDENT:-1} ))
 
-	local prompt_size=${#${(%):---()--(%n@%M)--}}
+	local prompt_size=${#${(%):---()--(%n@%m)--}}
 	local pwd_size=${#${(%):-%~}}
 
 	if [[ "$prompt_size + $pwd_size" -gt $term_width ]]; then
@@ -24,7 +24,11 @@ function __hg_prompt_info() {
 	local summary=$1
 
 	local bookmark=$(command grep 'bookmarks:' <<< $summary | command grep -oP '(?<=\*)\S+')
-	local commit_id=$(command grep 'parent:' <<< $summary | command awk '{print $2}' | tr '\n' ' ')
+	local commit_id=$(command grep 'parent:' <<< $summary | command awk '{print $2}')
+	if [ $(command wc -l <<< $commit_ids) -eq 2 ]; then
+		local commit_ids=(${(f)"$commit_id"})
+		commit_id=$(echo -n "$commit_ids[1] -> $commit_ids[2]")
+	fi
 	local commit_info=$(command grep 'commit:' <<< $summary)
 
 	local added=$(command grep -oP '\d+(?= added)' <<< $commit_info)
@@ -94,9 +98,9 @@ function () {
 
 	local user="%(!.%{%B%F{red}%}%n%{%f%b%}.%{%F{green}%}%n%{%f%})"
 	if [[ -n "$SSH_CLIENT"  ||  -n "$SSH2_CLIENT" ]]; then
-		local host="%{%B%F{red}%}@%M%{%f%b%}"
+		local host="%{%B%F{red}%}@%m%{%f%b%}"
 	else
-		local host="%{%F{green}%}@%M%{%f%}"
+		local host="%{%F{green}%}@%m%{%f%}"
 	fi
 	local user_info="${user}${host}"
 	local fillbar='${(e)__PROMPT_FILLBAR}'
