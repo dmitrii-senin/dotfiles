@@ -38,16 +38,10 @@ alias -g X0="| xargs -0"
 # redirection aliases
 alias -g NUL="> /dev/null 2>&1"
 
-
 # Colorize grep output
-alias grep='grep -n --color=auto'
-alias egrep='egrep -n --color=auto'
-alias fgrep='fgrep -n --color=auto'
-
-# Confirm before overwriting something
-alias cp="cp -i"
-alias mv='mv -i'
-alias rm='rm -i'
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
 
 # Easier to read disk
 alias df='df -h'     # human-readable sizes
