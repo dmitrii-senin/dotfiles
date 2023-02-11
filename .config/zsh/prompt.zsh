@@ -6,7 +6,7 @@ function __fillbar_precmd_hook() {
 
 	local term_width=$(( COLUMNS - ${ZLE_RPROMPT_INDENT:-1} ))
 
-	local prompt_size=${#${(%):--__ %n / %m /  __--__ exec_time / %* C __--}}
+	local prompt_size=${#${(%):--__ %n / %m /  __--__ retcode / exec_time / %* C __--}}
 	local pwd_size=${#${(%):-%~}}
 
 	if [[ "$prompt_size + $pwd_size" -gt $term_width ]]; then
@@ -118,12 +118,9 @@ add-zsh-hook precmd __build_exec_time
 add-zsh-hook preexec __set_timer
 
 function () {
-	local cyan="%{%F{cyan}%}"
-
 	local retcode_ok="%{%B%F{green}%}✔%{%f%b%}"
 	local retcode_error="%{%B%F{red}%}✗%{%f%b%}"
 	local cmd_status="%(?.${retcode_ok}.${retcode_error})%{ %}"
-	local retcode_value="%(?..%{%B%F{red}%}(%? ↵%)%{%f%b%})"
 
 	local fillbar='${(e)__PROMPT_FILLBAR}'
 	local vcs_info='${(e)__PROMPT_VCS_INFO}'
@@ -153,13 +150,19 @@ function () {
 	# ======================================================================
 	local exec_time='${(e)__CMD_EXEC_TIME}'
 	local clock="%{%F{252}%}%* $(echo -e '\uf017')%{%f%}"
-	local top_right_info="${left_fade} ${exec_time} ${sep} ${clock} ${right_fade}"
+	local time_info="${exec_time} ${sep} ${clock}"
+
+	local ok_status="%{%F{46}%}$(echo -e '\uf05d')   0 ↵%{%f%}"
+	local err_status='%{%B%F{red}%}${(e)$(print -P -f "\uea87 %3d" %?)} ↵%{%f%b%}'
+	local retcode="%(?.${ok_status}.${err_status})"
+
+	local top_right_info="${left_fade} ${retcode} ${sep} ${time_info} ${right_fade}"
 	# ----------------------------------------------------------------------
 
 	PROMPT="\
-${cyan}┌${top_left_info}${cyan}${fillbar}${top_right_info}┐
-${cyan}└─${vcs_info} ${cmd_status}"
+┌${top_left_info}${fillbar}${top_right_info}┐
+└─${vcs_info} ${cmd_status}"
 
-	RPROMPT="${retcode_value} ${cyan}─┘"
+	RPROMPT="─┘"
 }
 
