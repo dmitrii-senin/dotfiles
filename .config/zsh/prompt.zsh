@@ -51,23 +51,27 @@ function __build_exec_time() {
 }
 
 function __hg_prompt_info() {
+	local left_fade='%{%K{232}%} %{%K{233}%} %{%K{235}%} %{%K{237}%}'
+	local right_fade='%{%K{235}%} %{%K{233}%} %{%K{232}%}─%{%k%}'
+	local sep='%{%F{241}%}/%{%f%}'
+
 	local summary=$1
 
-	local bookmark=$(command grep 'bookmarks:' <<< $summary | command grep -oP '(?<=\*)\S+')
-	local commit_id=$(command grep 'parent:' <<< $summary | command awk '{print $2}')
-	if [ $(command wc -l <<< $commit_ids) -eq 2 ]; then
+	local bookmark=$(\grep 'bookmarks:' <<< $summary | \grep -oP '(?<=\*)\S+')
+	local commit_id=$(\grep 'parent:' <<< $summary | \awk '{print $2}')
+	if [ $(\wc -l <<< $commit_ids) -eq 2 ]; then
 		local commit_ids=(${(f)"$commit_id"})
 		commit_id=$(echo -n "$commit_ids[1] -> $commit_ids[2]")
 	fi
-	local commit_info=$(command grep 'commit:' <<< $summary)
+	local commit_info=$(\grep 'commit:' <<< $summary)
 
-	local added=$(command grep -oP '\d+(?= added)' <<< $commit_info)
+	local added=$(\grep -oP '\d+(?= added)' <<< $commit_info)
 	local added_info=$([ -n "$added" ] && echo "%{%B%F{green}%}A${added}%{%f%b%}")
-	local modified=$(command grep -oP '\d+(?= modified)' <<< $commit_info)
+	local modified=$(\grep -oP '\d+(?= modified)' <<< $commit_info)
 	local modified_info=$([ -n "$modified" ] && echo "%{%B%F{blue}%}M${modified}%{%f%b%}")
-	local deleted=$(command grep -oP '\d+(?= deleted)' <<< $commit_info)
+	local deleted=$(\grep -oP '\d+(?= deleted)' <<< $commit_info)
 	local deleted_info=$([ -n "$deleted" ] && echo "%{%B%F{red}%}D${deleted}%{%f%b%}")
-	local unknown=$(command grep -oP '\d+(?= unknown)' <<< $commit_info)
+	local unknown=$(\grep -oP '\d+(?= unknown)' <<< $commit_info)
 	local unknown_info=$([ -n "$unknown" ] && echo "%{%B%F{magenta}%}U${unknown}%{%f%b%}")
 	local changes_info="${added_info}${modified_info}${deleted_info}${unknown_info}"
 	if [ -n "$changes_info" ]; then
@@ -80,34 +84,19 @@ function __hg_prompt_info() {
 	fi
 	local bookmark_info="${bookmark_color}${bookmark:-$commit_id}%{%f%b%}"
 
-	local repo_name=$(command hg root 2> /dev/null | command xargs basename)
-	local repo_info="%{%B%F{yellow}%}${repo_name}%{%f%b%}"
+	local repo_name=$(\hg root 2> /dev/null | \xargs basename)
+	local repo_info="%{%B%F{227}%}${repo_name}%{%f%b%}"
 
-	echo "%{%F{cyan}%}(${repo_info} | ${bookmark_info}${changes_info}%{%F{cyan}%})%{%f%}"
-}
-
-function __hg_rprompt_info() {
-	local summary=$1
-
-	local commit_info=$(command grep 'commit:' <<< $summary)
-
-	local color="%{%B%F{green}%}"
-	if ! command grep 'clean' -q <<< $commit_info ; then
-		local color="%{%B%F{red}%}"
-	fi
-
-	echo "${color}${bookmark}:${commit_id}%{%f%b%}"
+	echo "${left_fade} ${repo_info} ${sep} ${bookmark_info}${changes_info} ${right_fade}"
 }
 
 function __vcs_precmd_hook() {
-	__PROMPT_VCS_INFO=""
-	__RPROMPT_VCS_INFO=""
+	__PROMPT_VCS_INFO="─"
 
 	local summary
-	summary=$(command hg summary 2> /dev/null)
+	summary=$(\hg summary 2> /dev/null)
 	if [ $? -eq 0 ]; then
 		__PROMPT_VCS_INFO=$(__hg_prompt_info $summary)
-		__RPROMPT_VCS_INFO=$(__hg_rprompt_info $summary)
 	fi
 }
 
@@ -118,13 +107,6 @@ add-zsh-hook precmd __build_exec_time
 add-zsh-hook preexec __set_timer
 
 function () {
-	local retcode_ok="%{%B%F{green}%}✔%{%f%b%}"
-	local retcode_error="%{%B%F{red}%}✗%{%f%b%}"
-	local cmd_status="%(?.${retcode_ok}.${retcode_error})%{ %}"
-
-	local fillbar='${(e)__PROMPT_FILLBAR}'
-	local vcs_info='${(e)__PROMPT_VCS_INFO}'
-
 	local left_fade='%{%K{232}%}─%{%K{233}%} %{%K{235}%} %{%K{237}%}'
 	local right_fade='%{%K{235}%} %{%K{233}%} %{%K{232}%}─%{%k%}'
 	local sep='%{%F{241}%}/%{%f%}'
@@ -152,17 +134,35 @@ function () {
 	local clock="%{%F{252}%}%* $(echo -e '\uf017')%{%f%}"
 	local time_info="${exec_time} ${sep} ${clock}"
 
-	local ok_status="%{%F{46}%}$(echo -e '\uf05d')   0 ↵%{%f%}"
+	local ok_status="%{%F{green}%}$(echo -e '\uf05d')   0 ↵%{%f%}"
 	local err_status='%{%B%F{red}%}${(e)$(print -P -f "\uea87 %3d" %?)} ↵%{%f%b%}'
 	local retcode="%(?.${ok_status}.${err_status})"
 
 	local top_right_info="${left_fade} ${retcode} ${sep} ${time_info} ${right_fade}"
 	# ----------------------------------------------------------------------
 
-	PROMPT="\
-┌${top_left_info}${fillbar}${top_right_info}┐
-└─${vcs_info} ${cmd_status}"
+	# ======================================================================
+	# bottom-left info
+	# ======================================================================
+	local retcode_ok="%{%B%F{green}%}✔%{%f%b%}"
+	local retcode_error="%{%B%F{red}%}✗%{%f%b%}"
+	local short_status="%(?.${retcode_ok}.${retcode_error})%{ %}"
+	local bottom_left_info="─ ${short_status}"
+	# ----------------------------------------------------------------------
 
-	RPROMPT="─┘"
+	# ======================================================================
+	# bottom-right info
+	# ======================================================================
+	local vcs_info='${(e)__PROMPT_VCS_INFO}'
+	local bottom_right_info="${vcs_info}"
+	# ----------------------------------------------------------------------
+
+	local fillbar='${(e)__PROMPT_FILLBAR}'
+
+	PROMPT="\
+$(print '\u256D')${top_left_info}${fillbar}${top_right_info}$(print '\u256E')
+$(print '\u2570')${bottom_left_info}"
+
+	RPROMPT="${bottom_right_info}$(print '\u256F')"
 }
 
