@@ -1,1 +1,1 @@
-export CARGO_HOME="$HOME/.config"
+export CARGO_HOME="$HOME/.local"
