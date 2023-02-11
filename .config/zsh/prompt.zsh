@@ -19,9 +19,33 @@ function __fillbar_precmd_hook() {
 }
 
 # Update fillbar params on SIGWINCH
-funciton TRAPWINCH() {
+function TRAPWINCH() {
 	__fillbar_precmd_hook
 	zle && { zle reset-prompt; zle -R }
+}
+
+function __set_timer() {
+	__CMD_START_MS=$(( $(date +%s%0N) / 1000000 ))
+}
+
+function __build_exec_time() {
+	if [[ -v __CMD_START_MS ]]; then
+		local now_ms=$(( $(date +%s%0N) / 1000000 ))
+		local elapsed=$(( now_ms - __CMD_START_MS ))
+		if [[ $elapsed -ge 1000 ]]; then
+			local elapsed_s=$(( elapsed / 1000 ))
+			local elapsed_ms=$(( elapsed - (elapsed_s * 1000) ))
+			local elapsed_str="${elapsed_s}.${elapsed_ms} s"
+		else
+			local elapsed_str="${elapsed} ms"
+		fi
+		local open_bracket="%{%F{cyan}%}(%{%f%}"
+		local close_bracket="%{%F{cyan}%})─%{%f%}"
+		local hourglass=$(echo -e '\uf252')
+		local time_str="%{%K{yellow}%F{black}%} ${elapsed_str} ${hourglass} %{%f%k%}"
+		__CMD_EXEC_TIME="${open_bracket}${time_str}${close_bracket}"
+	fi
+	unset __CMD_START_MS
 }
 
 function __hg_prompt_info() {
@@ -88,6 +112,8 @@ function __vcs_precmd_hook() {
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd __fillbar_precmd_hook
 add-zsh-hook precmd __vcs_precmd_hook
+add-zsh-hook precmd __build_exec_time
+add-zsh-hook preexec __set_timer
 
 function () {
 	local cyan="%{%F{cyan}%}"
@@ -109,10 +135,11 @@ function () {
 	local user_info="${user}${host}"
 	local fillbar='${(e)__PROMPT_FILLBAR}'
 	local vcs_info='${(e)__PROMPT_VCS_INFO}'
+	local exec_time='${(e)__CMD_EXEC_TIME}'
 
 	PROMPT="\
 ${cyan}┌─(${curr_dir}${cyan})─${fillbar}─(${user_info}${cyan}%)─┐
 ${cyan}└─${vcs_info} ${cmd_status} "
-	RPROMPT="${retcode_value} ${cyan}(${yellow}%*${cyan}%)─┘"
+	RPROMPT="${retcode_value} ${exec_time}${cyan}┘"
 }
 
