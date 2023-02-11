@@ -6,7 +6,7 @@ function __fillbar_precmd_hook() {
 
 	local term_width=$(( COLUMNS - ${ZLE_RPROMPT_INDENT:-1} ))
 
-	local prompt_size=${#${(%):--__ %n / %m /  __---}}
+	local prompt_size=${#${(%):--__ %n / %m /  __--__ exec_time / %* C __--}}
 	local pwd_size=${#${(%):-%~}}
 
 	if [[ "$prompt_size + $pwd_size" -gt $term_width ]]; then
@@ -31,19 +31,21 @@ function __set_timer() {
 function __build_exec_time() {
 	if [[ -v __CMD_START_MS ]]; then
 		local now_ms=$(( $(date +%s%0N) / 1000000 ))
-		local elapsed=$(( now_ms - __CMD_START_MS ))
-		if [[ $elapsed -ge 1000 ]]; then
-			local elapsed_s=$(( elapsed / 1000 ))
-			local elapsed_ms=$(( elapsed - (elapsed_s * 1000) ))
-			local elapsed_str="${elapsed_s}.${elapsed_ms} s"
+		local elapsed_ms=$(( now_ms - __CMD_START_MS ))
+		local sec=$(( elapsed_ms / 1000 ))
+		local ms=$(( elapsed_ms % 1000 ))
+		if [[ $sec -ge 100 ]]; then
+			local exec_info=$(printf '% 5d s' $sec)
+		elif [[ $sec -ge 10 ]]; then
+			ms=$(( ms / 10 ))
+			local exec_info=$(printf '%d.%02d s' $sec $ms)
+		elif [[ $sec -ge 1 ]]; then
+			local exec_info=$(printf '%d.%03d s' $sec $ms)
 		else
-			local elapsed_str="${elapsed} ms"
+			local exec_info=$(printf '% 4d ms' $ms)
 		fi
-		local open_bracket="%{%F{cyan}%}(%{%f%}"
-		local close_bracket="%{%F{cyan}%})─%{%f%}"
 		local hourglass=$(echo -e '\uf252')
-		local time_str="%{%K{yellow}%F{black}%} ${elapsed_str} ${hourglass} %{%f%k%}"
-		__CMD_EXEC_TIME="${open_bracket}${time_str}${close_bracket}"
+		__CMD_EXEC_TIME="%{%F{227}%}${exec_info} ${hourglass}%{%f%}"
 	fi
 	unset __CMD_START_MS
 }
@@ -118,31 +120,46 @@ add-zsh-hook preexec __set_timer
 function () {
 	local cyan="%{%F{cyan}%}"
 
-	local curr_dir='%{%B%F{blue}%}%$__PROMPT_PWDLEN<...<%~%<<%{%f%b%}'
-
 	local retcode_ok="%{%B%F{green}%}✔%{%f%b%}"
 	local retcode_error="%{%B%F{red}%}✗%{%f%b%}"
 	local cmd_status="%(?.${retcode_ok}.${retcode_error})%{ %}"
 	local retcode_value="%(?..%{%B%F{red}%}(%? ↵%)%{%f%b%})"
 
-	local user="%(!.%{%B%F{red}%}%n%{%f%b%}.%{%F{green}%}%n%{%f%})"
-	if [[ -n "$SSH_CLIENT"  ||  -n "$SSH2_CLIENT" ]]; then
-		local host="%{%B%F{red}%}%m%{%f%b%}"
-	else
-		local host="%{%F{green}%}%m%{%f%}"
-	fi
 	local fillbar='${(e)__PROMPT_FILLBAR}'
 	local vcs_info='${(e)__PROMPT_VCS_INFO}'
-	local exec_time='${(e)__CMD_EXEC_TIME}'
 
 	local left_fade='%{%K{232}%}─%{%K{233}%} %{%K{235}%} %{%K{237}%}'
 	local right_fade='%{%K{235}%} %{%K{233}%} %{%K{232}%}─%{%k%}'
 	local sep='%{%F{241}%}/%{%f%}'
 
+	# ======================================================================
+	# top-left info
+	# ======================================================================
+	local curr_dir='%{%B%F{blue}%}%$__PROMPT_PWDLEN<...<%~%<<%{%f%b%}'
+	local user="%(!.%{%B%F{red}%}%n%{%f%b%}.%{%F{green}%}%n%{%f%})"
+
+	if [[ -n "$SSH_CLIENT"  ||  -n "$SSH2_CLIENT" ]]; then
+		local host="%{%B%F{red}%}%m%{%f%b%}"
+	else
+		local host="%{%F{green}%}%m%{%f%}"
+	fi
+
+	local user_host="${user} ${sep} ${host}"
+	local top_left_info="${left_fade} ${user_host} ${sep} ${curr_dir} ${right_fade}"
+	# ----------------------------------------------------------------------
+
+	# ======================================================================
+	# top-right info
+	# ======================================================================
+	local exec_time='${(e)__CMD_EXEC_TIME}'
+	local clock="%{%F{252}%}%* $(echo -e '\uf017')%{%f%}"
+	local top_right_info="${left_fade} ${exec_time} ${sep} ${clock} ${right_fade}"
+	# ----------------------------------------------------------------------
+
 	PROMPT="\
-${cyan}┌${left_fade} ${user} ${sep} ${host} ${sep} ${curr_dir} ${right_fade}${cyan}${fillbar}─┐
+${cyan}┌${top_left_info}${cyan}${fillbar}${top_right_info}┐
 ${cyan}└─${vcs_info} ${cmd_status}"
 
-	RPROMPT="${retcode_value} ${exec_time}${cyan}┘"
+	RPROMPT="${retcode_value} ${cyan}─┘"
 }
 
