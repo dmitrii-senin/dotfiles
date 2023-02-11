@@ -1,5 +1,3 @@
-#! /bin/zsh
-
 setopt PROMPT_SUBST
 
 function __fillbar_precmd_hook() {
@@ -18,6 +16,12 @@ function __fillbar_precmd_hook() {
 		(( fillbar_size = $term_width - ( $prompt_size + $pwd_size ) ))
 		__PROMPT_FILLBAR="\${(l.$fillbar_size..─.)}"
 	fi
+}
+
+# Update fillbar params on SIGWINCH
+funciton TRAPWINCH() {
+	__fillbar_precmd_hook
+	zle && { zle reset-prompt; zle -R }
 }
 
 function __hg_prompt_info() {
