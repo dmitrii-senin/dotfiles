@@ -5,7 +5,7 @@ alias ezf="$EDITOR $ZDOTDIR/functions.zsh"
 alias ezp="$EDITOR $ZDOTDIR/prompt.zsh"
 alias ezpm="$EDITOR $ZDOTDIR/plugins/zsh-meta-platforms/zsh-meta-platforms.zsh"
 
-alias sz="source $ZDOTDIR/.zshrc"
+alias rz="source $ZDOTDIR/.zshrc"
 
 # dotfiles aliases
 alias dotpull="${DOTFILES:-$HOME/.dotfiles}/manager pull"
