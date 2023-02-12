@@ -1,0 +1,30 @@
+#! /bin/zsh
+
+dotfiles="${DOTFILES:-$HOME/.dotfiles}"
+cd "$dotfiles"
+
+echo "Stashing existing changes..."
+needs_pop=1
+stash_result=$(git stash push -m "dotpull: before git pull")
+if [[ "$stash_result" = "No local changes to save" ]]; then
+	needs_pop=0
+fi
+
+echo "Pulling updates from dotfiles repo..."
+echo
+git pull origin master
+echo
+
+if [[ $needs_pop -eq 1 ]]; then
+	echo "Popping stashed changes..."
+	echo
+	git stash pop
+fi
+
+unmerged_files=$(git diff --name-only --diff-filter=U)
+if [[ ! -z $unmerged_files ]]; then
+	echo "The following files have merge conflicts:"
+	printf '%s\n' $unmerged_files
+else
+	stow .
+fi	
