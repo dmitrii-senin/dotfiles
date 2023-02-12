@@ -53,11 +53,11 @@ function __build_exec_time() {
 }
 
 function __hg_prompt_info() {
+	local summary="$1"
+
 	local left_fade='%{%K{232}%} %{%K{233}%} %{%K{235}%} %{%K{237}%}'
 	local right_fade='%{%K{235}%} %{%K{233}%} %{%K{232}%}─%{%k%}'
 	local sep='%{%F{241}%}/%{%f%}'
-
-	local summary=$1
 
 	local bookmark=$(\grep 'bookmarks:' <<< $summary | \grep -oP '(?<=\*)\S+')
 	local commit_id=$(\grep 'parent:' <<< $summary | \awk '{print $2}')
@@ -81,7 +81,7 @@ function __hg_prompt_info() {
 	local repo_name=$(\hg root 2> /dev/null | \xargs basename)
 	local repo_info="%{%B%F{227}%}${repo_name}%{%f%b%}"
 
-	echo -n "${left_fade}"
+	echo -n "${left_fade} "
 	echo -n "${repo_info} ${sep} ${bookmark_info} "
 
 	local added_info=$([ -n "$added" ] && echo "%{%B%F{green}%}A${added}%{%f%b%}")
@@ -97,13 +97,79 @@ function __hg_prompt_info() {
 	echo "${right_fade}"
 }
 
+function __git_prompt_info() {
+	local repo_path="$1"
+
+	local left_fade='%{%K{232}%} %{%K{233}%} %{%K{235}%} %{%K{237}%}'
+	local right_fade='%{%K{235}%} %{%K{233}%} %{%K{232}%}─%{%k%}'
+	local sep='%{%F{241}%}/%{%f%}'
+
+	local repo_info="%{%B%F{227}%}$(\basename $repo_path)%{%f%b%}"
+
+	local changes=$(\git status --short)
+	local branch_color='%{%B%F{green}%}'
+	if [[ -n "${changes}" ]]; then
+		branch_color='%{%B%F{red}%}'
+	fi
+
+	local branch_symbol=$(print '\ue725')
+	local branch_name=$(\git rev-parse --abbrev-ref HEAD)
+	local branch_info="${branch_color}${branch_symbol} ${branch_name}%{%b%f%}"
+
+	echo -n "${left_fade} "
+	echo -n "${repo_info} ${sep} ${branch_info} "
+
+	local A=$(\grep -E '^A' <<< $changes | \wc -l)
+	local M=$(\grep -E '^M' <<< $changes | \wc -l)
+	local D=$(\grep -E '^D' <<< $changes | \wc -l)
+	local R=$(\grep -E '^R' <<< $changes | \wc -l)
+
+	A=$([[ $A -gt 0 ]] && echo "%{%B%F{green}%}A${A}%{%f%b%}")
+	M=$([[ $M -gt 0 ]] && echo "%{%B%F{blue}%}M${M}%{%f%b%}")
+	D=$([[ $D -gt 0 ]] && echo "%{%B%F{red}%}D${D}%{%f%b%}")
+	R=$([[ $R -gt 0 ]] && echo "%{%B%F{teal}%}R${R}%{%f%b%}")
+
+	local index_info="${A}${M}${D}${R}"
+	if [[ -n "$index_info" ]]; then
+		echo -n "${sep} $(print '\uf1c0') ${index_info} "
+	fi
+
+	local U
+	A=$(\grep -E '^.A' <<< $changes | \wc -l)
+	M=$(\grep -E '^.M' <<< $changes | \wc -l)
+	D=$(\grep -E '^.D' <<< $changes | \wc -l)
+	R=$(\grep -E '^.R' <<< $changes | \wc -l)
+	U=$(\grep -E '^.\?' <<< $changes | \wc -l)
+
+	A=$([[ $A -gt 0 ]] && echo "%{%B%F{green}%}A${A}%{%f%b%}")
+	M=$([[ $M -gt 0 ]] && echo "%{%B%F{blue}%}M${M}%{%f%b%}")
+	D=$([[ $D -gt 0 ]] && echo "%{%B%F{red}%}D${D}%{%f%b%}")
+	R=$([[ $R -gt 0 ]] && echo "%{%B%F{teal}%}R${R}%{%f%b%}")
+	U=$([[ $R -gt 0 ]] && echo "%{%B%F{magenta}%}U${U}%{%f%b%}")
+
+	local work_info="${A}${M}${D}${R}${U}"
+	if [[ -n "$work_info" ]]; then
+		echo -n "${sep} $(print '\uea83') ${work_info} "
+	fi
+
+	echo "${right_fade}"
+}
+
 function __vcs_precmd_hook() {
-	__PROMPT_VCS_INFO="─"
+	__VCS_INFO="─"
 
 	local summary
 	summary=$(\hg summary 2> /dev/null)
 	if [ $? -eq 0 ]; then
-		__PROMPT_VCS_INFO=$(__hg_prompt_info $summary)
+		__VCS_INFO=$(__hg_prompt_info "$summary")
+		return
+	fi
+
+	local repo_path
+	repo_path=$(\git rev-parse --show-toplevel 2> /dev/null)
+	if [[ $? -eq 0 ]]; then
+		__VCS_INFO=$(__git_prompt_info "$repo_path")
+		return
 	fi
 }
 
@@ -160,7 +226,7 @@ function () {
 	# ======================================================================
 	# bottom-right info
 	# ======================================================================
-	local vcs_info='${(e)__PROMPT_VCS_INFO}'
+	local vcs_info='${(e)__VCS_INFO}'
 	local bottom_right_info="${vcs_info}"
 	# ----------------------------------------------------------------------
 
