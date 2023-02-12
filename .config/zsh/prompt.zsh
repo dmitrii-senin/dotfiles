@@ -4,7 +4,7 @@ function __fillbar_precmd_hook() {
 	__PROMPT_FILLBAR=""
 	__PROMPT_PWDLEN=""
 
-	local term_width=$(( COLUMNS - ${ZLE_RPROMPT_INDENT:-1} ))
+	local term_width=$(( COLUMNS - ${ZLE_RPROMPT_INDENT:-1} -1 ))
 
 	local prompt_size=${#${(%):--__ %n / %m /  __--__ retcode / exec_time / %* C __--}}
 	local pwd_size=${#${(%):-%~}}
@@ -148,7 +148,7 @@ function () {
 	# ======================================================================
 	local retcode_ok="%{%B%F{green}%}✔%{%f%b%}"
 	local retcode_error="%{%B%F{red}%}✗%{%f%b%}"
-	local short_status="%(?.${retcode_ok}.${retcode_error})%{ %}"
+	local short_status="%(?.${retcode_ok}.${retcode_error}) "
 	local bottom_left_info="─ ${short_status}"
 	# ----------------------------------------------------------------------
 
