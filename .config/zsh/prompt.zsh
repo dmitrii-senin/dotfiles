@@ -46,6 +46,8 @@ function __build_exec_time() {
 		fi
 		local hourglass=$(echo -e '\uf252')
 		__CMD_EXEC_TIME="%{%F{227}%}${exec_info} ${hourglass}%{%f%}"
+	else
+		__CMD_EXEC_TIME="%{%F{227}%}    0 ms ${hourglass}%{%f%}"
 	fi
 	unset __CMD_START_MS
 }
