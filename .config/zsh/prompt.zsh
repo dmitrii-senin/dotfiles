@@ -68,17 +68,9 @@ function __hg_prompt_info() {
 	local commit_info=$(\grep 'commit:' <<< $summary)
 
 	local added=$(\grep -oP '\d+(?= added)' <<< $commit_info)
-	local added_info=$([ -n "$added" ] && echo "%{%B%F{green}%}A${added}%{%f%b%}")
 	local modified=$(\grep -oP '\d+(?= modified)' <<< $commit_info)
-	local modified_info=$([ -n "$modified" ] && echo "%{%B%F{blue}%}M${modified}%{%f%b%}")
 	local deleted=$(\grep -oP '\d+(?= deleted)' <<< $commit_info)
-	local deleted_info=$([ -n "$deleted" ] && echo "%{%B%F{red}%}D${deleted}%{%f%b%}")
 	local unknown=$(\grep -oP '\d+(?= unknown)' <<< $commit_info)
-	local unknown_info=$([ -n "$unknown" ] && echo "%{%B%F{magenta}%}U${unknown}%{%f%b%}")
-	local changes_info="${added_info}${modified_info}${deleted_info}${unknown_info}"
-	if [ -n "$changes_info" ]; then
-		changes_info=" $changes_info"
-	fi
 
 	local bookmark_color="%{%B%F{green}%}"
 	if [ -n "$added" ] || [ -n "$deleted" ]  || [ -n "$modified" ] ; then
@@ -89,7 +81,20 @@ function __hg_prompt_info() {
 	local repo_name=$(\hg root 2> /dev/null | \xargs basename)
 	local repo_info="%{%B%F{227}%}${repo_name}%{%f%b%}"
 
-	echo "${left_fade} ${repo_info} ${sep} ${bookmark_info}${changes_info} ${right_fade}"
+	echo -n "${left_fade}"
+	echo -n "${repo_info} ${sep} ${bookmark_info} "
+
+	local added_info=$([ -n "$added" ] && echo "%{%B%F{green}%}A${added}%{%f%b%}")
+	local modified_info=$([ -n "$modified" ] && echo "%{%B%F{blue}%}M${modified}%{%f%b%}")
+	local deleted_info=$([ -n "$deleted" ] && echo "%{%B%F{red}%}D${deleted}%{%f%b%}")
+	local unknown_info=$([ -n "$unknown" ] && echo "%{%B%F{magenta}%}U${unknown}%{%f%b%}")
+
+	local changes_info="${added_info}${modified_info}${deleted_info}${unknown_info}"
+	if [ -n "$changes_info" ]; then
+		echo -n "${sep} ${changes_info} "
+	fi
+
+	echo "${right_fade}"
 }
 
 function __vcs_precmd_hook() {
