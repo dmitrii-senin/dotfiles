@@ -12,7 +12,7 @@ fi
 
 echo "Pulling updates from dotfiles repo..."
 echo
-git pull origin master
+git pull --rebase origin master
 echo
 
 if [[ $needs_pop -eq 1 ]]; then
