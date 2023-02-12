@@ -44,10 +44,9 @@ function __build_exec_time() {
 		else
 			local exec_info=$(printf '% 4d ms' $ms)
 		fi
-		local hourglass=$(echo -e '\uf252')
-		__CMD_EXEC_TIME="%{%F{227}%}${exec_info} ${hourglass}%{%f%}"
+		__CMD_EXEC_TIME="%{%F{227}%}$(print '\uf253') ${exec_info}%{%f%}"
 	else
-		__CMD_EXEC_TIME="%{%F{227}%}    0 ms ${hourglass}%{%f%}"
+		__CMD_EXEC_TIME="%{%F{227}%}$(print '\uf253')    0 ms%{%f%}"
 	fi
 	unset __CMD_START_MS
 }
@@ -204,7 +203,7 @@ function () {
 	# top-right info
 	# ======================================================================
 	local exec_time='${(e)__CMD_EXEC_TIME}'
-	local clock="%{%F{252}%}%* $(echo -e '\uf017')%{%f%}"
+	local clock="%{%F{252}%}$(print '\uf017') %*%{%f%}"
 	local time_info="${exec_time} ${sep} ${clock}"
 
 	local ok_status="%{%F{green}%}$(echo -e '\uf05d')   0 ↵%{%f%}"
