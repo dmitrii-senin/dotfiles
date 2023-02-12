@@ -7,14 +7,3 @@ function namedir () {
 	typeset -g $short_name="$PWD"
 	: ~$short_name
 }
-
-
-# dotfiles aliases
-alias dotpull="${DOTFILES:-$HOME/.dotfiles}/manager pull"
-alias dotpush="${DOTFILES:-$HOME/.dotfiles}/manager push"
-
-function dotpull() {
-	local dotfiles="${DOTFILES:-$HOME/.dotfiles}"
-
-}
-

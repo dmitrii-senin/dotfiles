@@ -11,11 +11,6 @@ alias ezp="$EDITOR $ZDOTDIR/prompt.zsh"
 alias rz="source $ZDOTDIR/.zshrc"
 # ================================================================================
 
-# dotfiles aliases
-alias dotpull="${DOTFILES:-$HOME/.dotfiles}/manager pull"
-alias dotsync="${DOTFILES:-$HOME/.dotfiles}/manager sync"
-alias dotpush="${DOTFILES:-$HOME/.dotfiles}/manager push"
-
 # NeovVim aliases
 alias vim="nvim"
 
