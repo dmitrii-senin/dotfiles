@@ -47,7 +47,7 @@ fi
 # ================================================================================
 # Dynamic named directories
 # --------------------------------------------------------------------------------
-dotfiles="$HOME/.dotfiles"; : ~$dotfiles
+dotfiles=${DOTFILES:-$HOME/.dotfiles}; : ~$dotfiles
 zconfig="$dotfiles/.config/zsh"; : ~$zconfig
 zplugins="$dotfiles/.config/zsh/plugins"; : ~$zplugins
 # ================================================================================
@@ -81,7 +81,7 @@ bindkey -v
 
 source "$ZDOTDIR/functions.zsh"
 source "$ZDOTDIR/aliases.zsh"
-source "$ZDOTDIR/git_aliases.zsh"
+source "$ZDOTDIR/aliases_git.zsh"
 source "$ZDOTDIR/prompt.zsh"
 
 # ================================================================================

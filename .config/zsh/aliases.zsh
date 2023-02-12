@@ -1,15 +1,18 @@
+# ================================================================================
 # Zsh aliases
+# --------------------------------------------------------------------------------
 alias ez="$EDITOR $ZDOTDIR/.zshrc"
 alias eza="$EDITOR $ZDOTDIR/aliases.zsh"
+alias ezag="$EDITOR $ZDOTDIR/aliases_git.zsh"
 alias ezf="$EDITOR $ZDOTDIR/functions.zsh"
 alias ezp="$EDITOR $ZDOTDIR/prompt.zsh"
-alias ezpm="$EDITOR $ZDOTDIR/plugins/zsh-meta-platforms/zsh-meta-platforms.zsh"
 
+# Reload zsh configuration
 alias rz="source $ZDOTDIR/.zshrc"
+# ================================================================================
 
 # dotfiles aliases
 alias dotpull="${DOTFILES:-$HOME/.dotfiles}/manager pull"
-alias dotdeploy="${DOTFILES:-$HOME/.dotfiles}/manager deploy"
 alias dotsync="${DOTFILES:-$HOME/.dotfiles}/manager sync"
 alias dotpush="${DOTFILES:-$HOME/.dotfiles}/manager push"
 
