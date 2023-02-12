@@ -1,7 +1,7 @@
 #! /bin/zsh
 
 dotfiles="${DOTFILES:-$HOME/.dotfiles}"
-cd "$dotfiles"
+cd "$dotfiles" || return 1
 
 echo "Stashing existing changes..."
 needs_pop=1
