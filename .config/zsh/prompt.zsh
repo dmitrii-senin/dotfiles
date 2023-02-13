@@ -59,11 +59,16 @@ function __hg_prompt_info() {
 	local sep='%{%F{241}%}/%{%f%}'
 
 	local bookmark=$(\grep 'bookmarks:' <<< $summary | \grep -oP '(?<=\*)\S+')
+	if [[ -n "$bookmark" ]]; then
+		bookmark="$(print '\ueaa5') $bookmark"
+	fi
+
 	local commit_id=$(\grep 'parent:' <<< $summary | \awk '{print $2}')
 	if [ $(\wc -l <<< $commit_ids) -eq 2 ]; then
 		local commit_ids=(${(f)"$commit_id"})
 		commit_id=$(echo -n "$commit_ids[1] -> $commit_ids[2]")
 	fi
+
 	local commit_info=$(\grep 'commit:' <<< $summary)
 
 	local added=$(\grep -oP '\d+(?= added)' <<< $commit_info)
