@@ -26,7 +26,10 @@ sudo apt install -y zsh git stow
 
 ## MacOS
 
-TODO
+Must have packages
+```
+brew install zsh git stow
+```
 
 # Fonts
 
