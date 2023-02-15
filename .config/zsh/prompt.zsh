@@ -1,5 +1,8 @@
 setopt PROMPT_SUBST
 
+zmodload zsh/datetime
+zmodload zsh/mathfunc
+
 function __fillbar_precmd_hook() {
 	__PROMPT_FILLBAR=""
 	__PROMPT_PWDLEN=""
@@ -25,12 +28,12 @@ function TRAPWINCH() {
 }
 
 function __set_timer() {
-	__CMD_START_MS=$(( $(date +%s%0N) / 1000000 ))
+	__CMD_START_MS=$(( int( EPOCHREALTIME * 1000 ) ))
 }
 
 function __build_exec_time() {
 	if [[ -v __CMD_START_MS ]]; then
-		local now_ms=$(( $(date +%s%0N) / 1000000 ))
+		local now_ms=$(( int( EPOCHREALTIME * 1000 ) ))
 		local elapsed_ms=$(( now_ms - __CMD_START_MS ))
 		local sec=$(( elapsed_ms / 1000 ))
 		local ms=$(( elapsed_ms % 1000 ))
