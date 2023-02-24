@@ -180,6 +180,18 @@ function __vcs_precmd_hook() {
 	fi
 }
 
+function zle-line-init zle-keymap-select {
+    case ${KEYMAP} in
+        (vicmd)      __ZLE_INFO='CMD' ;;
+        (main|viins) __ZLE_INFO='INS' ;;
+        (*)          __ZLE_INFO='' ;;
+    esac
+    zle reset-prompt
+}
+
+zle -N zle-line-init
+zle -N zle-keymap-select
+
 autoload -Uz add-zsh-hook
 add-zsh-hook precmd __fillbar_precmd_hook
 add-zsh-hook precmd __vcs_precmd_hook
@@ -227,7 +239,8 @@ function () {
 	local retcode_ok="%{%B%F{green}%}✔%{%f%b%}"
 	local retcode_error="%{%B%F{red}%}✗%{%f%b%}"
 	local short_status="%(?.${retcode_ok}.${retcode_error}) "
-	local bottom_left_info="─ ${short_status}"
+	local zle_info='${(e)__ZLE_INFO}'
+	local bottom_left_info="─ ${zle_info} ${short_status}"
 	# ----------------------------------------------------------------------
 
 	# ======================================================================
