@@ -126,10 +126,10 @@ function __git_prompt_info() {
 	echo -n "${left_fade} "
 	echo -n "${repo_info} ${sep} ${branch_info} "
 
-	local A=$(\grep -E '^A' <<< $changes | \wc -l)
-	local M=$(\grep -E '^M' <<< $changes | \wc -l)
-	local D=$(\grep -E '^D' <<< $changes | \wc -l)
-	local R=$(\grep -E '^R' <<< $changes | \wc -l)
+	local A=$(\grep -E '^A' <<< $changes | \wc -l | tr -d ' ')
+	local M=$(\grep -E '^M' <<< $changes | \wc -l | tr -d ' ')
+	local D=$(\grep -E '^D' <<< $changes | \wc -l | tr -d ' ')
+	local R=$(\grep -E '^R' <<< $changes | \wc -l | tr -d ' ')
 
 	A=$([[ $A -gt 0 ]] && echo "%{%B%F{green}%}A${A}%{%f%b%}")
 	M=$([[ $M -gt 0 ]] && echo "%{%B%F{blue}%}M${M}%{%f%b%}")
@@ -142,11 +142,11 @@ function __git_prompt_info() {
 	fi
 
 	local U
-	A=$(\grep -E '^.A' <<< $changes | \wc -l)
-	M=$(\grep -E '^.M' <<< $changes | \wc -l)
-	D=$(\grep -E '^.D' <<< $changes | \wc -l)
-	R=$(\grep -E '^.R' <<< $changes | \wc -l)
-	U=$(\grep -E '^.\?' <<< $changes | \wc -l)
+	A=$(\grep -E '^.A' <<< $changes | \wc -l | tr -d ' ')
+	M=$(\grep -E '^.M' <<< $changes | \wc -l | tr -d ' ')
+	D=$(\grep -E '^.D' <<< $changes | \wc -l | tr -d ' ')
+	R=$(\grep -E '^.R' <<< $changes | \wc -l | tr -d ' ')
+	U=$(\grep -E '^.\?' <<< $changes | \wc -l | tr -d ' ')
 
 	A=$([[ $A -gt 0 ]] && echo "%{%B%F{green}%}A${A}%{%f%b%}")
 	M=$([[ $M -gt 0 ]] && echo "%{%B%F{blue}%}M${M}%{%f%b%}")
