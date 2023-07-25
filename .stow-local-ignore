@@ -2,5 +2,8 @@
 \.gitignore
 \.gitmodules
 
+bootstrap.sh
+install.ubuntu.zsh
+
 ^/LICENSE
 ^/README.*
