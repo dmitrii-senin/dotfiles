@@ -88,6 +88,7 @@ bindkey -v
 source "$ZDOTDIR/functions.zsh"
 source "$ZDOTDIR/aliases.zsh"
 source "$ZDOTDIR/git_aliases.zsh"
+source "$ZDOTDIR/docker_aliases.zsh"
 source "$ZDOTDIR/prompt.zsh"
 
 # ================================================================================
