@@ -1,8 +1,9 @@
 #!/bin/sh
 
+export LC_CTYPE=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
 
 apt update
-
 
 # ==============================================================================
 # Install Zsh and make it a default shell
@@ -37,5 +38,5 @@ apt install -y stow
 # 2. Deploy specified files using GNU Stow to $HOME
 # ------------------------------------------------------------------------------ 
 git -C "$HOME" clone https://github.com/dmitrii-senin/dotfiles.git .dotfiles
-stow --dir="$HOME/.dotfiles" --target="$HOME"
+stow --dir="$HOME/.dotfiles" --target="$HOME" .
 # ==============================================================================
