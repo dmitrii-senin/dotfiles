@@ -2,6 +2,13 @@
 
 # Installation
 
+## Ubuntu
+
+```
+sudo apt update && apt install -y wget
+sudo wget -O - https://raw.githubusercontent.com/dmitrii-senin/dotfiles/master/bootstrap.sh | sh
+```
+
 ## Centos / Fedora
 
 Must have packages
@@ -15,13 +22,6 @@ TODO: Rust / Cargo
 TODO: exa, bat
 TODO: delta
 TODO: riggrep
-```
-
-## Ubuntu
-
-Must have packages
-```
-sudo apt install -y zsh git stow
 ```
 
 ## MacOS
