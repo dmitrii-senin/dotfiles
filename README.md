@@ -5,8 +5,9 @@
 ## Ubuntu
 
 ```
-sudo apt update && apt install -y wget
-sudo wget -O - https://raw.githubusercontent.com/dmitrii-senin/dotfiles/master/bootstrap.sh | sh
+sudo -i -- sh -c 'apt update && \
+                  apt install -y wget && \
+                  wget -O - https://raw.githubusercontent.com/dmitrii-senin/dotfiles/master/bootstrap.sh | sh'
 ```
 
 ## Centos / Fedora
