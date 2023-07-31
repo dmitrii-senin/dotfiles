@@ -40,5 +40,3 @@ apt install -y stow
 git -C "$HOME" clone https://github.com/dmitrii-senin/dotfiles.git .dotfiles
 stow --dir="$HOME/.dotfiles" --target="$HOME" .
 # ==============================================================================
-
-exec zsh

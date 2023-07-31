@@ -5,16 +5,20 @@
 ## Ubuntu
 
 ```
-sh -c 'apt update && \
-       apt install -y wget && \
-       wget -O - https://raw.githubusercontent.com/dmitrii-senin/dotfiles/master/bootstrap.sh | sh'
+sh -c '
+  apt update &&
+  apt install -y wget &&
+  wget -O - https://raw.githubusercontent.com/dmitrii-senin/dotfiles/master/bootstrap.sh | sh &&
+  exec zsh'
 ```
 
 The same with `sudo`:
 ```
-sudo -i -- sh -c 'apt update && \
-                  apt install -y wget && \
-                  wget -O - https://raw.githubusercontent.com/dmitrii-senin/dotfiles/master/bootstrap.sh | sh'
+sudo -i -- sh -c '
+  apt update &&
+  apt install -y wget &&
+  wget -O - https://raw.githubusercontent.com/dmitrii-senin/dotfiles/master/bootstrap.sh | sh
+  exec zsh'
 ```
 
 ## Centos / Fedora
