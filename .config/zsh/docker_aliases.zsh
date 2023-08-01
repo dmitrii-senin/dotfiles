@@ -1,4 +1,4 @@
-alias d="docker"
+alias docker="docker -e 'TERM=xterm-256color'"
 
 alias dim="docker images"
 
