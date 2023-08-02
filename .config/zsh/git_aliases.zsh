@@ -9,7 +9,7 @@ alias gst="git status"
 alias gl="git log --graph --date=short --pretty=format:'\
 %C(yellow)%h%C(reset) \
 %C(green)%ad (%ar)%C(reset) \
-%C(blue)%>|(50)%an%C(reset) \
+%C(blue)%>|(52)%an%C(reset) \
 %C(auto)%d%C(reset)
 %<(80,trunc)%s
 '"
