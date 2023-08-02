@@ -7,9 +7,11 @@ alias gcos="git checkout stable"
 alias gst="git status"
 
 alias gl="git log --graph --date=short --pretty=format:'\
-%C(yellow)%h %C(green)%ad %ar%C(reset) \
-%C(blue)%an%C(reset) %C(blue)<%ae>
-%<(70,trunc)%s
+%C(yellow)%h%C(reset) \
+%C(green)%ad (%ar)%C(reset) \
+%C(blue)%>|(50)%an%C(reset) \
+%C(auto)%d%C(reset)
+%<(80,trunc)%s
 '"
 
 alias ga="git add"
