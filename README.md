@@ -45,7 +45,23 @@ brew install zsh git stow
 
 # Fonts
 
-TODO: How to install Nerd-Fonts
+Nerd-Fonts are used to have a nice prompt.
+
+To install Nerd-Fonts please check the link below:
+https://github.com/ryanoasis/nerd-fonts#font-installation
+
+* MacOS
+```
+brew tap homebrew/cask-fonts
+brew install font-hack-nerd-font
+```
+
+* Linux
+```
+git clone https://github.com/ryanoasis/nerd-fonts.git
+cd ./nerd-fonts && ./install.sh Hack
+```
+
 
 # Add a Zsh Plugin
 
