@@ -16,16 +16,19 @@ unsetopt HIST_BEEP
 # ================================================================================
 # LOCALE and TZ
 # --------------------------------------------------------------------------------
-export LANG="C.UTF-8"
-export LANGUAGE="C.UTF-8"
-export LC_COLLATE="C.UTF-8"
-export LC_CTYPE="C.UTF-8"
-export LC_MESSAGES="C.UTF-8"
-export LC_MONETARY="C.UTF-8"
-export LC_NUMERIC="C.UTF-8"
-export LC_TIME="C.UTF-8"
-export LC_ALL="C.UTF-8"
-export LC_CTYPE="C.UTF-8"
+function () {
+	local loc=$(locale -a | grep -Ei '(C\.UTF-?8|en_US\.UTF-?8)' || echo "C")
+	export LANG="$loc"
+	export LANGUAGE="$loc"
+	export LC_COLLATE="$loc"
+	export LC_CTYPE="$loc"
+	export LC_MESSAGES="$loc"
+	export LC_MONETARY="$loc"
+	export LC_NUMERIC="$loc"
+	export LC_TIME="$loc"
+	export LC_ALL="$loc"
+	export LC_CTYPE="$loc"
+}
 
 export TZ="Europe/London"
 # ================================================================================
