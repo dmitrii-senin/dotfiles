@@ -4,6 +4,8 @@
 
 \.zsh_sessions
 
+^/docker
+
 bootstrap.sh
 install.ubuntu.zsh
 
