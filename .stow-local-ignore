@@ -2,6 +2,8 @@
 \.gitignore
 \.gitmodules
 
+\.zsh_sessions
+
 bootstrap.sh
 install.ubuntu.zsh
 
