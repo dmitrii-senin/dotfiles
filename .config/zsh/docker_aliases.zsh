@@ -1,15 +1,13 @@
-alias docker="docker -e 'TERM=xterm-256color'"
-
 alias dim="docker images"
 
 alias dps="docker ps"
 alias dpsa="docker ps --all"
 
-alias dr="docker run"
-alias {drit,drti}="docker run --interactive --tty"
-alias {dritr,drtir,drrit,drrti}="docker run --interactive --tty --rm"
+alias dr="docker run -e 'TERM=xterm-256color'"
+alias {drit,drti}="docker run --interactive --tty -e 'TERM=xterm-256color'"
+alias {dritr,drtir,drrit,drrti}="docker run --interactive --tty --rm -e 'TERM=xterm-256color'"
 
-alias dex="docker exec -it"
+alias dex="docker exec -it -e 'TERM=xterm-256color'"
 
 alias dc="docker compose"
 alias dcb="docker compose build"
