@@ -1,5 +1,8 @@
 alias dim="docker images"
 
+alias drmi="docker rmi"
+alias drmid='docker rmi $(docker images --filter "dangling=true" -q --no-trunc)'
+
 alias dps="docker ps"
 alias dpsa="docker ps --all"
 
