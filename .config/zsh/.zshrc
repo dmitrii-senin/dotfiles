@@ -42,6 +42,12 @@ export TZ="Europe/London"
 # --------------------------------------------------------------------------------
 path+=("$HOME/.local/bin")
 path+=("$HOME/.local/.cargo/bin")
+
+case "$(uname)-$(uname -m)" in
+	"Darwin-x86_64") ;;
+	"Linux-x86_64") path+=("$HOME/.local/bin/x86_64-linux");;
+esac
+
 export PATH
 
 fpath+=("$ZDOTDIR/functions")
