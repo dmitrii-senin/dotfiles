@@ -17,7 +17,7 @@ unsetopt HIST_BEEP
 # LOCALE and TZ
 # --------------------------------------------------------------------------------
 function () {
-	local loc=$(locale -a | grep -Ei '(C\.UTF-?8|en_US\.UTF-?8)' || echo "C")
+	local loc=$(locale -a | grep -Ei '(^C\.UTF-?8$|^en_US\.UTF-?8$)' | head -n 1)
 	export LANG="$loc"
 	export LANGUAGE="$loc"
 	export LC_COLLATE="$loc"
