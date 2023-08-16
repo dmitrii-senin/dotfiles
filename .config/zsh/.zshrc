@@ -88,19 +88,19 @@ unsetopt FLOW_CONTROL
 unsetopt LIST_BEEP
 # ================================================================================
 
-# ================================================================================
-# Vim key bindings
-# --------------------------------------------------------------------------------
-bindkey -v
-bindkey '^R' history-incremental-search-backward
-source_if_exists "$HOME/.config/fzf.key-bindings.zsh"
-# ================================================================================
-
 source "$ZDOTDIR/functions.zsh"
 source "$ZDOTDIR/aliases.zsh"
 source "$ZDOTDIR/git_aliases.zsh"
 source "$ZDOTDIR/docker_aliases.zsh"
 source "$ZDOTDIR/prompt.zsh"
+
+# ================================================================================
+# key bindings
+# --------------------------------------------------------------------------------
+bindkey -v
+bindkey '^R' history-incremental-search-backward
+source_if_exists "$HOME/.config/fzf.key-bindings.zsh"
+# ================================================================================
 
 # ================================================================================
 # Apply PLUGINS
