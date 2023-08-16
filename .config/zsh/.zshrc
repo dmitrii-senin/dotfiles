@@ -92,6 +92,8 @@ unsetopt LIST_BEEP
 # Vim key bindings
 # --------------------------------------------------------------------------------
 bindkey -v
+bindkey '^R' history-incremental-search-backward
+source_if_exists "$HOME/.config/fzf.key-bindings.zsh"
 # ================================================================================
 
 source "$ZDOTDIR/functions.zsh"
@@ -110,4 +112,3 @@ for plugin_dir in $(\ls "$ZDOTDIR/plugins"); do
 done
 # ================================================================================
 
-source_if_exists ~/.fzf.zsh
