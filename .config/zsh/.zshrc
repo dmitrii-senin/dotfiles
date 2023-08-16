@@ -17,17 +17,21 @@ unsetopt HIST_BEEP
 # LOCALE and TZ
 # --------------------------------------------------------------------------------
 function () {
-	local loc=$(locale -a | grep -Ei '(^C\.UTF-?8$|^en_US\.UTF-?8$)' | head -n 1)
-	export LANG="$loc"
-	export LANGUAGE="$loc"
-	export LC_COLLATE="$loc"
-	export LC_CTYPE="$loc"
-	export LC_MESSAGES="$loc"
-	export LC_MONETARY="$loc"
-	export LC_NUMERIC="$loc"
-	export LC_TIME="$loc"
-	export LC_ALL="$loc"
-	export LC_CTYPE="$loc"
+	local locale=$(locale -a | grep -Ei '^en_US\.UTF-?8$' | head -n1)
+	if [ -z "$locale" ]; then
+		locale=$(locale -a | grep -Ei '^C\.UTF-?8$' | head -n1)
+	fi
+
+	export LANG="$locale"
+	export LANGUAGE="$locale"
+	export LC_COLLATE="$locale"
+	export LC_CTYPE="$locale"
+	export LC_MESSAGES="$locale"
+	export LC_MONETARY="$locale"
+	export LC_NUMERIC="$locale"
+	export LC_TIME="$locale"
+	export LC_ALL="$locale"
+	export LC_CTYPE="$locale"
 }
 
 export TZ="Europe/London"
