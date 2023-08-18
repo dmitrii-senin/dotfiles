@@ -105,7 +105,7 @@ source "$ZDOTDIR/prompt.zsh"
 # --------------------------------------------------------------------------------
 bindkey -v
 bindkey '^R' history-incremental-search-backward
-source_if_exists "$HOME/.config/fzf.key-bindings.zsh"
+source_if_exists "$ZDOTDIR/fzf.key-bindings.zsh"
 # ================================================================================
 
 # ================================================================================
