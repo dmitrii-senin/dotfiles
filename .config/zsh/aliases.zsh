@@ -27,7 +27,7 @@ alias -g US="| sort -u"
 # other pipe aliases
 alias -g H="| head"
 alias -g T="| tail"
-alias -g G="| egrep"
+alias -g G="| grep -E"
 alias -g L="| less"
 alias -g LL="2>&1 | less"
 alias -g C="| wc -l"
