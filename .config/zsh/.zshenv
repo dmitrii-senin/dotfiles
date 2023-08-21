@@ -1,1 +1,1 @@
-export CARGO_HOME="$HOME/.local"
+export CARGO_HOME="$HOME/.local/.cargo"
