@@ -43,9 +43,9 @@ export TZ="Europe/London"
 path+=("$HOME/.local/bin")
 path+=("$HOME/.local/.cargo/bin")
 
-case "$(uname)-$(uname -m)" in
-	"Darwin-x86_64") ;;
-	"Linux-x86_64") path+=("$HOME/.local/bin/x86_64-linux");;
+case "$(uname -m)-$(uname -o)" in
+	"x86_64-Darwin") path+=("$HOME/.local/bin/x86_64-darwin");;
+	"x86_64-Linux") path+=("$HOME/.local/bin/x86_64-linux");;
 esac
 
 export PATH
