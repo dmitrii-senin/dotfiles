@@ -3,12 +3,14 @@
 # --------------------------------------------------------------------------------
 alias ez="$EDITOR $ZDOTDIR/.zshrc"
 alias eza="$EDITOR $ZDOTDIR/aliases.zsh"
-alias ezag="$EDITOR $ZDOTDIR/aliases_git.zsh"
+alias ezag="$EDITOR $ZDOTDIR/git_aliases.zsh"
+alias ezad="$EDITOR $ZDOTDIR/docker_aliases.zsh"
 alias ezf="$EDITOR $ZDOTDIR/functions.zsh"
 alias ezp="$EDITOR $ZDOTDIR/prompt.zsh"
 
 # Reload zsh configuration
 alias rz="source $ZDOTDIR/.zshrc"
+alias rze="source $ZDOTDIR/.zshenv"
 # ================================================================================
 
 # NeovVim aliases
