@@ -14,58 +14,6 @@ unsetopt HIST_BEEP
 # ================================================================================
 
 # ================================================================================
-# LOCALE and TZ
-# --------------------------------------------------------------------------------
-function () {
-	local locale=$(locale -a | grep -Ei '^en_US\.UTF-?8$' | head -n1)
-	if [ -z "$locale" ]; then
-		locale=$(locale -a | grep -Ei '^C\.UTF-?8$' | head -n1)
-	fi
-
-	export LANG="$locale"
-	export LANGUAGE="$locale"
-	export LC_COLLATE="$locale"
-	export LC_CTYPE="$locale"
-	export LC_MESSAGES="$locale"
-	export LC_MONETARY="$locale"
-	export LC_NUMERIC="$locale"
-	export LC_TIME="$locale"
-	export LC_ALL="$locale"
-	export LC_CTYPE="$locale"
-}
-
-export TZ="Europe/London"
-# ================================================================================
-
-# ================================================================================
-# PATH and FPATH
-# --------------------------------------------------------------------------------
-path+=("$HOME/.local/bin")
-path+=("$HOME/.local/.cargo/bin")
-
-case "$(uname -m)-$(uname -o)" in
-	"x86_64-Darwin") path+=("$HOME/.local/bin/x86_64-darwin");;
-	"x86_64-Linux") path+=("$HOME/.local/bin/x86_64-linux");;
-esac
-
-export PATH
-
-fpath+=("$ZDOTDIR/functions")
-export FPATH
-# ================================================================================
-
-# ================================================================================
-# EXPORTS
-# --------------------------------------------------------------------------------
-export EDITOR="nvim"
-
-if bat -V 2> /dev/null 1>&2 ; then
-	export MANROFFOPT='-c' 
-	export MANPAGER="sh -c 'col -bx | bat -l man -p'"
-fi
-# ================================================================================
-
-# ================================================================================
 # Dynamic named directories
 # --------------------------------------------------------------------------------
 dotfiles=${DOTFILES:-$HOME/.dotfiles}; : ~$dotfiles
