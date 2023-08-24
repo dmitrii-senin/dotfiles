@@ -20,6 +20,10 @@ dotfiles=${DOTFILES:-$HOME/.dotfiles}; : ~$dotfiles
 zconfig="$dotfiles/.config/zsh"; : ~$zconfig
 zplugins="$dotfiles/.config/zsh/plugins"; : ~$zplugins
 local="$dotfiles/.local"; : ~$local
+
+lbin="$dotfiles/.local/bin"; : ~$lbin
+ubin="/usr/bin"; : ~$ubin
+ulbin="/usr/local/bin"; :~$ulbin
 # ================================================================================
 
 # ================================================================================
