@@ -19,6 +19,7 @@ unsetopt HIST_BEEP
 dotfiles=${DOTFILES:-$HOME/.dotfiles}; : ~$dotfiles
 zconfig="$dotfiles/.config/zsh"; : ~$zconfig
 zplugins="$dotfiles/.config/zsh/plugins"; : ~$zplugins
+local="$dotfiles/.local"; : ~$local
 # ================================================================================
 
 # ================================================================================
