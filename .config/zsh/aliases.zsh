@@ -10,11 +10,12 @@ alias ezp="$EDITOR $ZDOTDIR/prompt.zsh"
 
 # Reload zsh configuration
 alias rz="source $ZDOTDIR/.zshrc"
-alias rze="source $ZDOTDIR/.zshenv"
 # ================================================================================
 
 # NeovVim aliases
-alias vim="nvim"
+if nvim -v 2> /dev/null 1>&2 ; then
+	alias vim="nvim"
+fi
 
 # cd aliases
 alias -g ...="../.."
@@ -40,7 +41,7 @@ alias -g NUL="> /dev/null 2>&1"
 
 # Colorize grep output
 alias grep='grep --color=auto'
-alias egrep='egrep --color=auto'
+alias egrep='grep -E --color=auto'
 alias fgrep='fgrep --color=auto'
 
 # Easier to read disk
