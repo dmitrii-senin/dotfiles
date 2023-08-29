@@ -1,3 +1,9 @@
+source "$ZDOTDIR/functions.zsh"
+source "$ZDOTDIR/aliases.zsh"
+source "$ZDOTDIR/git_aliases.zsh"
+source "$ZDOTDIR/docker_aliases.zsh"
+source "$ZDOTDIR/prompt.zsh"
+
 # ================================================================================
 # HISTORY
 # --------------------------------------------------------------------------------
@@ -19,11 +25,11 @@ unsetopt HIST_BEEP
 dotfiles=${DOTFILES:-$HOME/.dotfiles}; : ~$dotfiles
 zconfig="$dotfiles/.config/zsh"; : ~$zconfig
 zplugins="$dotfiles/.config/zsh/plugins"; : ~$zplugins
-local="$dotfiles/.local"; : ~$local
+typeset -g "local"="$dotfiles/.local"; : ~$local
 
-lbin="$dotfiles/.local/bin"; : ~$lbin
-ubin="/usr/bin"; : ~$ubin
-ulbin="/usr/local/bin"; :~$ulbin
+name_if_exists "$dotfiles/.local/bin" "lbin"
+name_if_exists "/usr/bin" "ubin"
+name_if_exists "/usr/local/bin" "ulbin"
 # ================================================================================
 
 # ================================================================================
@@ -46,12 +52,6 @@ unsetopt CASE_GLOB
 unsetopt FLOW_CONTROL
 unsetopt LIST_BEEP
 # ================================================================================
-
-source "$ZDOTDIR/functions.zsh"
-source "$ZDOTDIR/aliases.zsh"
-source "$ZDOTDIR/git_aliases.zsh"
-source "$ZDOTDIR/docker_aliases.zsh"
-source "$ZDOTDIR/prompt.zsh"
 
 # ================================================================================
 # key bindings

@@ -7,3 +7,10 @@ function namedir () {
 	typeset -g $short_name="$PWD"
 	: ~$short_name
 }
+
+function name_if_exists() {
+	if [ -d "$1" ]; then
+		typeset -g "$2"="$1";
+		: ~"$2"
+	fi
+}
