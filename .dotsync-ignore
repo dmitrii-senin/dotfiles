@@ -1,13 +1,14 @@
-\.git
+\.git$
 \.gitignore
 \.gitmodules
+\.gitconfig
 
 \.zsh_sessions
 
-^/docker
+^/docker/
 
-bootstrap.sh
-install.ubuntu.zsh
+^/bootstrap.sh
+^/install.ubuntu.zsh
 
 ^/LICENSE
 ^/README.*
