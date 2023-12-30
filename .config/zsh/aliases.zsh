@@ -60,13 +60,13 @@ alias mkdir="mkdir -pv"
 if exa 2> /dev/null 1>&2 ; then
 	alias l="exa --color=auto --icons"
 	alias ls="exa --color=auto --icons"
-	alias la="exa --color=auto -la --icons"
+	alias la="exa --color=auto -lA --icons"
 	alias ll="exa --color=auto -l --icons"
 	alias tree="exa --color=auto --icons --tree"
 else
 	alias l="ls --color=auto -h"
 	alias ls="ls --color=auto -h"
-	alias la="ls --color=auto -al -h"
+	alias la="ls --color=auto -Al -h"
 	alias ll="ls --color=auto -l -h"
 fi
 

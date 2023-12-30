@@ -3,6 +3,7 @@
 \.gitmodules
 
 \.zsh_sessions
+\.zcompdump
 
 ^/bootstrap.sh
 ^/install.ubuntu.zsh

@@ -5,18 +5,18 @@ sync_root=${0:A:h}
 loglevels=(dbg inf wrn err)
 loglevel=$loglevels[(i)${LOGLEVEL:-inf}]
 
-function err() { [ $loglevel -le $loglevels[(i)err] ] && echo "[ERR] $1"; }
-function wrn() { [ $loglevel -le $loglevels[(i)wrn] ] && echo "[WRN] $1"; }
-function inf() { [ $loglevel -le $loglevels[(i)inf] ] && echo "[INF] $1"; }
-function dbg() { [ $loglevel -le $loglevels[(i)dbg] ] && echo "[DBG] $1"; }
+function crt() { [ $loglevel -le $loglevels[(i)crt] ] && echo "[CRT] " $* && exit 1; }
+function err() { [ $loglevel -le $loglevels[(i)err] ] && echo "[ERR] " $*; }
+function wrn() { [ $loglevel -le $loglevels[(i)wrn] ] && echo "[WRN] " $*; }
+function inf() { [ $loglevel -le $loglevels[(i)inf] ] && echo "[INF] " $*; }
+function dbg() { [ $loglevel -le $loglevels[(i)dbg] ] && echo "[DBG] " $*; }
 
 function get_sync_paths() {
 	local dotsync_path="$sync_root/.dotsync-config"
 	if [ -f "$dotsync_path" ]; then
 		sync_paths=( $( grep -v '^[[:space:]]*$' "$dotsync_path" ) )
 	else
-		err "Cannot find '$dotsync_path'"
-		exit 1
+		crt "Cannot find '$dotsync_path'"
 	fi
 }
 
@@ -25,8 +25,7 @@ function get_ignore_paths() {
 	if [ -f "$dotsync_ignore_path" ]; then
 		ignore_paths=( $( grep -v '^[[:space:]]*$' "$dotsync_ignore_path" ) )
 	else
-		err "Cannot find '$dotsync_ignore_path'"
-		exit 1
+		crt "Cannot find '$dotsync_ignore_path'"
 	fi
 }
 
@@ -78,7 +77,7 @@ function make_link() {
 	elif [ -L "$dst_path" -a ! "$dst_path" -ef "$src_path" ]; then
 		wrn "Link '$dst_path' exists and points to a different location"
 	elif [ -d "$src_path" -a -d "$dst_path" ]; then
-		dbg "Dir '$dst_path' exists -- go deeper ..."
+		dbg "Dir '$dst_path' exists: try to link children files ..."
 		link_dir_content "$sync_path"
 	fi
 }
