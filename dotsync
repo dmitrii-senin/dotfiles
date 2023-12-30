@@ -41,7 +41,7 @@ function make_dirs() {
 		local dst_path="$HOME/${sync_path:0:-2}"
 		if [ "${sync_path: -2}" = '/*' -a ! -d "$dst_path" ]; then
 			inf "Creating dir '$dst_path' ..."
-			# mkdir -p "$dst_path" || err "Cannot create dir '$dst_path'"
+			mkdir -p "$dst_path" || err "Cannot create dir '$dst_path'"
 		fi
 	done
 }
@@ -74,7 +74,7 @@ function make_link() {
 	local dst_path="$3"
 	if [ ! -e "$dst_path" ]; then
 		inf "Creating link '$dst_path' => '$src_path' ..."
-		# ln -s "$src_path" "$dst_path" || err "Cannot create link '$dst_path' => '$src_path'"
+		ln -s "$src_path" "$dst_path" || err "Cannot create link '$dst_path' => '$src_path'"
 	elif [ -L "$dst_path" -a ! "$dst_path" -ef "$src_path" ]; then
 		wrn "Link '$dst_path' exists and points to a different location"
 	elif [ -d "$src_path" -a -d "$dst_path" ]; then
