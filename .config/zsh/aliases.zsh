@@ -12,6 +12,8 @@ alias ezp="$EDITOR $ZDOTDIR/prompt.zsh"
 alias rz="source $ZDOTDIR/.zshrc"
 # ================================================================================
 
+alias clr="clear"
+
 # NeovVim aliases
 if nvim -v 2> /dev/null 1>&2 ; then
 	alias vim="nvim"
