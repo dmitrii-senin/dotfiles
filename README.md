@@ -78,7 +78,7 @@ curl https://sh.rustup.rs -sSf | sh
 cat <<EOF > ~/.local/share/applications/alacritty.desktop
     [Desktop Entry]
     Type=Application
-    Exec=$HOME/.local/.cargo/bin/alacritty
+    Exec=$CARGO_HOME/bin/alacritty
     Icon=alacritty
     Terminal=false
     Categories=System;TerminalEmulator;
@@ -90,12 +90,12 @@ cat <<EOF > ~/.local/share/applications/alacritty.desktop
 
     [Desktop Action New]
     Name=Alacritty
-    Exec=$HOME/.local/.cargo/bin/alacritty
+    Exec=$CARGO_HOME/bin/alacritty
 EOF
 
 wget https://raw.githubusercontent.com/alacritty/alacritty/master/extra/logo/compat/alacritty-term.png -O ~/.local/share/icons/alacritty.png
 
-sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/alacritty 50
+sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator "$CARGO_HOME/bin/alacritty" 50
 sudo update-alternatives --config x-terminal-emulator
 ```
 
