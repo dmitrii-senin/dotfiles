@@ -67,7 +67,7 @@ fi
 if exa -v &> /dev/null ; then
 	alias l="exa --color=auto --icons"
 	alias ls="exa --color=auto --icons"
-	alias la="exa --color=auto -lA --icons"
+	alias la="exa --color=auto -la --icons"
 	alias ll="exa --color=auto -l --icons"
 	alias tree="exa --color=auto --icons --tree"
 else
