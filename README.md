@@ -109,38 +109,36 @@ https://doc.rust-lang.org/cargo/getting-started/installation.html
 curl https://sh.rustup.rs -sSf | sh
 ```
 
-### Delta
-A syntax-highlighting pager for git, diff, and grep output.
-https://github.com/dandavison/delta
+* [delta](https://github.com/dandavison/delta): A syntax-highlighting pager for git, diff, and grep output.
+* [Bat](https://github.com/sharkdp/bat): A _cat(1)_ clone with syntax highlighting and Git integration.
+* [Exa](https://github.com/ogham/exa): A modern replacement for ‘ls’.
+* [Ripgrep](https://github.com/BurntSushi/ripgrep): Ripgrep recursively searches directories for a regex pattern while respecting your gitignore.
+
 ```
-cargo install git-delta
+cargo install \
+    git-delta \
+    bat       \
+    exa       \
+    ripgrep
 ```
 
-### Exa
-A modern replacement for ‘ls’.
-https://github.com/ogham/exa
+
+## Go Utilities
+
+To install these utilities you need Go:
+https://go.dev/doc/install
+
 ```
-cargo install exa
+sudo apt install -y golang-go
+go version
 ```
 
-### [Bat](https://github.com/sharkdp/bat)
-A _cat(1)_ clone with syntax highlighting and Git integration.
-```
-cargo install bat
-```
+* [Glow](https://github.com/charmbracelet/glow): Render markdown on the CLI.
 
-### Ripgrep
-Ripgrep recursively searches directories for a regex pattern while respecting your gitignore.
-https://github.com/BurntSushi/ripgrep
 ```
-cargo install ripgrep
+go install \
+    github.com/charmbracelet/glow@latest
 ```
-
-## Other Utilities
-
-### Glow
-Render markdown on the CLI.
-https://github.com/charmbracelet/glow
 
 
 # Add New Zsh Plugins
