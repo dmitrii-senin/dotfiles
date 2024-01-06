@@ -140,6 +140,12 @@ https://github.com/BurntSushi/ripgrep
 cargo install ripgrep
 ```
 
+## Other Utilities
+
+### Glow
+Render markdown on the CLI.
+https://github.com/charmbracelet/glow
+
 
 # Add New Zsh Plugins
 

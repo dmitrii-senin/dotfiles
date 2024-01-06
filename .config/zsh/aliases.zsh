@@ -58,8 +58,13 @@ alias pscpu='ps auxf | sort -nr -k 3 | head -5'
 # Create parent directories (verbose)
 alias mkdir="mkdir -pv"
 
+# Glow aliases
+if glow -v &> /dev/null ; then
+	alias glow="glow -p"
+fi
+
 # LS aliases
-if exa 2> /dev/null 1>&2 ; then
+if exa -v &> /dev/null ; then
 	alias l="exa --color=auto --icons"
 	alias ls="exa --color=auto --icons"
 	alias la="exa --color=auto -lA --icons"
