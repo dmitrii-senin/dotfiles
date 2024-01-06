@@ -102,8 +102,46 @@ sudo update-alternatives --config x-terminal-emulator
 # sudo update-alternatives --remove "x-terminal-emulator" "~/.local/.cargo/bin/alacritty"
 ```
 
+# Utilities
 
-# Add a New Zsh Plugin
+## Cargo Utilities
+
+To install these utilities you need Cargo:
+https://doc.rust-lang.org/cargo/getting-started/installation.html
+```
+curl https://sh.rustup.rs -sSf | sh
+```
+
+### Delta
+A syntax-highlighting pager for git, diff, and grep output.
+https://github.com/dandavison/delta
+```
+cargo install git-delta
+```
+
+### Exa
+A modern replacement for ‘ls’.
+https://github.com/ogham/exa
+```
+cargo install exa
+```
+
+### Bat
+A _cat(1)_ clone with syntax highlighting and Git integration.
+https://github.com/sharkdp/bat
+```
+cargo install bat
+```
+
+### Ripgrep
+Ripgrep recursively searches directories for a regex pattern while respecting your gitignore.
+https://github.com/BurntSushi/ripgrep
+```
+cargo install ripgrep
+```
+
+
+# Add New Zsh Plugins
 
 All zsh plugins are located in `.config/zsh/plugins` dir as a git submodules:
 ```
