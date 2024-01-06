@@ -97,9 +97,6 @@ wget https://raw.githubusercontent.com/alacritty/alacritty/master/extra/logo/com
 
 sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/bin/alacritty 50
 sudo update-alternatives --config x-terminal-emulator
-
-# To remove Alacritty from x-terminal-emulator list
-# sudo update-alternatives --remove "x-terminal-emulator" "~/.local/.cargo/bin/alacritty"
 ```
 
 # Utilities
