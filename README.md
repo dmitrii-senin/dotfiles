@@ -123,9 +123,8 @@ https://github.com/ogham/exa
 cargo install exa
 ```
 
-### Bat
+### [Bat](https://github.com/sharkdp/bat)
 A _cat(1)_ clone with syntax highlighting and Git integration.
-https://github.com/sharkdp/bat
 ```
 cargo install bat
 ```
