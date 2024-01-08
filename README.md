@@ -1,118 +1,63 @@
-# Dotfiles
+# How to Install
 
-# Installation
-
-## Ubuntu
-
+To install dotfiles on a new instance:
 ```
-sh -c '
-  apt update &&
-  apt install -y wget &&
-  wget -O - https://raw.githubusercontent.com/dmitrii-senin/dotfiles/master/bootstrap.sh | sh &&
-  exec zsh'
+curl https://raw.githubusercontent.com/dmitrii-senin/dotfiles/master/dotsync | zsh &&
+exec zsh
 ```
 
-The same with `sudo`:
-```
-sudo -i -- sh -c '
-  apt update &&
-  apt install -y wget &&
-  wget -O - https://raw.githubusercontent.com/dmitrii-senin/dotfiles/master/bootstrap.sh | sh
-  exec zsh'
-```
+# How to Sync
 
-## Centos / Fedora
+# Terminal: Alacritty
 
-Must have packages
-```
-sudo dnf install -y zsh git stow
-```
+As a terminal I use [Alacritty](https://github.com/alacritty/alacritty):
+A cross-platform, OpenGL terminal emulator.
+Here is an [instruction](https://github.com/alacritty/alacritty/blob/master/INSTALL.md)
+on how to build the latest version.
 
-Nice to have packages
+To support nice fonts and icons I use Nerd-Fonts.
+Here is an [instruction](https://github.com/ryanoasis/nerd-fonts#font-installation)
+on how to install Nerd-Fonts.
+
+Example:
 ```
-TODO: Rust / Cargo
-TODO: exa, bat
-TODO: delta
-TODO: riggrep
+mkdir -p ${XDG_DATA_HOME}/fonts
+cd ${XDG_DATA_HOME}/fonts
+curl -L https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz | tar xJf -
+fc-cache -fv
+fc-list | grep JetBrainsMono
 ```
 
-## MacOS
+# Shell: Zsh
 
-Must have packages
+As a shell I use [Zsh](https://www.zsh.org/).
+To read more about Zsh please check its [documentation](https://zsh.sourceforge.io/Doc/Release/zsh_toc.html).
+
+To add new Zsh plugin to dotfiles:
 ```
-brew install zsh git stow
-```
-
-# Nerd Fonts
-
-Nerd-Fonts are used to have nice prompt and tmux status bar.
-
-To install Nerd-Fonts please check the link below:
-https://github.com/ryanoasis/nerd-fonts#font-installation
-
-## MacOS
-```
-brew tap homebrew/cask-fonts
-brew install font-hack-nerd-font
+cd ${DOTFILES:-$HOME/dotfiles}/.config/zsh/plugins
+git submodule add <https link to git repo>
+git commit -m "Add <plugin name>"
 ```
 
-## Linux
-```
-git clone https://github.com/ryanoasis/nerd-fonts.git
-cd ./nerd-fonts && ./install.sh Hack
-```
+# Terminal Multiplexer: Tmux
 
-# Terminal
-
-As a terminal I use Alacrity:
-https://github.com/alacritty/alacritty/blob/master/INSTALL.md
-
-To install Alacritty you need Cargo:
-https://doc.rust-lang.org/cargo/getting-started/installation.html
-```
-curl https://sh.rustup.rs -sSf | sh
-```
-
-## Ubuntu
-```
-cat <<EOF > ~/.local/share/applications/alacritty.desktop
-    [Desktop Entry]
-    Type=Application
-    Exec=$CARGO_HOME/bin/alacritty
-    Icon=alacritty
-    Terminal=false
-    Categories=System;TerminalEmulator;
-    Name=Alacritty
-    Comment=A fast, cross-platform, OpenGL terminal emulator
-    StartupNotify=true
-    StartupWMClass=Alacritty
-    Actions=New;
-
-    [Desktop Action New]
-    Name=Alacritty
-    Exec=$CARGO_HOME/bin/alacritty
-EOF
-
-wget https://raw.githubusercontent.com/alacritty/alacritty/master/extra/logo/compat/alacritty-term.png -O ~/.local/share/icons/alacritty.png
-
-sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator "$CARGO_HOME/bin/alacritty" 50
-sudo update-alternatives --config x-terminal-emulator
-```
+# IDE: NeoVim
 
 # Utilities
 
 ## Cargo Utilities
 
-To install these utilities you need Cargo:
-https://doc.rust-lang.org/cargo/getting-started/installation.html
+To install these utilities you need
+[Cargo](https://doc.rust-lang.org/cargo/getting-started/installation.html):
 ```
 curl https://sh.rustup.rs -sSf | sh
 ```
 
 * [delta](https://github.com/dandavison/delta): A syntax-highlighting pager for git, diff, and grep output.
-* [Bat](https://github.com/sharkdp/bat): A _cat(1)_ clone with syntax highlighting and Git integration.
-* [Exa](https://github.com/ogham/exa): A modern replacement for ‘ls’.
-* [Ripgrep](https://github.com/BurntSushi/ripgrep): Ripgrep recursively searches directories for a regex pattern while respecting your gitignore.
+* [bat](https://github.com/sharkdp/bat): A _cat(1)_ clone with syntax highlighting and Git integration.
+* [exa](https://github.com/ogham/exa): A modern replacement for ‘ls’.
+* [ripgrep](https://github.com/BurntSushi/ripgrep): Ripgrep recursively searches directories for a regex pattern while respecting your gitignore.
 
 ```
 cargo install \
@@ -138,14 +83,4 @@ go version
 ```
 go install \
     github.com/charmbracelet/glow@latest
-```
-
-
-# Add New Zsh Plugins
-
-All zsh plugins are located in `.config/zsh/plugins` dir as a git submodules:
-```
-cd .config/zsh/plugins
-git submodule add <https link to git repo>
-git commit -m "Add <plugin name>"
 ```
