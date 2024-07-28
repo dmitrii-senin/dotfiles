@@ -22,7 +22,7 @@ alias gcl="git config --edit --local"
 
 alias gr="git reset -- "
 alias guc="git reset --hard HEAD"
-alias gcc="git clean -f -d -x"
+alias gC="git clean -f -d -x"
 
 alias gc="git commit --verbose"
 alias gc!="git commit --verbose --amend"
