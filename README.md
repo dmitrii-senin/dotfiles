@@ -6,6 +6,18 @@ curl https://raw.githubusercontent.com/dmitrii-senin/dotfiles/master/dotsync | z
 exec zsh
 ```
 
+# Common
+
+```
+setopt interactive_comments
+
+# Install Cargo
+curl https://sh.rustup.rs -sSf | sh
+
+cargo install \
+	git-delta
+```
+
 # MacOS
 
 ```
