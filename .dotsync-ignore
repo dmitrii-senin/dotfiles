@@ -1,9 +1,0 @@
-\.git$
-\.gitignore
-\.gitmodules
-
-\.zsh_sessions
-\.zcompdump
-
-^/LICENSE
-^/README.*

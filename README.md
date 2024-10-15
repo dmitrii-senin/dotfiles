@@ -6,6 +6,26 @@ curl https://raw.githubusercontent.com/dmitrii-senin/dotfiles/master/dotsync | z
 exec zsh
 ```
 
+# MacOS
+
+```
+setopt interactive_comments
+
+# Install Homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+# Install CLI tools
+brew install \
+	git \
+	neovim \
+	tmux
+
+# Install GUI tools
+brew install --cask \
+	font-jetbrains-mono-nerd-font \
+	kitty
+```
+
 # How to Sync
 
 # Terminal: Alacritty
