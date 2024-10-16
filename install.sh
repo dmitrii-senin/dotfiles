@@ -13,6 +13,7 @@ repo=${0:A:h}
 
 sync_paths=(
 	.config/git
+	.config/kitty
 	.config/nvim
 	.config/tmux
 	.config/zsh

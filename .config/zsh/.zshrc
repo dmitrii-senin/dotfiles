@@ -22,12 +22,11 @@ unsetopt HIST_BEEP
 # ================================================================================
 # Dynamic named directories
 # --------------------------------------------------------------------------------
-dotfiles=${DOTFILES:-$HOME/.dotfiles}; : ~$dotfiles
-zconfig="$dotfiles/.config/zsh"; : ~$zconfig
-zplugins="$dotfiles/.config/zsh/plugins"; : ~$zplugins
-typeset -g "local"="$dotfiles/.local"; : ~$local
+zconfig="${XDG_CONFIG_HOME}/zsh"; : ~$zconfig
+tconfig="${XDG_CONFIG_HOME}/tmux"; : ~$tconfig
+kconfig="${XDG_CONFIG_HOME}/kitty"; : ~$kconfig
+vconfig="${XDG_CONFIG_HOME}/nvim"; : ~$vconfig
 
-name_if_exists "$dotfiles/.local/bin" "lbin"
 name_if_exists "/usr/bin" "ubin"
 name_if_exists "/usr/local/bin" "ulbin"
 # ================================================================================

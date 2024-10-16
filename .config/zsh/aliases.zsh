@@ -1,15 +1,15 @@
 # ================================================================================
 # Zsh aliases
 # --------------------------------------------------------------------------------
-alias ez="$EDITOR $ZDOTDIR/.zshrc"
-alias eza="$EDITOR $ZDOTDIR/aliases.zsh"
-alias ezag="$EDITOR $ZDOTDIR/git_aliases.zsh"
-alias ezad="$EDITOR $ZDOTDIR/docker_aliases.zsh"
-alias ezf="$EDITOR $ZDOTDIR/functions.zsh"
-alias ezp="$EDITOR $ZDOTDIR/prompt.zsh"
+alias edit_zshrc="$EDITOR $ZDOTDIR/.zshrc"
+alias edit_zsh_aliases="$EDITOR $ZDOTDIR/aliases.zsh"
+alias edit_zsh_git_aliases="$EDITOR $ZDOTDIR/git_aliases.zsh"
+alias edit_zsh_docker_aliases="$EDITOR $ZDOTDIR/docker_aliases.zsh"
+alias edit_zsh_functions="$EDITOR $ZDOTDIR/functions.zsh"
+alias edit_zsh_prompt="$EDITOR $ZDOTDIR/prompt.zsh"
 
 # Reload zsh configuration
-alias rz="source $ZDOTDIR/.zshrc"
+alias reload_zshrc="source $ZDOTDIR/.zshrc"
 # ================================================================================
 
 alias clr="clear"
@@ -85,18 +85,3 @@ fi
 # Stop after 5 pings
 alias ping="ping -c 5"
 
-case "$(uname -s)" in
-Darwin)
-	# Mac OS X
-	;;
-
-Linux)
-	;;
-
-CYGWIN* | MINGW32* | MSYS* | MINGW*)
-	# MS Windows
-	;;
-*)
-	# Other OS
-	;;
-esac
