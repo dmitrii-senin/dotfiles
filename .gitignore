@@ -2,3 +2,4 @@
 .zcompdump
 lazy-lock.json
 lazyvim.json
+*.swp
