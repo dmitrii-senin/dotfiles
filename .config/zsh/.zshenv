@@ -79,3 +79,10 @@ if bat -V 2> /dev/null 1>&2 ; then
 	export MANROFFOPT='-c'
 	export MANPAGER="sh -c 'col -bx | bat -l man -p'"
 fi
+
+
+# ================================================================================
+# MISC
+# --------------------------------------------------------------------------------
+export TMUX_PLUGIN_MANAGER_PATH="${XDG_STATE_HOME}/tmux/plugins"
+
