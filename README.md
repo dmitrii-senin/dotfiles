@@ -14,8 +14,11 @@ setopt interactive_comments
 # Install Cargo
 curl https://sh.rustup.rs -sSf | sh
 
-cargo install \
-	git-delta
+cargo install     \
+	bat       \ # a cat(1) clone with wings.
+	exa       \ # a modern replacement for ls
+	git-delta \ # a syntax-highlighting pager for git
+	:
 ```
 
 # MacOS
@@ -27,15 +30,17 @@ setopt interactive_comments
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 # Install CLI tools
-brew install \
-	git \
+brew install   \
+	git    \
 	neovim \
-	tmux
+	tmux   \
+	:
 
 # Install GUI tools
-brew install --cask \
+brew install --cask                   \
 	font-jetbrains-mono-nerd-font \
-	kitty
+	kitty                         \
+	:
 ```
 
 # How to Sync
