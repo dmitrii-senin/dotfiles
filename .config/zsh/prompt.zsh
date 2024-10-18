@@ -54,56 +54,6 @@ function __build_exec_time() {
 	unset __CMD_START_MS
 }
 
-function __hg_prompt_info() {
-	local summary="$1"
-
-	local left_fade='%{%K{232}%} %{%K{233}%} %{%K{235}%} %{%K{237}%}'
-	local right_fade='%{%K{235}%} %{%K{233}%} %{%K{232}%}─%{%k%}'
-	local sep='%{%F{241}%}/%{%f%}'
-
-	local bookmark=$(\grep 'bookmarks:' <<< $summary | \grep -oP '(?<=\*)\S+')
-	if [[ -n "$bookmark" ]]; then
-		bookmark="$(print '\ueaa5') $bookmark"
-	fi
-
-	local commit_id=$(\grep 'parent:' <<< $summary | \awk '{print $2}')
-	if [ $(\wc -l <<< $commit_ids) -eq 2 ]; then
-		local commit_ids=(${(f)"$commit_id"})
-		commit_id=$(echo -n "$commit_ids[1] -> $commit_ids[2]")
-	fi
-
-	local commit_info=$(\grep 'commit:' <<< $summary)
-
-	local added=$(\grep -oP '\d+(?= added)' <<< $commit_info)
-	local modified=$(\grep -oP '\d+(?= modified)' <<< $commit_info)
-	local deleted=$(\grep -oP '\d+(?= deleted)' <<< $commit_info)
-	local unknown=$(\grep -oP '\d+(?= unknown)' <<< $commit_info)
-
-	local bookmark_color="%{%B%F{green}%}"
-	if [ -n "$added" ] || [ -n "$deleted" ]  || [ -n "$modified" ] ; then
-		local bookmark_color="%{%B%F{red}%}"
-	fi
-	local bookmark_info="${bookmark_color}${bookmark:-$commit_id}%{%f%b%}"
-
-	local repo_name=$(\hg root 2> /dev/null | \xargs basename)
-	local repo_info="%{%B%F{227}%}${repo_name}%{%f%b%}"
-
-	echo -n "${left_fade} "
-	echo -n "${repo_info} ${sep} ${bookmark_info} "
-
-	local added_info=$([ -n "$added" ] && echo "%{%B%F{green}%}A${added}%{%f%b%}")
-	local modified_info=$([ -n "$modified" ] && echo "%{%B%F{blue}%}M${modified}%{%f%b%}")
-	local deleted_info=$([ -n "$deleted" ] && echo "%{%B%F{red}%}D${deleted}%{%f%b%}")
-	local unknown_info=$([ -n "$unknown" ] && echo "%{%B%F{magenta}%}U${unknown}%{%f%b%}")
-
-	local changes_info="${added_info}${modified_info}${deleted_info}${unknown_info}"
-	if [ -n "$changes_info" ]; then
-		echo -n "${sep} ${changes_info} "
-	fi
-
-	echo "${right_fade}"
-}
-
 function __git_prompt_info() {
 	local repo_path="$1"
 
@@ -164,15 +114,6 @@ function __git_prompt_info() {
 
 function __vcs_precmd_hook() {
 	__VCS_INFO="─"
-
-	local summary
-	summary=$(\hg summary 2> /dev/null)
-	if [ $? -eq 0 ]; then
-		__VCS_INFO=$(__hg_prompt_info "$summary")
-		return
-	fi
-
-	local repo_path
 	repo_path=$(\git rev-parse --show-toplevel 2> /dev/null)
 	if [[ $? -eq 0 ]]; then
 		__VCS_INFO=$(__git_prompt_info "$repo_path")
