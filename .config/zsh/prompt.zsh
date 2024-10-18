@@ -54,27 +54,35 @@ function __build_exec_time() {
 	unset __CMD_START_MS
 }
 
+function __print_with_slanted_bg() {
+  local text="$1"
+  local prev_bg_color="$2"
+  local color="$3"
+  local bg_color="$4"
+
+  local left="%{%F{${bg_color}}%K{${prev_bg_color}}%}█%{%f%k%}"
+	local mid="%{%F{${color}}%K{${bg_color}}%}${text}%{%f%k%}"
+  local right="%{%F{${bg_color}}%k%}█%{%f%}"
+  # local right="%{%F{${bg_color}}%K{${next_bg_color}}%}█%{%f%k%}"
+  echo -n "${left}${mid}${right}"
+}
+
 function __git_prompt_info() {
-	local repo_path="$1"
-
-	local left_fade='%{%K{232}%} %{%K{233}%} %{%K{235}%} %{%K{237}%}'
-	local right_fade='%{%K{235}%} %{%K{233}%} %{%K{232}%}─%{%k%}'
-	local sep='%{%F{241}%}/%{%f%}'
-
-	local repo_info="%{%B%F{227}%}$(\basename $repo_path)%{%f%b%}"
-
 	local changes=$(\git status --short)
-	local branch_color='%{%B%F{green}%}'
+
+	local branch_color="green"
 	if [[ -n "${changes}" ]]; then
-		branch_color='%{%B%F{red}%}'
+		branch_color="red"
 	fi
+
+	local repo_path="$1"
+  local repo_name="$(\basename $repo_path)"
+  __print_with_slanted_bg "$repo_name" default black 227
 
 	local branch_symbol=$(print '\ue725')
 	local branch_name=$(\git rev-parse --abbrev-ref HEAD)
-	local branch_info="${branch_color}${branch_symbol} ${branch_name}%{%b%f%}"
-
-	echo -n "${left_fade} "
-	echo -n "${repo_info} ${sep} ${branch_info} "
+	__print_with_slanted_bg "${branch_symbol} ${branch_name}" 227 black "${branch_color}"
+  echo -n "%{%F{${branch_color}}%}%{%f%}"
 
 	local A=$(\grep -E '^A' <<< $changes | \wc -l | tr -d ' ')
 	local M=$(\grep -E '^M' <<< $changes | \wc -l | tr -d ' ')
@@ -88,7 +96,9 @@ function __git_prompt_info() {
 
 	local index_info="${A}${M}${D}${R}"
 	if [[ -n "$index_info" ]]; then
-		echo -n "${sep} $(print '\uf1c0') ${index_info} "
+		echo -n " $(print '\uf1c0') ${index_info}"
+  else
+		echo -n " $(print '\uf1c0') -"
 	fi
 
 	local U
@@ -106,10 +116,10 @@ function __git_prompt_info() {
 
 	local work_info="${A}${M}${D}${R}${U}"
 	if [[ -n "$work_info" ]]; then
-		echo -n "${sep} $(print '\uea83') ${work_info} "
+		echo -n " $(print '\uea83') ${work_info} "
+  else
+		echo -n " $(print '\uea83') - "
 	fi
-
-	echo "${right_fade}"
 }
 
 function __vcs_precmd_hook() {
