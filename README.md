@@ -31,6 +31,7 @@ setopt interactive_comments
 
 # Install CLI tools
 brew install   \
+  fzf    \
 	git    \
 	neovim \
 	tmux   \

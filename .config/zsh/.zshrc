@@ -57,7 +57,6 @@ unsetopt LIST_BEEP
 # --------------------------------------------------------------------------------
 bindkey -v
 bindkey '^R' history-incremental-search-backward
-source_if_exists "$ZDOTDIR/fzf.key-bindings.zsh"
 # ================================================================================
 
 # ================================================================================
@@ -68,5 +67,7 @@ for plugin_dir in $(\ls "$ZDOTDIR/plugins"); do
 	source_if_exists "$ZDOTDIR/plugins/$plugin_dir/$plugin_name.zsh"
 	source_if_exists "$ZDOTDIR/plugins/$plugin_dir/$plugin_name.plugin.zsh"
 done
+
+source <(fzf --zsh)
 # ================================================================================
 
