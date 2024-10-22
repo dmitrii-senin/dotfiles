@@ -77,7 +77,7 @@ fi
 # --------------------------------------------------------------------------------
 if bat -V 2> /dev/null 1>&2 ; then
 	export MANROFFOPT='-c'
-	export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+	export MANPAGER="sh -c 'col -bx | bat -l man -p --theme=Dracula'"
 fi
 
 
