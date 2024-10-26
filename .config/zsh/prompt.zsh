@@ -96,7 +96,7 @@ function __git_prompt_info() {
 
 
 function __vcs_precmd_hook() {
-	__VCS_INFO="─"
+	__VCS_INFO=""
 	repo_path=$(\git rev-parse --show-toplevel 2> /dev/null)
 	if [[ $? -eq 0 ]]; then
 		__VCS_INFO=$(__git_prompt_info "$repo_path")
