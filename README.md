@@ -66,6 +66,7 @@ setopt interactive_comments
 # Install Cargo
 curl https://sh.rustup.rs -sSf | sh
 
+# Install crates
 cargo install \
     bat       \ # a cat(1) clone with wings.
     exa       \ # a modern replacement for ls
@@ -82,6 +83,17 @@ setopt interactive_comments
 go install                               \
     github.com/charmbracelet/glow@latest \ # Render Markdown on the CLI
     :
+```
+
+```
+setopt interactive_comments
+
+# To init zsh(1) plugins
+git submodule update --init --recursive
+
+# To install tmux(1) tpm plugins
+# 1. Open tmux(1)
+# 2. Run [Ctrl + Space] + [Shift + I]
 ```
 
 # Customization
