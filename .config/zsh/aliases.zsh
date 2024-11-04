@@ -14,6 +14,10 @@ alias reload_zshrc="source $ZDOTDIR/.zshrc"
 
 alias clr="clear"
 
+if [[ -v KITTY_WINDOW_ID ]]; then
+  alias ssh="kitty +kitten ssh"
+fi
+
 # NeovVim aliases
 if nvim -v 2> /dev/null 1>&2 ; then
 	alias vim="nvim"
