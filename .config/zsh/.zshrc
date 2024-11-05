@@ -3,6 +3,7 @@ source "$ZDOTDIR/aliases.zsh"
 source "$ZDOTDIR/git_aliases.zsh"
 source "$ZDOTDIR/docker_aliases.zsh"
 source "$ZDOTDIR/prompt.zsh"
+source "$ZDOTDIR/fzf.zsh"
 
 # ================================================================================
 # HISTORY
@@ -67,7 +68,5 @@ for plugin_dir in $(\ls "$ZDOTDIR/plugins"); do
 	source_if_exists "$ZDOTDIR/plugins/$plugin_dir/$plugin_name.zsh"
 	source_if_exists "$ZDOTDIR/plugins/$plugin_dir/$plugin_name.plugin.zsh"
 done
-
-source <(fzf --zsh)
 # ================================================================================
 

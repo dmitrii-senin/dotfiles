@@ -70,6 +70,7 @@ curl https://sh.rustup.rs -sSf | sh
 cargo install \
     bat       \ # a cat(1) clone with wings.
     eza       \ # a modern replacement for ls
+    fd-find   \ # fd(1) is a simple, fast and user-friendly alternative to find(1)
     git-delta \ # a syntax-highlighting pager for git
     ripgrep   \ # a line-oriented search tool that recursively searches the current directory for a regex pattern
     :
