@@ -68,12 +68,12 @@ if glow -v &> /dev/null ; then
 fi
 
 # LS aliases
-if exa -v &> /dev/null ; then
-	alias l="exa --color=auto --icons"
-	alias ls="exa --color=auto --icons"
-	alias la="exa --color=auto -la --icons"
-	alias ll="exa --color=auto -l --icons"
-	alias tree="exa --color=auto --icons --tree"
+if command -v eza &> /dev/null ; then
+	alias l="eza --color=auto --icons"
+	alias ls="eza --color=auto --icons"
+	alias la="eza --color=auto -la --icons"
+	alias ll="eza --color=auto -l --icons"
+	alias tree="eza --color=auto --icons --tree"
 else
 	alias l="ls --color=auto -h"
 	alias ls="ls --color=auto -h"
@@ -81,7 +81,7 @@ else
 	alias ll="ls --color=auto -l -h"
 fi
 
-if bat -V 2> /dev/null 1>&2 ; then
+if command -v bat &> /dev/null ; then
 	alias cat="bat --style=plain --paging=never"
 fi
 

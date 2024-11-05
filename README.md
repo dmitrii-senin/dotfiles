@@ -69,7 +69,7 @@ curl https://sh.rustup.rs -sSf | sh
 # Install crates
 cargo install \
     bat       \ # a cat(1) clone with wings.
-    exa       \ # a modern replacement for ls
+    eza       \ # a modern replacement for ls
     git-delta \ # a syntax-highlighting pager for git
     ripgrep   \ # a line-oriented search tool that recursively searches the current directory for a regex pattern
     :
