@@ -63,7 +63,7 @@ alias pscpu='ps auxf | sort -nr -k 3 | head -5'
 alias mkdir="mkdir -pv"
 
 # Glow aliases
-if glow -v &> /dev/null ; then
+if comman -v glow &> /dev/null ; then
 	alias glow="glow -p"
 fi
 
