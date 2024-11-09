@@ -1,15 +1,15 @@
 # ================================================================================
 # Zsh aliases
 # --------------------------------------------------------------------------------
-alias edit_zshrc="$EDITOR $ZDOTDIR/.zshrc"
-alias edit_zsh_aliases="$EDITOR $ZDOTDIR/aliases.zsh"
-alias edit_zsh_git_aliases="$EDITOR $ZDOTDIR/git_aliases.zsh"
-alias edit_zsh_docker_aliases="$EDITOR $ZDOTDIR/docker_aliases.zsh"
-alias edit_zsh_functions="$EDITOR $ZDOTDIR/functions.zsh"
-alias edit_zsh_prompt="$EDITOR $ZDOTDIR/prompt.zsh"
+alias ezrc="$EDITOR $ZDOTDIR/.zshrc"
+alias ezal="$EDITOR $ZDOTDIR/aliases.zsh"
+alias ezga="$EDITOR $ZDOTDIR/git_aliases.zsh"
+alias ezda="$EDITOR $ZDOTDIR/docker_aliases.zsh"
+alias ezf="$EDITOR $ZDOTDIR/functions.zsh"
+alias ezp="$EDITOR $ZDOTDIR/prompt.zsh"
 
 # Reload zsh configuration
-alias reload_zshrc="source $ZDOTDIR/.zshrc"
+alias rzrc="source $ZDOTDIR/.zshrc"
 # ================================================================================
 
 alias clr="clear"

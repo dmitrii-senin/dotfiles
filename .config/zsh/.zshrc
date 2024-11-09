@@ -23,10 +23,10 @@ unsetopt HIST_BEEP
 # ================================================================================
 # Dynamic named directories
 # --------------------------------------------------------------------------------
-zconfig="${XDG_CONFIG_HOME}/zsh"; : ~$zconfig
-tconfig="${XDG_CONFIG_HOME}/tmux"; : ~$tconfig
-kconfig="${XDG_CONFIG_HOME}/kitty"; : ~$kconfig
-vconfig="${XDG_CONFIG_HOME}/nvim"; : ~$vconfig
+zconf="${XDG_CONFIG_HOME}/zsh"; : ~$zconf
+tconf="${XDG_CONFIG_HOME}/tmux"; : ~$tconf
+kconf="${XDG_CONFIG_HOME}/kitty"; : ~$kconf
+vconf="${XDG_CONFIG_HOME}/nvim"; : ~$vconf
 
 name_if_exists "/usr/bin" "ubin"
 name_if_exists "/usr/local/bin" "ulbin"
