@@ -43,12 +43,10 @@ path+=("$GOROOT/bin")
 
 case "$(uname -o)" in
 	"Darwin")
-		path+=("$HOME/.local/bin/x86_64-darwin")
 		path+=("$HOME/homebrew/bin")
 		path+=("$HOME/homebrew/sbin")
 		;;
 	"Linux")
-		path+=("$HOME/.local/bin/x86_64-linux")
 		;;
 esac
 
@@ -65,19 +63,19 @@ export FPATH
 # ================================================================================
 # EDITOR
 # --------------------------------------------------------------------------------
-if nvim -v 2> /dev/null 1>&2 ; then
+export EDITOR="vim"
+if command -v nvim &> /dev/null ; then
 	export EDITOR="nvim"
-else
-	export EDITOR="vim"
 fi
 
 
 # ================================================================================
 # PAGER
 # --------------------------------------------------------------------------------
-if bat -V 2> /dev/null 1>&2 ; then
+if command -v bat &> /dev/null ; then
 	export MANROFFOPT='-c'
-	export MANPAGER="sh -c 'col -bx | bat -l man -p --theme=Dracula'"
+	export MANPAGER="sh -c 'col -bx | bat -l man -p'"
+  export BAT_THEME="Dracula"
 fi
 
 
