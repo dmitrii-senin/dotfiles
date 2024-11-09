@@ -1,6 +1,7 @@
 # ================================================================================
 # Zsh aliases
 # --------------------------------------------------------------------------------
+alias ezenv="$EDITOR $ZDOTDIR/.zshenv"
 alias ezrc="$EDITOR $ZDOTDIR/.zshrc"
 alias ezal="$EDITOR $ZDOTDIR/aliases.zsh"
 alias ezga="$EDITOR $ZDOTDIR/git_aliases.zsh"
@@ -9,7 +10,13 @@ alias ezf="$EDITOR $ZDOTDIR/functions.zsh"
 alias ezp="$EDITOR $ZDOTDIR/prompt.zsh"
 
 # Reload zsh configuration
-alias rzrc="source $ZDOTDIR/.zshrc"
+alias rz="source $ZDOTDIR/.zshrc"
+# ================================================================================
+
+# ================================================================================
+# Kitty aliases
+# --------------------------------------------------------------------------------
+alias ekconf="$EDITOR ${XDG_CONFIG_HOME}/kitty/kitty.conf"
 # ================================================================================
 
 alias clr="clear"
