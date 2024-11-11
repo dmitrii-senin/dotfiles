@@ -26,7 +26,7 @@ if [[ -v KITTY_WINDOW_ID ]]; then
 fi
 
 # NeovVim aliases
-if nvim -v 2> /dev/null 1>&2 ; then
+if command -v nvim &> /dev/null; then
 	alias vim="nvim"
 fi
 
