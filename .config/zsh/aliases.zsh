@@ -21,9 +21,9 @@ alias ekconf="$EDITOR ${XDG_CONFIG_HOME}/kitty/kitty.conf"
 
 alias clr="clear"
 
-if [[ -v KITTY_WINDOW_ID ]]; then
-  alias ssh="kitty +kitten ssh"
-fi
+# if [[ -v KITTY_WINDOW_ID ]]; then
+#   alias ssh="kitty +kitten ssh"
+# fi
 
 # NeovVim aliases
 if command -v nvim &> /dev/null; then
