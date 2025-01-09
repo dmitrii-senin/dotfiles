@@ -6,6 +6,8 @@ map({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { desc = "Down", expr =
 map({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
 map({ "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { desc = "Up", expr = true, silent = true })
 
+map("n", "<Leader>L", "<Cmd>Lazy<CR>", { desc = "Run Lazy" })
+
 -- Move to window using the <ctrl> hjkl keys
 map("n", "<C-h>", "<C-w>h", { desc = "Go to Left Window", remap = true })
 map("n", "<C-j>", "<C-w>j", { desc = "Go to Lower Window", remap = true })
@@ -40,9 +42,6 @@ map("v", ">", ">gv")
 -- commenting
 map("n", "gco", "o<esc>Vcx<esc><Cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Below" })
 map("n", "gcO", "O<esc>Vcx<esc><Cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Above" })
-
--- lazy
-map("n", "<Leader>l", "<Cmd>Lazy<cr>", { desc = "Lazy" })
 
 -- new file
 map("n", "<Leader>fn", "<Cmd>enew<cr>", { desc = "New File" })
@@ -92,7 +91,24 @@ map("n", "<Leader>x", "<Cmd>.lua<CR>", { desc = "Execute the current line" })
 map("v", "<Leader>x", "<Cmd>.lua<CR>", { desc = "Execute the current selected lines" })
 
 -- Help for a Word Under Cursor
-map("n", "<Leader>hh", function(...) vim.cmd("help " .. vim.fn.expand("<cword>")) end, { desc = "Help: Run 'help:' for current word" })
-map("n", "<Leader>hH", function(...) vim.cmd("help " .. vim.fn.expand("<cWORD>")) end, { desc = "Help: Run 'help:' for current WORD" })
-map("n", "<Leader>hm", function(...) vim.cmd("help " .. vim.fn.expand("<cword>")) end, { desc = "Help: Run 'Man:' for current word" })
-map("n", "<Leader>hM", function(...) vim.cmd("help " .. vim.fn.expand("<cword>")) end, { desc = "Help: Run 'Man:' for current WORD" })
+map("n", "<Leader>hh", function(...)
+  vim.cmd("help " .. vim.fn.expand("<cword>"))
+end, { desc = "Help: Run 'help:' for current word" })
+
+map("n", "<Leader>hH", function(...)
+  for word in string.gmatch(vim.fn.expand("<cWORD>"), "[^(]+") do
+    vim.cmd("help " .. word)
+    break
+  end
+end, { desc = "Help: Run 'help:' for current WORD" })
+
+map("n", "<Leader>hm", function(...)
+  vim.cmd("Man " .. vim.fn.expand("<cword>"))
+end, { desc = "Help: Run 'Man:' for current word" })
+
+map("n", "<Leader>hM", function(...)
+  for word in string.gmatch(vim.fn.expand("<cWORD>"), "[^(]+") do
+    vim.cmd("Man " .. word)
+    break
+  end
+end, { desc = "Help: Run 'Man:' for current WORD" })

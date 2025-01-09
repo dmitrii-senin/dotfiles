@@ -71,19 +71,26 @@ return {
     capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
 
     local servers = {
-      clangd = {},
-      gopls = {},
-      rust_analyzer = {},
-      ["lua-language-server"] = {
-        diagnostics = { globals = { "vim" } },
-        completion = {
-          callSnippet = "Replace",
+      ["lua_ls"] = {
+        settings = {
+          Lua = {
+            diagnostics = { globals = { "vim" } },
+          },
         },
       },
     }
 
-    require("mason")
+    local ensure_installed = {
+      "clangd",
+      "lua_ls",
+      "rust_analyzer",
+      "ts_ls",
+    }
+
+    require("mason").setup()
     require("mason-lspconfig").setup({
+      automatic_installation = true,
+      ensure_installed = ensure_installed,
       handlers = {
         function(server_name)
           local server = servers[server_name] or {}
