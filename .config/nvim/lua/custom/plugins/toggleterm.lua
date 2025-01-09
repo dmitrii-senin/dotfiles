@@ -3,7 +3,7 @@ return {
   lazy = false,
   version = "*",
   opts = {
-    open_mapping = "<C-t>",
+    open_mapping = "<Leader>t",
     direction = "float",
   },
 }
