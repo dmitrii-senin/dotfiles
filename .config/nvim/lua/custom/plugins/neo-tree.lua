@@ -136,7 +136,7 @@ return {
           visible = true, -- when true, they will just be displayed differently than normal items
           hide_dotfiles = false,
           hide_gitignored = false,
-          hide_by_name = { "node_modules" },
+          hide_by_name = { "node_modules", ".git" },
           hide_by_pattern = {}, -- uses glob style patterns
           never_show = { ".DS_Store" },
         },
