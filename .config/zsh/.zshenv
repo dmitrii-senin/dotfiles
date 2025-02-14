@@ -83,4 +83,4 @@ fi
 # MISC
 # --------------------------------------------------------------------------------
 export TMUX_PLUGIN_MANAGER_PATH="${XDG_STATE_HOME}/tmux/plugins"
-
+export DOCKER_HOST=unix:///run/user/${UID}/docker.sock
