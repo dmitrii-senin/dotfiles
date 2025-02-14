@@ -85,6 +85,7 @@ return {
       "lua_ls",
       "rust_analyzer",
       "ts_ls",
+      "emmet_ls",
     }
 
     require("mason").setup()
