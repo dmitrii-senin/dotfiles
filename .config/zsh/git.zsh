@@ -1,3 +1,5 @@
+alias ezg="$EDITOR $ZDOTDIR/git.zsh"
+
 alias g="git"
 
 alias gco="git checkout"
@@ -13,6 +15,11 @@ alias gl="git log --graph --date=short --pretty=format:'\
 %C(auto)%d%C(reset)
 %<(80,trunc)%s
 '"
+
+alias gs="git show"
+alias gss="git show --stat"
+
+alias {gb,gbr}="git branch"
 
 alias ga="git add"
 alias gaa="git add --all"
@@ -34,5 +41,7 @@ alias gcm="git commit -m"
 alias gcam="git commit --all --message"
 
 alias gd="git diff"
-alias gds="git diff --staged"
+alias gds="git diff --stat"
+alias gdS="git diff --staged"
+alias gdSs="git diff --staged --stat"
 

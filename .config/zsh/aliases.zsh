@@ -2,10 +2,9 @@
 # Zsh aliases
 # --------------------------------------------------------------------------------
 alias ezenv="$EDITOR $ZDOTDIR/.zshenv"
-alias ezrc="$EDITOR $ZDOTDIR/.zshrc"
-alias ezal="$EDITOR $ZDOTDIR/aliases.zsh"
-alias ezga="$EDITOR $ZDOTDIR/git_aliases.zsh"
-alias ezda="$EDITOR $ZDOTDIR/docker_aliases.zsh"
+alias ez="$EDITOR $ZDOTDIR/.zshrc"
+alias eza="$EDITOR $ZDOTDIR/aliases.zsh"
+alias ezd="$EDITOR $ZDOTDIR/docker.zsh"
 alias ezf="$EDITOR $ZDOTDIR/functions.zsh"
 alias ezp="$EDITOR $ZDOTDIR/prompt.zsh"
 
@@ -20,10 +19,6 @@ alias ekconf="$EDITOR ${XDG_CONFIG_HOME}/kitty/kitty.conf"
 # ================================================================================
 
 alias clr="clear"
-
-# if [[ -v KITTY_WINDOW_ID ]]; then
-#   alias ssh="kitty +kitten ssh"
-# fi
 
 # NeovVim aliases
 if command -v nvim &> /dev/null; then
@@ -76,11 +71,11 @@ fi
 
 # LS aliases
 if command -v eza &> /dev/null ; then
-	alias l="eza --color=auto --icons"
-	alias ls="eza --color=auto --icons"
-	alias la="eza --color=auto -la --icons"
-	alias ll="eza --color=auto -l --icons"
-	alias tree="eza --color=auto --icons --tree"
+	alias l="\eza --color=auto --icons"
+	alias ls="\eza --color=auto --icons"
+	alias la="\eza --color=auto -la --icons"
+	alias ll="\eza --color=auto -l --icons"
+	alias tree="\eza --color=auto --icons --tree"
 else
 	alias l="ls --color=auto -h"
 	alias ls="ls --color=auto -h"
