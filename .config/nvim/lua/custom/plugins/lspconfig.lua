@@ -2,7 +2,7 @@ return {
   "neovim/nvim-lspconfig",
   dependencies = {
     "williamboman/mason.nvim",
-    { "williamboman/mason-lspconfig.nvim", config = true },
+    "williamboman/mason-lspconfig.nvim",
     { "j-hui/fidget.nvim", opts = {} },
     "hrsh7th/cmp-nvim-lsp",
   },
@@ -68,36 +68,22 @@ return {
     end
 
     local capabilities = vim.lsp.protocol.make_client_capabilities()
-    capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
-
-    local servers = {
-      ["lua_ls"] = {
-        settings = {
-          Lua = {
-            diagnostics = { globals = { "vim" } },
-          },
-        },
-      },
-    }
-
-    local ensure_installed = {
-      "clangd",
-      "lua_ls",
-      "rust_analyzer",
-      "ts_ls",
-      "emmet_ls",
-    }
+    capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
 
     require("mason").setup()
     require("mason-lspconfig").setup({
       automatic_installation = true,
-      ensure_installed = ensure_installed,
-      handlers = {
-        function(server_name)
-          local server = servers[server_name] or {}
-          server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-          require("lspconfig")[server_name].setup(server)
-        end,
+      ensure_installed = { "lua_ls", "clangd", "rust_analyzer" },
+    })
+
+    vim.lsp.config("lua_ls", {
+      settings = {
+        Lua = {
+          runtime = { version = "LuaJIT" },
+          diagnostics = { globals = { "vim" } },
+          workspace = { library = vim.api.nvim_get_runtime_file("", true), checkThirdParty = false },
+          telemetry = { enable = false },
+        },
       },
     })
   end,

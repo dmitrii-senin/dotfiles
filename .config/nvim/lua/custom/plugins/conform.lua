@@ -7,7 +7,8 @@ return {
 
     conform.setup({
       formatters_by_ft = {
-        cpp = { "clangd" },
+        cpp = { "clang_format" },
+        c = { "clang_format" },
         css = { "prettier" },
         graphql = { "prettier" },
         html = { "prettier" },
@@ -21,6 +22,11 @@ return {
         typescript = { "prettier" },
         typescriptreact = { "prettier" },
         yaml = { "prettier" },
+      },
+      formatters = {
+        clang_format = {
+          prepend_args = { "--style=Google" },
+        },
       },
       format_on_save = {
         lsp_fallback = true,
