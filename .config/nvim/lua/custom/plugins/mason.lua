@@ -10,5 +10,6 @@ return {
     build = ":MasonUpdate",
     cmd = { "Mason", "MasonUpdate", "MasonInstall" },
     keys = { { "<Leader>M", "<Cmd>Mason<CR>", desc = "Run [M]ason" } },
+    opts = {},
   },
 }

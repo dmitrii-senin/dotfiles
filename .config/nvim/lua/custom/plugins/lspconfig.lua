@@ -2,9 +2,6 @@ return {
   "neovim/nvim-lspconfig",
   dependencies = {
     "williamboman/mason.nvim",
-    "williamboman/mason-lspconfig.nvim",
-    { "j-hui/fidget.nvim", opts = {} },
-    "hrsh7th/cmp-nvim-lsp",
   },
   config = function()
     vim.api.nvim_create_autocmd("LspAttach", {
@@ -15,17 +12,21 @@ return {
           vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
         end
 
+        -- Override built-in LSP mappings with Telescope pickers
         map("gd", require("telescope.builtin").lsp_definitions, "[G]oto [D]efinition")
         map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-        map("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
-        map("gi", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
+        map("grr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
+        map("gri", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
+        map("gO", require("telescope.builtin").lsp_document_symbols, "Document Symbols")
         map("<Leader>D", require("telescope.builtin").lsp_type_definitions, "Type [D]efinition")
-        map("<Leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
         map("<Leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
-        map("<Leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
-        map("<Leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction", { "n", "x" })
 
+        -- Native completion
         local client = vim.lsp.get_client_by_id(event.data.client_id)
+        if client then
+          vim.lsp.completion.enable(true, client.id, event.buf, { autotrigger = true })
+        end
+
         if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
           local highlight_augroup = vim.api.nvim_create_augroup("custom-lsp-highlight", { clear = false })
           vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
@@ -57,9 +58,13 @@ return {
       end,
     })
 
-    -- Change diagnostic symbols in the sign column (gutter)
     if vim.g.have_nerd_font then
-      local signs = { ERROR = "", WARN = "", INFO = "", HINT = "" }
+      local signs = {
+        ERROR = "\u{EA87}",
+        WARN = "\u{EA6C}",
+        INFO = "\u{EA74}",
+        HINT = "\u{EA61}",
+      }
       local diagnostic_signs = {}
       for type, icon in pairs(signs) do
         diagnostic_signs[vim.diagnostic.severity[type]] = icon
@@ -67,17 +72,7 @@ return {
       vim.diagnostic.config({ signs = { text = diagnostic_signs } })
     end
 
-    local capabilities = vim.lsp.protocol.make_client_capabilities()
-    capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
-
-    require("mason").setup()
-    require("mason-lspconfig").setup({
-      automatic_installation = true,
-      ensure_installed = { "lua_ls", "clangd", "rust_analyzer", "pyright" },
-    })
-
     vim.lsp.config("lua_ls", {
-      capabilities = capabilities,
       settings = {
         Lua = {
           runtime = { version = "LuaJIT" },
@@ -89,7 +84,6 @@ return {
     })
 
     vim.lsp.config("clangd", {
-      capabilities = capabilities,
       cmd = {
         "clangd",
         "--background-index",
@@ -102,7 +96,6 @@ return {
     })
 
     vim.lsp.config("rust_analyzer", {
-      capabilities = capabilities,
       settings = {
         ["rust-analyzer"] = {
           checkOnSave = { command = "clippy" },
@@ -112,8 +105,8 @@ return {
       },
     })
 
-    vim.lsp.config("pyright", {
-      capabilities = capabilities,
-    })
+    vim.lsp.config("pyright", {})
+
+    vim.lsp.enable({ "lua_ls", "clangd", "rust_analyzer", "pyright" })
   end,
 }

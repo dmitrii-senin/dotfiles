@@ -39,10 +39,6 @@ map({ "i", "x", "n", "s" }, "<C-s>", "<Cmd>w<cr><esc>", { desc = "Save File" })
 map("v", "<", "<gv")
 map("v", ">", ">gv")
 
--- commenting
-map("n", "gco", "o<esc>Vcx<esc><Cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Below" })
-map("n", "gcO", "O<esc>Vcx<esc><Cmd>normal gcc<cr>fxa<bs>", { desc = "Add Comment Above" })
-
 -- new file
 map("n", "<Leader>fn", "<Cmd>enew<cr>", { desc = "New File" })
 
@@ -60,8 +56,6 @@ local diagnostic_goto = function(next, severity)
   end
 end
 map("n", "<Leader>cd", vim.diagnostic.open_float, { desc = "Line Diagnostics" })
-map("n", "]d", diagnostic_goto(true), { desc = "Next Diagnostic" })
-map("n", "[d", diagnostic_goto(false), { desc = "Prev Diagnostic" })
 map("n", "]e", diagnostic_goto(true, "ERROR"), { desc = "Next Error" })
 map("n", "[e", diagnostic_goto(false, "ERROR"), { desc = "Prev Error" })
 map("n", "]w", diagnostic_goto(true, "WARN"), { desc = "Next Warning" })
