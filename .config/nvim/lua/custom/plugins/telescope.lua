@@ -2,7 +2,7 @@ return {
   "nvim-telescope/telescope.nvim",
   lazy = false,
   cmd = "Telescope",
-  branch = "0.1.x",
+  tag = "0.1.8",
   dependencies = {
     "nvim-lua/plenary.nvim",
     { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
