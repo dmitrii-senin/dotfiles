@@ -73,7 +73,7 @@ return {
     require("mason").setup()
     require("mason-lspconfig").setup({
       automatic_installation = true,
-      ensure_installed = { "lua_ls", "clangd", "rust_analyzer" },
+      ensure_installed = { "lua_ls", "clangd", "rust_analyzer", "pyright" },
     })
 
     vim.lsp.config("lua_ls", {
@@ -86,6 +86,34 @@ return {
           telemetry = { enable = false },
         },
       },
+    })
+
+    vim.lsp.config("clangd", {
+      capabilities = capabilities,
+      cmd = {
+        "clangd",
+        "--background-index",
+        "--clang-tidy",
+        "--header-insertion=iwyu",
+        "--completion-style=detailed",
+        "--function-arg-placeholders",
+        "--fallback-style=Google",
+      },
+    })
+
+    vim.lsp.config("rust_analyzer", {
+      capabilities = capabilities,
+      settings = {
+        ["rust-analyzer"] = {
+          checkOnSave = { command = "clippy" },
+          cargo = { allFeatures = true },
+          procMacro = { enable = true },
+        },
+      },
+    })
+
+    vim.lsp.config("pyright", {
+      capabilities = capabilities,
     })
   end,
 }
