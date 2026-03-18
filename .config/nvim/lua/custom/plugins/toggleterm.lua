@@ -7,4 +7,8 @@ return {
     insert_mapping = false,
     direction = "float",
   },
+  config = function(_, opts)
+    require("toggleterm").setup(opts)
+    vim.keymap.set("t", "<Esc><Esc>", "<Cmd>ToggleTerm<CR>", { desc = "Hide terminal" })
+  end,
 }
