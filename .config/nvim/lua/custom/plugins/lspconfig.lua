@@ -77,6 +77,7 @@ return {
     })
 
     vim.lsp.config("lua_ls", {
+      capabilities = capabilities,
       settings = {
         Lua = {
           runtime = { version = "LuaJIT" },

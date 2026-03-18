@@ -46,18 +46,17 @@ map("n", "gcO", "O<esc>Vcx<esc><Cmd>normal gcc<cr>fxa<bs>", { desc = "Add Commen
 -- new file
 map("n", "<Leader>fn", "<Cmd>enew<cr>", { desc = "New File" })
 
-map("n", "<Leader>xl", "<Cmd>lopen<cr>", { desc = "Location List" })
-map("n", "<Leader>xq", "<Cmd>copen<cr>", { desc = "Quickfix List" })
+map("n", "<Leader>xL", "<Cmd>lopen<cr>", { desc = "Location List" })
+map("n", "<Leader>xQ", "<Cmd>copen<cr>", { desc = "Quickfix List" })
 
 map("n", "[q", vim.cmd.cprev, { desc = "Previous Quickfix" })
 map("n", "]q", vim.cmd.cnext, { desc = "Next Quickfix" })
 
 -- diagnostic
 local diagnostic_goto = function(next, severity)
-  local go = next and vim.diagnostic.goto_next or vim.diagnostic.goto_prev
   severity = severity and vim.diagnostic.severity[severity] or nil
   return function()
-    go({ severity = severity })
+    vim.diagnostic.jump({ count = next and 1 or -1, severity = severity })
   end
 end
 map("n", "<Leader>cd", vim.diagnostic.open_float, { desc = "Line Diagnostics" })
@@ -72,7 +71,7 @@ map("n", "[w", diagnostic_goto(false, "WARN"), { desc = "Prev Warning" })
 map("n", "<Leader>qq", "<Cmd>qa<cr>", { desc = "Quit All" })
 
 -- windows
-map("n", "<Leader>ws", "<C-W>s", { desc = "Split Window Below", remap = true })
+map("n", "<Leader>w-", "<C-W>s", { desc = "Split Window Below", remap = true })
 map("n", "<Leader>wv", "<C-W>v", { desc = "Split Window Right", remap = true })
 map("n", "<Leader>wd", "<C-W>c", { desc = "Delete Window", remap = true })
 

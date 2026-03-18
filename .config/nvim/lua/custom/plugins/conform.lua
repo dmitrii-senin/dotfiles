@@ -18,7 +18,7 @@ return {
         lua = { "stylua" },
         markdown = { "prettier" },
         python = { "isort", "black" },
-        rust = { "rust_analyzer" },
+        rust = { "rustfmt" },
         typescript = { "prettier" },
         typescriptreact = { "prettier" },
         yaml = { "prettier" },
