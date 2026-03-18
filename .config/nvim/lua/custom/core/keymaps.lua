@@ -14,11 +14,11 @@ map("n", "<C-j>", "<C-w>j", { desc = "Go to Lower Window", remap = true })
 map("n", "<C-k>", "<C-w>k", { desc = "Go to Upper Window", remap = true })
 map("n", "<C-l>", "<C-w>l", { desc = "Go to Right Window", remap = true })
 
--- Resize window using <ctrl> arrow keys
-map("n", "<C-Up>", "<Cmd>resize +2<cr>", { desc = "Increase Window Height" })
-map("n", "<C-Down>", "<Cmd>resize -2<cr>", { desc = "Decrease Window Height" })
-map("n", "<C-Left>", "<Cmd>vertical resize -2<cr>", { desc = "Decrease Window Width" })
-map("n", "<C-Right>", "<Cmd>vertical resize +2<cr>", { desc = "Increase Window Width" })
+-- Resize window using <alt-shift> arrow keys (alt for tmux panes, alt-shift for vim windows)
+map("n", "<M-S-Up>", "<Cmd>resize +2<cr>", { desc = "Increase Window Height" })
+map("n", "<M-S-Down>", "<Cmd>resize -2<cr>", { desc = "Decrease Window Height" })
+map("n", "<M-S-Left>", "<Cmd>vertical resize -2<cr>", { desc = "Decrease Window Width" })
+map("n", "<M-S-Right>", "<Cmd>vertical resize +2<cr>", { desc = "Increase Window Width" })
 
 -- buffers
 map("n", "<S-h>", "<Cmd>bprevious<cr>", { desc = "Prev Buffer" })
