@@ -44,5 +44,11 @@ return {
       local plugins = vim.fn.stdpath("data") .. "/lazy"
       builtin.find_files({ cwd = plugins })
     end, { desc = "[F]ind Neovim [P]lugin files" })
+
+    map("n", "<Leader>fd", builtin.diagnostics, { desc = "[F]ind [D]iagnostics" })
+    map("n", "<Leader>fk", builtin.keymaps, { desc = "[F]ind [K]eymaps" })
+    map("n", "<Leader>fm", builtin.man_pages, { desc = "[F]ind [M]an pages" })
+    map("n", "<Leader>f'", builtin.marks, { desc = "[F]ind Marks" })
+    map("n", "<Leader>f\"", builtin.registers, { desc = "[F]ind Registers" })
   end,
 }

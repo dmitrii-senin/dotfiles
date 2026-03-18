@@ -17,8 +17,8 @@ map("n", "<C-l>", "<C-w>l", { desc = "Go to Right Window", remap = true })
 -- Resize window using <alt-shift> arrow keys (alt for tmux panes, alt-shift for vim windows)
 map("n", "<M-S-Up>", "<Cmd>resize +2<cr>", { desc = "Increase Window Height" })
 map("n", "<M-S-Down>", "<Cmd>resize -2<cr>", { desc = "Decrease Window Height" })
-map("n", "<M-S-Left>", "<Cmd>vertical resize -2<cr>", { desc = "Decrease Window Width" })
-map("n", "<M-S-Right>", "<Cmd>vertical resize +2<cr>", { desc = "Increase Window Width" })
+map("n", "<M-S-Left>", "<Cmd>vertical resize +2<cr>", { desc = "Increase Window Width" })
+map("n", "<M-S-Right>", "<Cmd>vertical resize -2<cr>", { desc = "Decrease Window Width" })
 
 -- buffers
 map("n", "<S-h>", "<Cmd>bprevious<cr>", { desc = "Prev Buffer" })
@@ -65,7 +65,7 @@ map("n", "[w", diagnostic_goto(false, "WARN"), { desc = "Prev Warning" })
 map("n", "<Leader>qq", "<Cmd>qa<cr>", { desc = "Quit All" })
 
 -- windows
-map("n", "<Leader>w-", "<C-W>s", { desc = "Split Window Below", remap = true })
+map("n", "<Leader>ws", "<C-W>s", { desc = "Split Window Below", remap = true })
 map("n", "<Leader>wv", "<C-W>v", { desc = "Split Window Right", remap = true })
 map("n", "<Leader>wd", "<C-W>c", { desc = "Delete Window", remap = true })
 

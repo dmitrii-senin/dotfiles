@@ -18,8 +18,8 @@ return {
         map("grr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
         map("gri", require("telescope.builtin").lsp_implementations, "[G]oto [I]mplementation")
         map("gO", require("telescope.builtin").lsp_document_symbols, "Document Symbols")
-        map("<Leader>D", require("telescope.builtin").lsp_type_definitions, "Type [D]efinition")
-        map("<Leader>ws", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace [S]ymbols")
+        map("<Leader>ft", require("telescope.builtin").lsp_type_definitions, "[F]ind [T]ype Definition")
+        map("gW", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace Symbols")
 
         -- Native completion
         local client = vim.lsp.get_client_by_id(event.data.client_id)
