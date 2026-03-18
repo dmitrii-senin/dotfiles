@@ -136,7 +136,7 @@ return {
         },
         follow_current_file = { enabled = true },
         group_empty_dirs = true,
-        hijack_netrw_behavior = "open_default", -- netrw disabled, opening a directory opens neo-tree
+        hijack_netrw_behavior = "disabled", -- let oil.nvim handle directory buffers
         window = {
           mappings = {
             ["<bs>"] = "navigate_up",
