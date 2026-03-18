@@ -42,8 +42,8 @@ map("v", ">", ">gv")
 -- new file
 map("n", "<Leader>fn", "<Cmd>enew<cr>", { desc = "New File" })
 
-map("n", "<Leader>xL", "<Cmd>lopen<cr>", { desc = "Location List" })
-map("n", "<Leader>xQ", "<Cmd>copen<cr>", { desc = "Quickfix List" })
+map("n", "<Leader>ll", "<Cmd>lopen<cr>", { desc = "Location List" })
+map("n", "<Leader>lq", "<Cmd>copen<cr>", { desc = "Quickfix List" })
 
 map("n", "[q", vim.cmd.cprev, { desc = "Previous Quickfix" })
 map("n", "]q", vim.cmd.cnext, { desc = "Next Quickfix" })
