@@ -16,6 +16,7 @@ sync_paths=(
 	.config/kitty
 	.config/nvim
 	.config/tmux
+	.config/wezterm
 	.config/zsh
 	.zshenv
 )
