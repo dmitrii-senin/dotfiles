@@ -18,31 +18,16 @@ sudo apt install -y \
 
 
 # ================================================================================
-# Kitty
+# WezTerm
 # --------------------------------------------------------------------------------
-echo "Installing Kitty binary: https://sw.kovidgoyal.net/kitty/binary/ ..."
-curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
+# https://wezfurlong.org/wezterm/install/linux.html
+echo "Installing WezTerm ..."
 
-# An assumption is that ~/.local/bin is in your system-wide PATH
-echo "Creating symbolic links to add kitty and kitten in ~/.local/bin/ ..."
-ln -sf ~/.local/kitty.app/bin/kitty ~/.local/kitty.app/bin/kitten ~/.local/bin/
+curl -fsSL https://apt.fury.io/wez/gpg.key | sudo gpg --yes --dearmor -o /usr/share/keyrings/wezterm-fury.gpg
+echo 'deb [signed-by=/usr/share/keyrings/wezterm-fury.gpg] https://apt.fury.io/wez/ * *' | sudo tee /etc/apt/sources.list.d/wezterm.list
 
-echo "Placing the kitty.desktop file to ~/.local/share/applications/ ..."
-cp ~/.local/kitty.app/share/applications/kitty.desktop ~/.local/share/applications/
-
-# To open text files and images in kitty via your file manager
-echo "Adding kitty-open.desktop file to ~/.local/share/applications/ ..."
-cp ~/.local/kitty.app/share/applications/kitty-open.desktop ~/.local/share/applications/
-
-# Update the paths to the kitty and its icon in the kitty desktop file(s)
-sed -i "s|Icon=kitty|Icon=$(readlink -f ~)/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" ~/.local/share/applications/kitty*.desktop
-sed -i "s|Exec=kitty|Exec=$(readlink -f ~)/.local/kitty.app/bin/kitty|g" ~/.local/share/applications/kitty*.desktop
-
-# Make xdg-terminal-exec (and hence desktop environments that support it use kitty)
-echo 'kitty.desktop' > ~/.config/xdg-terminals.list
-
-echo "Adding kitty as an alternative for x-terminal-emulator with priority 50 ..."
-sudo update-alternatives --install /usr/bin/x-terminal-emulator x-terminal-emulator /usr/local/bin/kitty 50
+sudo apt update
+sudo apt install -y wezterm
 # ================================================================================
 
 
@@ -70,7 +55,7 @@ rm $FONT_ARC
 # ================================================================================
 # Install fzf
 # --------------------------------------------------------------------------------
-# TODO: Intall fzf + symlinks from .local/bin
+# TODO: Install fzf + symlinks from .local/bin
 # ================================================================================
 
 

@@ -14,6 +14,7 @@ repo=${0:A:h}
 sync_paths=(
 	.config/git
 	.config/nvim
+	.config/starship.toml
 	.config/tmux
 	.config/wezterm
 	.config/zsh
