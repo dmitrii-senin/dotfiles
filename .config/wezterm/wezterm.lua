@@ -35,4 +35,16 @@ config.send_composed_key_when_right_alt_is_pressed = true
 -- Terminal
 config.term = "xterm-256color"
 
+-- Open URL on Cmd-click
+local act = wezterm.action
+config.bypass_mouse_reporting_modifiers = 'SUPER'
+config.mouse_bindings = {
+  -- Cmd-click opens hyperlink; if no link, completes selection
+  {
+    event = { Up = { streak = 1, button = 'Left' } },
+    mods = 'SUPER',
+    action = act.CompleteSelectionOrOpenLinkAtMouseCursor 'ClipboardAndPrimarySelection',
+  },
+}
+
 return config
