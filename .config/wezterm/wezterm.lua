@@ -8,12 +8,20 @@ config.color_scheme = "Catppuccin Macchiato"
 config.font = wezterm.font("JetBrainsMono Nerd Font")
 config.font_size = 15
 
--- Background image (subtly visible behind text)
-config.window_background_image = wezterm.home_dir .. "/Pictures/phoenix.jpeg"
-config.window_background_image_hsb = {
-  brightness = 0.01,
-  hue = 1.0,
-  saturation = 1.0,
+-- Background image (subtly visible behind text, aspect-ratio preserved)
+config.background = {
+  {
+    source = { File = wezterm.home_dir .. "/Pictures/phoenix.jpeg" },
+    hsb = {
+      brightness = 0.01,
+      hue = 1.0,
+      saturation = 1.0,
+    },
+    width = "Cover",
+    height = "Cover",
+    horizontal_align = "Center",
+    vertical_align = "Middle",
+  },
 }
 
 -- Window
