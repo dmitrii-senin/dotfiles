@@ -1,0 +1,47 @@
+// Zellij Configuration
+
+theme "catppuccin-macchiato"
+default_layout "compact"
+pane_frames false
+copy_on_select true
+
+keybinds {
+    // Tab navigation with Alt+j/k (matches former tmux Alt+j/k window switching)
+    shared_except "locked" {
+        bind "Alt j" { GoToPreviousTab; }
+        bind "Alt k" { GoToNextTab; }
+    }
+
+    // Seamless vim-zellij pane navigation with Ctrl+h/j/k/l
+    shared_except "locked" "entersearch" {
+        bind "Ctrl h" {
+            MessagePlugin "vim-zellij-navigator" {
+                name "move_focus";
+                payload "left";
+            };
+        }
+        bind "Ctrl j" {
+            MessagePlugin "vim-zellij-navigator" {
+                name "move_focus";
+                payload "down";
+            };
+        }
+        bind "Ctrl k" {
+            MessagePlugin "vim-zellij-navigator" {
+                name "move_focus";
+                payload "up";
+            };
+        }
+        bind "Ctrl l" {
+            MessagePlugin "vim-zellij-navigator" {
+                name "move_focus";
+                payload "right";
+            };
+        }
+    }
+}
+
+// Plugins
+plugins {
+    vim-zellij-navigator location="https://github.com/hiasr/vim-zellij-navigator/releases/latest/download/vim-zellij-navigator.wasm"
+}

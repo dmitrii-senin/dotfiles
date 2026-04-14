@@ -15,7 +15,7 @@ sync_paths=(
 	.config/git
 	.config/nvim
 	.config/starship.toml
-	.config/tmux
+	.config/zellij
 	.config/wezterm
 	.config/zsh
 	.zshenv

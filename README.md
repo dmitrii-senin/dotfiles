@@ -9,7 +9,7 @@ and [JetBrainsMono Nerd Font](https://www.nerdfonts.com/) across all tools.
 |------|-------------|
 | [zsh](https://www.zsh.org/) | Shell with vi-mode, syntax highlighting, autosuggestions |
 | [neovim](https://neovim.io/) | Editor with LSP, DAP, linting, formatting (lazy.nvim) |
-| [tmux](https://github.com/tmux/tmux) | Terminal multiplexer with TPM plugins |
+| [zellij](https://github.com/zellij-org/zellij) | Terminal multiplexer with WASM plugin system |
 | [WezTerm](https://wezfurlong.org/wezterm/) | GPU-accelerated terminal emulator |
 | [starship](https://starship.rs/) | Cross-shell prompt |
 | [git](https://git-scm.com/) | Version control with [delta](https://github.com/dandavella/delta) as pager |
@@ -71,7 +71,7 @@ brew install \
     go \
     neovim \
     starship \
-    tmux \
+    zellij \
     zsh
 ```
 
@@ -98,7 +98,6 @@ sudo apt install -y \
     fontconfig \
     git \
     neovim \
-    tmux \
     zsh
 ```
 
@@ -147,7 +146,6 @@ sudo dnf install -y \
     git \
     make \
     neovim \
-    tmux \
     zsh
 ```
 
@@ -199,7 +197,8 @@ cargo install \
     fd-find \
     git-delta \
     ripgrep \
-    yazi-fm
+    yazi-fm \
+    zellij
 ```
 
 ### 4. Go Tools (all platforms)
@@ -220,8 +219,7 @@ git submodule update --init --recursive
 # Set zsh as default shell
 chsh -s $(which zsh)
 
-# Init tmux plugins: open tmux, then press
-#   Ctrl+Space, Shift+I
+# Zellij plugins auto-download on first use — no manual step needed
 ```
 
 ## Customization
