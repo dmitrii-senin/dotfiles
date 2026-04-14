@@ -9,7 +9,7 @@ and [JetBrainsMono Nerd Font](https://www.nerdfonts.com/) across all tools.
 |------|-------------|
 | [zsh](https://www.zsh.org/) | Shell with vi-mode, syntax highlighting, autosuggestions |
 | [neovim](https://neovim.io/) | Editor with LSP, DAP, linting, formatting (lazy.nvim) |
-| [zellij](https://github.com/zellij-org/zellij) | Terminal multiplexer with WASM plugin system |
+| [zellij](https://github.com/zellij-org/zellij) | Terminal multiplexer with [zjstatus](https://github.com/dj95/zjstatus) bar |
 | [WezTerm](https://wezfurlong.org/wezterm/) | GPU-accelerated terminal emulator |
 | [starship](https://starship.rs/) | Cross-shell prompt |
 | [git](https://git-scm.com/) | Version control with [delta](https://github.com/dandavella/delta) as pager |
@@ -83,6 +83,16 @@ brew install --cask \
     wezterm
 ```
 
+Install zellij plugins ([zjstatus](https://github.com/dj95/zjstatus), [vim-zellij-navigator](https://github.com/hiasr/vim-zellij-navigator)):
+
+```sh
+mkdir -p ~/.config/zellij/plugins
+curl -L https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm \
+    -o ~/.config/zellij/plugins/zjstatus.wasm
+curl -L https://github.com/hiasr/vim-zellij-navigator/releases/latest/download/vim-zellij-navigator.wasm \
+    -o ~/.config/zellij/plugins/vim-zellij-navigator.wasm
+```
+
 </details>
 
 <details>
@@ -132,6 +142,16 @@ Install fzf:
 sudo apt install -y fzf
 ```
 
+Install zellij plugins ([zjstatus](https://github.com/dj95/zjstatus), [vim-zellij-navigator](https://github.com/hiasr/vim-zellij-navigator)):
+
+```sh
+mkdir -p ~/.config/zellij/plugins
+curl -L https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm \
+    -o ~/.config/zellij/plugins/zjstatus.wasm
+curl -L https://github.com/hiasr/vim-zellij-navigator/releases/latest/download/vim-zellij-navigator.wasm \
+    -o ~/.config/zellij/plugins/vim-zellij-navigator.wasm
+```
+
 </details>
 
 <details>
@@ -176,6 +196,16 @@ Install fzf:
 
 ```sh
 sudo dnf install -y fzf
+```
+
+Install zellij plugins ([zjstatus](https://github.com/dj95/zjstatus), [vim-zellij-navigator](https://github.com/hiasr/vim-zellij-navigator)):
+
+```sh
+mkdir -p ~/.config/zellij/plugins
+curl -L https://github.com/dj95/zjstatus/releases/latest/download/zjstatus.wasm \
+    -o ~/.config/zellij/plugins/zjstatus.wasm
+curl -L https://github.com/hiasr/vim-zellij-navigator/releases/latest/download/vim-zellij-navigator.wasm \
+    -o ~/.config/zellij/plugins/vim-zellij-navigator.wasm
 ```
 
 </details>
