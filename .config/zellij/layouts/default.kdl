@@ -1,0 +1,62 @@
+layout {
+    default_tab_template {
+        children
+        pane size=1 borderless=true {
+            plugin location="file:~/.config/zellij/plugins/zjstatus.wasm" {
+                format_left  "{mode}#[fg=#8aadf4,bg=#24273a,bold] {session}#[bg=#24273a] {tabs}"
+                format_center ""
+                format_right "{command_user}#[fg=#6e738d,bg=#24273a]@{command_host} {datetime}"
+                format_space "#[bg=#24273a]"
+
+                // Catppuccin Macchiato colors
+                color_blue    "#8aadf4"
+                color_green   "#a6da95"
+                color_mauve   "#c6a0f6"
+                color_peach   "#f5a97f"
+                color_red     "#ed8796"
+                color_yellow  "#eed49f"
+                color_fg      "#cad3f5"
+                color_bg      "#24273a"
+                color_surface "#494d64"
+                color_overlay "#6e738d"
+
+                // Mode indicators
+                mode_normal        "#[bg=$green,fg=#24273a,bold] NORMAL "
+                mode_tmux          "#[bg=$mauve,fg=#24273a,bold] TMUX "
+                mode_locked        "#[bg=$red,fg=#24273a,bold] LOCKED "
+                mode_resize        "#[bg=$yellow,fg=#24273a,bold] RESIZE "
+                mode_scroll        "#[bg=$peach,fg=#24273a,bold] SCROLL "
+                mode_pane          "#[bg=$peach,fg=#24273a,bold] PANE "
+                mode_tab           "#[bg=$peach,fg=#24273a,bold] TAB "
+                mode_session       "#[bg=$peach,fg=#24273a,bold] SESSION "
+                mode_move          "#[bg=$peach,fg=#24273a,bold] MOVE "
+                mode_enter_search  "#[bg=$peach,fg=#24273a,bold] SEARCH "
+                mode_search        "#[bg=$peach,fg=#24273a,bold] SEARCH "
+                mode_rename_tab    "#[bg=$peach,fg=#24273a,bold] RENAME "
+                mode_rename_pane   "#[bg=$peach,fg=#24273a,bold] RENAME "
+                mode_default_to_mode "tmux"
+
+                // Tabs
+                tab_normal              "#[fg=$overlay,bg=$bg] {index} {name} "
+                tab_active              "#[fg=$peach,bg=$surface,bold] {index} {name} "
+                tab_separator           "#[fg=$overlay,bg=$bg]|"
+
+                // Hostname & username
+                command_user_command    "whoami"
+                command_user_format     "#[fg=$green,bg=$bg]{stdout}"
+                command_user_interval   "0"
+                command_user_rendermode "static"
+
+                command_host_command    "hostname -s"
+                command_host_format     "#[fg=$blue,bg=$bg]{stdout}"
+                command_host_interval   "0"
+                command_host_rendermode "static"
+
+                // Datetime
+                datetime          "#[fg=#b8c0e0,bg=$bg] {format} "
+                datetime_format   "%a %d %b %H:%M"
+                datetime_timezone "Europe/Berlin"
+            }
+        }
+    }
+}
