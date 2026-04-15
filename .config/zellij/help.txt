@@ -1,0 +1,89 @@
+Zellij Keybindings (press q to close)
+========================================
+
+NORMAL (default)
+  Ctrl g               lock
+  Ctrl Space           tmux mode
+  Alt j                prev tab
+  Alt k                next tab
+
+TMUX MODE (Ctrl+Space)
+  Esc                  back
+  p                    pane mode
+  t                    tab mode
+  n                    resize mode
+  /                    scroll mode
+  o                    session mode
+  h                    focus left
+  j                    focus down
+  k                    focus up
+  l                    focus right
+  s                    split down
+  v                    split right
+  c                    new tab
+  x                    close pane
+  q                    quit zellij
+
+PANE MODE (prefix → p)
+  Esc/Enter/q          back
+  s                    split down
+  v                    split right
+  x                    close pane
+  f                    fullscreen
+  w                    floating panes
+  h                    focus left
+  j                    focus down
+  k                    focus up
+  l                    focus right
+
+TAB MODE (prefix → t)
+  Esc/Enter/q          back
+  n                    new tab
+  x                    close tab
+  r                    rename tab
+  h/j                  prev tab
+  l/k                  next tab
+  1                    tab 1
+  2                    tab 2
+  3                    tab 3
+  4                    tab 4
+  5                    tab 5
+
+RESIZE MODE (prefix → n)
+  Esc/Enter/q          back
+  h/Left               resize left
+  j/Down               resize down
+  k/Up                 resize up
+  l/Right              resize right
+
+SCROLL MODE (prefix → /)
+  Esc/q                back
+  j/Down               scroll down
+  k/Up                 scroll up
+  d                    half page down
+  u                    half page up
+  /                    search
+  e                    edit scrollback
+
+ENTER SEARCH (scroll → /)
+  Esc                  scroll mode
+  Enter                confirm search
+
+SEARCH
+  Esc/q                back
+  j/Down               scroll down
+  k/Up                 scroll up
+  n                    next match
+  N                    prev match
+
+SESSION MODE (prefix → o)
+  Esc/Enter/q          back
+  d                    detach
+  q                    quit zellij
+
+RENAME TAB
+  Esc                  cancel rename
+  Enter                back
+
+LOCKED (Ctrl+g)
+  Ctrl g               back
