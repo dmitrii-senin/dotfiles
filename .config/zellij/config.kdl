@@ -12,7 +12,6 @@ default_layout "default"
 theme "catppuccin-macchiato"
 pane_frames false
 copy_on_select true
-auto_pane_content_permissions true
 
 keybinds clear-defaults=true {
     locked {
