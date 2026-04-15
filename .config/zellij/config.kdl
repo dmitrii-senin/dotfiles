@@ -44,7 +44,7 @@ keybinds clear-defaults=true {
     }
 
     pane {
-        bind "Esc" "Enter" { SwitchToMode "Normal"; }
+        bind "Esc" "Enter" "q" { SwitchToMode "Normal"; }
         bind "s" { NewPane "Down"; SwitchToMode "Normal"; }
         bind "v" { NewPane "Right"; SwitchToMode "Normal"; }
         bind "x" { CloseFocus; SwitchToMode "Normal"; }
@@ -57,7 +57,7 @@ keybinds clear-defaults=true {
     }
 
     tab {
-        bind "Esc" "Enter" { SwitchToMode "Normal"; }
+        bind "Esc" "Enter" "q" { SwitchToMode "Normal"; }
         bind "n" { NewTab; SwitchToMode "Normal"; }
         bind "x" { CloseTab; SwitchToMode "Normal"; }
         bind "r" { SwitchToMode "RenameTab"; TabNameInput 0; }
@@ -71,7 +71,7 @@ keybinds clear-defaults=true {
     }
 
     resize {
-        bind "Esc" "Enter" { SwitchToMode "Normal"; }
+        bind "Esc" "Enter" "q" { SwitchToMode "Normal"; }
         bind "h" "Left" { Resize "Increase Left"; }
         bind "j" "Down" { Resize "Increase Down"; }
         bind "k" "Up" { Resize "Increase Up"; }
@@ -79,7 +79,7 @@ keybinds clear-defaults=true {
     }
 
     scroll {
-        bind "Esc" { SwitchToMode "Normal"; }
+        bind "Esc" "q" { SwitchToMode "Normal"; }
         bind "j" "Down" { ScrollDown; }
         bind "k" "Up" { ScrollUp; }
         bind "d" { HalfPageScrollDown; }
@@ -93,7 +93,7 @@ keybinds clear-defaults=true {
     }
 
     search {
-        bind "Esc" { SwitchToMode "Normal"; }
+        bind "Esc" "q" { SwitchToMode "Normal"; }
         bind "j" "Down" { ScrollDown; }
         bind "k" "Up" { ScrollUp; }
         bind "n" { Search "down"; }
@@ -106,7 +106,7 @@ keybinds clear-defaults=true {
     }
 
     session {
-        bind "Esc" "Enter" { SwitchToMode "Normal"; }
+        bind "Esc" "Enter" "q" { SwitchToMode "Normal"; }
         bind "d" { Detach; }
         bind "q" { Quit; }
     }
