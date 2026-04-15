@@ -1,7 +1,12 @@
 #!/bin/bash
 case "$(uname)" in
   Darwin)
-    vm_stat | awk '/Pages active/{a=$3}/Pages wired/{w=$3}/Pages free/{f=$3}/Pages inactive/{i=$3}/Pages speculative/{s=$3}END{gsub(/\./,"",a);gsub(/\./,"",w);gsub(/\./,"",f);gsub(/\./,"",i);gsub(/\./,"",s);printf "%.0f%%",(a+w)/(a+w+f+i+s)*100}'
+    page_size=$(sysctl -n hw.pagesize)
+    total=$(sysctl -n hw.memsize)
+    internal=$(sysctl -n vm.page_pageable_internal_count)
+    purgeable=$(sysctl -n vm.page_purgeable_count)
+    vm_stat | awk -v ps="$page_size" -v total="$total" -v internal="$internal" -v purgeable="$purgeable" \
+      '/Pages wired/{gsub(/\./,"",$4);w=$4}/Pages occupied by compressor/{gsub(/\./,"",$5);c=$5}END{printf "%.0f%%",(internal-purgeable+w+c)*ps/total*100}'
     ;;
   Linux)
     awk '/MemTotal/{t=$2}/MemAvailable/{a=$2}END{printf "%.0f%%",(t-a)/t*100}' /proc/meminfo
