@@ -89,8 +89,8 @@ keybinds clear-defaults=true {
         bind "Esc" "q" { SwitchToMode "Normal"; }
         bind "j" "Down" { ScrollDown; }
         bind "k" "Up" { ScrollUp; }
-        bind "d" { HalfPageScrollDown; }
-        bind "u" { HalfPageScrollUp; }
+        bind "d" "Ctrl d" { HalfPageScrollDown; }
+        bind "u" "Ctrl u" { HalfPageScrollUp; }
         bind "/" { SwitchToMode "EnterSearch"; SearchInput 0; }
         bind "e" { EditScrollback; SwitchToMode "Normal"; }
     }
