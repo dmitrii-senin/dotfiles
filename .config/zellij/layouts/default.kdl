@@ -32,7 +32,7 @@ layout {
 
                 format_left   "#[bg=$surface0,fg=$sapphire]#[bg=$sapphire,fg=$crust,bold] {session} #[bg=$surface0] {mode}#[bg=$surface0] {tabs}"
                 format_center "{notifications}"
-                format_right  "#[bg=$surface0,fg=$teal]#[bg=$teal,fg=$crust] #[bg=$surface1,fg=$teal,bold] {command_cpu}#[bg=$surface0,fg=$surface1]#[bg=$surface0,fg=$green]#[bg=$green,fg=$crust]󰍛 #[bg=$surface1,fg=$green,bold] {command_mem}#[bg=$surface0,fg=$surface1]#[bg=$surface0,fg=$flamingo]#[fg=$crust,bg=$flamingo] #[bg=$surface1,fg=$flamingo,bold] {command_host}#[bg=$surface0,fg=$surface1]#[bg=$surface0,fg=$maroon]#[bg=$maroon,fg=$crust]󰃭 #[bg=$surface1,fg=$maroon,bold] {datetime}#[bg=$surface0,fg=$surface1]"
+                format_right  "#[bg=$surface0,fg=$teal]#[bg=$teal,fg=$crust] #[bg=$surface1,fg=$teal,bold] {command_cpu}#[bg=$surface0,fg=$surface1]#[bg=$surface0,fg=$green]#[bg=$green,fg=$crust]󰍛 #[bg=$surface1,fg=$green,bold] {command_mem}#[bg=$surface0,fg=$surface1]#[bg=$surface0,fg=$yellow]#[bg=$yellow,fg=$crust]󰁹 #[bg=$surface1,fg=$yellow,bold] {command_bat}#[bg=$surface0,fg=$surface1]#[bg=$surface0,fg=$flamingo]#[fg=$crust,bg=$flamingo] #[bg=$surface1,fg=$flamingo,bold] {command_host}#[bg=$surface0,fg=$surface1]#[bg=$surface0,fg=$maroon]#[bg=$maroon,fg=$crust]󰃭 #[bg=$surface1,fg=$maroon,bold] {datetime}#[bg=$surface0,fg=$surface1]"
                 format_space  "#[bg=$surface0]"
                 format_hide_on_overlength "true"
                 format_precedence "lrc"
@@ -81,15 +81,20 @@ layout {
                 command_host_interval   "0"
                 command_host_rendermode "static"
 
-                command_cpu_command    "bash /Users/kairo5/.config/zellij/scripts/cpu.sh"
+                command_cpu_command    "/Users/kairo5/.config/zellij/scripts/cpu.sh"
                 command_cpu_format     "{stdout}"
                 command_cpu_interval   "5"
                 command_cpu_rendermode "dynamic"
 
-                command_mem_command    "bash /Users/kairo5/.config/zellij/scripts/mem.sh"
+                command_mem_command    "/Users/kairo5/.config/zellij/scripts/mem.sh"
                 command_mem_format     "{stdout}"
                 command_mem_interval   "5"
                 command_mem_rendermode "dynamic"
+
+                command_bat_command    "/Users/kairo5/.config/zellij/scripts/battery.sh"
+                command_bat_format     "{stdout}"
+                command_bat_interval   "30"
+                command_bat_rendermode "dynamic"
 
                 // Datetime
                 datetime          "{format}"
