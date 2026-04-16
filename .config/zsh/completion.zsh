@@ -1,3 +1,5 @@
+fpath+=("$ZDOTDIR/plugins/zsh-completions/src")
+
 autoload -Uz compinit && compinit
 
 zstyle ':completion:*' menu select
