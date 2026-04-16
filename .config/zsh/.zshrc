@@ -3,6 +3,7 @@ source "$ZDOTDIR/aliases.zsh"
 source "$ZDOTDIR/git.zsh"
 source "$ZDOTDIR/docker.zsh"
 source "$ZDOTDIR/fzf.zsh"
+source "$ZDOTDIR/completion.zsh"
 
 # ================================================================================
 # HISTORY
@@ -56,7 +57,6 @@ unsetopt LIST_BEEP
 # key bindings (must be before starship init to avoid zle-keymap-select recursion)
 # --------------------------------------------------------------------------------
 bindkey -v
-bindkey '^R' history-incremental-search-backward
 
 autoload -Uz edit-command-line
 zle -N edit-command-line
