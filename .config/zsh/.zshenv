@@ -16,7 +16,6 @@ function () {
 	export LC_NUMERIC="$locale"
 	export LC_TIME="$locale"
 	export LC_ALL="$locale"
-	export LC_CTYPE="$locale"
 }
 
 export TZ="Europe/London"

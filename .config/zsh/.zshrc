@@ -18,6 +18,7 @@ setopt HIST_VERIFY
 setopt INC_APPEND_HISTORY_TIME
 setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_SAVE_NO_DUPS
+setopt HIST_REDUCE_BLANKS
 
 unsetopt HIST_BEEP
 # ================================================================================
@@ -73,7 +74,6 @@ bindkey -M vicmd 'v' edit-command-line
 # ================================================================================
 # prompt
 # --------------------------------------------------------------------------------
-# source "$ZDOTDIR/prompt.zsh"
 eval "$(starship init zsh)"
 # ================================================================================
 

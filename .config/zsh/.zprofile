@@ -13,8 +13,6 @@ case "$(uname -o)" in
 		path+=("$HOME/homebrew/bin")
 		path+=("$HOME/homebrew/sbin")
 		;;
-	"Linux")
-		;;
 esac
 
 export PATH
