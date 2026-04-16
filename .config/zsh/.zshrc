@@ -16,6 +16,8 @@ setopt EXTENDED_HISTORY
 setopt HIST_IGNORE_SPACE
 setopt HIST_VERIFY
 setopt INC_APPEND_HISTORY_TIME
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_SAVE_NO_DUPS
 
 unsetopt HIST_BEEP
 # ================================================================================
@@ -46,6 +48,9 @@ setopt NULL_GLOB
 setopt NUMERIC_GLOB_SORT
 setopt RC_EXPAND_PARAM
 setopt RC_QUOTES
+setopt AUTO_PUSHD
+setopt PUSHD_IGNORE_DUPS
+setopt PUSHD_SILENT
 
 unsetopt BEEP
 unsetopt CASE_GLOB
@@ -57,6 +62,7 @@ unsetopt LIST_BEEP
 # key bindings (must be before starship init to avoid zle-keymap-select recursion)
 # --------------------------------------------------------------------------------
 bindkey -v
+KEYTIMEOUT=1
 
 autoload -Uz edit-command-line
 zle -N edit-command-line
