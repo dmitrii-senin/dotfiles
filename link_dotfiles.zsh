@@ -60,9 +60,19 @@ function make_link() {
 	fi
 }
 
+function make_claude_skill_links() {
+	local skills_dir="$repo/.claude/skills"
+	[ -d "$skills_dir" ] || return
+	mkdir -p "$HOME/.claude/skills"
+	for skill_dir in "$skills_dir"/*(N/); do
+		make_link ".claude/skills/${skill_dir:t}"
+	done
+}
+
 function main() {
 	make_xdg_dirs
 	make_links
+	make_claude_skill_links
 }
 
 main "$@"
