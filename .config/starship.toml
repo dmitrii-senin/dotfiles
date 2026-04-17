@@ -24,10 +24,7 @@ $haskell\
 $python\
 [](fg:sapphire bg:green)\
 $conda\
-[](fg:teal bg:sapphire)\
-$memory_usage\
-$battery\
-[](fg:lavender bg:teal)\
+[](fg:lavender bg:sapphire)\
 $time\
 [](fg:lavender)\
 $line_break\
@@ -188,26 +185,6 @@ style = 'bold fg:yellow'
 format = '[$symbol$number]($style) '
 number_threshold = 1
 
-[memory_usage]
-disabled = false
-threshold = -1
-symbol = '󰍛 '
-style = 'fg:crust bg:teal'
-format = '[[ $symbol$ram_pct ](fg:crust bg:teal)]($style)'
-
-[battery]
-disabled = false
-format = '[[│ $symbol$percentage ](fg:crust bg:teal)]($style)'
-
-[[battery.display]]
-threshold = 15
-style = 'bold fg:crust bg:teal'
-[[battery.display]]
-threshold = 30
-style = 'fg:crust bg:teal'
-[[battery.display]]
-threshold = 100
-style = 'fg:crust bg:teal'
 
 [cmd_duration]
 show_milliseconds = true
