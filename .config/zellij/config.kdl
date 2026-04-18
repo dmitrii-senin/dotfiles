@@ -24,6 +24,7 @@ keybinds clear-defaults=true {
         bind "Ctrl Space" { SwitchToMode "Tmux"; }
         bind "Alt j" { GoToPreviousTab; }
         bind "Alt k" { GoToNextTab; }
+        bind "Ctrl u" { SwitchToMode "Scroll"; HalfPageScrollUp; }
     }
 
     tmux {
