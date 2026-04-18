@@ -40,10 +40,13 @@ For detailed subtopics, key knowledge areas, and the complete list of commands/c
 
 Generate the requested number of questions as a mix of these 4 formats:
 
-1. **Multiple choice** — 4–5 options (A–D or A–E). Some questions are single-answer, some are multi-select (clearly state "choose 2" or "choose 3"). Include plausible distractors.
-2. **Short answer** — ask the user to type a specific command, config file path, or directive.
-3. **Fill-in-the-blank** — provide a command or config snippet with a blank to complete (e.g., `rndc ______ example.com`).
-4. **Scenario-based** — describe a real-world situation (e.g., "A DNS server is not resolving external queries...") and ask what the user would do. Can be free-text or combined with multiple choice.
+1. **Multiple choice (single answer)** — 4–5 options (A–E), exactly one correct. Include plausible distractors.
+2. **Multiple choice (multi-select)** — 4–6 options (A–F), 2–3 correct. Always state how many to pick (e.g., "Choose 2" or "Select 3"). The real exam has these — they must appear in every quiz.
+3. **Short answer** — ask the user to type a specific command, config file path, or directive.
+4. **Fill-in-the-blank** — provide a command or config snippet with a blank to complete (e.g., `rndc ______ example.com`).
+5. **Scenario-based** — describe a real-world situation (e.g., "A DNS server is not resolving external queries...") and ask what the user would do. Can be free-text or combined with multiple choice.
+
+**Distribution:** aim for roughly 2 single-answer MC, 2 multi-select MC, 2 short answer, 2 fill-in-the-blank, and 2 scenario per 10 questions. Scale proportionally for other counts.
 
 ### Difficulty Guidelines
 
@@ -64,8 +67,16 @@ Present questions **one by one**. For each question:
    - **Why the correct answer is right** — with the relevant command syntax, config file path, or man page reference
    - **Why each wrong option is wrong** (for multiple choice) — briefly explain what each distractor actually does or why it's incorrect
    - **Deep dive** — a **one-screenful** reference block (~25–35 lines) **strictly scoped to what the question asked**: only the specific command, directive, or concept being tested. Cover its syntax, key flags/options, realistic config snippets, and practical gotchas — enough that the user walks away confident on that one item. Do not branch out into the broader topic or related tools. Never include material that could reveal answers to upcoming questions in the same quiz.
-4. Then present the next question. Continue until all questions are done.
-5. After the last question, show a **score summary**:
+4. Show the action prompt:
+
+   **`[n]` Next question** · **`[c]` Chat about this**
+
+   - If the user types `n` — present the next question.
+   - If the user types `c` — enter **chat mode**: the user can ask free-form follow-up questions about the concept, command, or topic from the current question. Answer conversationally, going deeper than the deep-dive block. Stay on-topic. When the user types `n` or says they're ready to continue, present the next question.
+   - **Wait for one of these inputs before proceeding.** Do not show the next question until the user explicitly types `n`.
+
+5. Continue until all questions are done.
+6. After the last question, show a **score summary**:
    - Score: X/N correct
    - Breakdown by subtopic (e.g., "207.1 Basic DNS: 2/3, 207.3 Securing DNS: 0/1")
    - Specific recommendation on which subtopics to focus on next
