@@ -34,7 +34,20 @@ If the input doesn't clearly match any topic, list the available topics and ask 
 
 ## Exam Objectives Reference
 
-For detailed subtopics, key knowledge areas, and the complete list of commands/config files per topic, see [objectives.md](objectives.md).
+For a compact overview of all topics, see [objectives.md](objectives.md).
+
+### Loading Topic Details
+
+After determining the topic, **read the detailed reference file** for that topic before generating questions or review material:
+
+- [Topic 207: DNS](topics/207-dns.md)
+- [Topic 208: HTTP](topics/208-http.md)
+- [Topic 209: File Sharing](topics/209-file-sharing.md)
+- [Topic 210: Network Client](topics/210-network-client.md)
+- [Topic 211: E-Mail](topics/211-email.md)
+- [Topic 212: Security](topics/212-security.md)
+
+If no specific topic was selected (random mode), pick a random topic and load its file. Use the detailed knowledge areas and exam focus points to ensure questions cover the **full breadth** of each subtopic — not just the most obvious terms. Every item in the "Exam focus areas" sections is fair game for questions.
 
 ## Quiz Mode (default)
 
