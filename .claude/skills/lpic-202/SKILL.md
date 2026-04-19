@@ -82,11 +82,11 @@ Present questions **one by one**. For each question:
    - **Deep dive** — a **one-screenful** reference block (~25–35 lines) **strictly scoped to what the question asked**: only the specific command, directive, or concept being tested. Cover its syntax, key flags/options, realistic config snippets, and practical gotchas — enough that the user walks away confident on that one item. Do not branch out into the broader topic or related tools. Never include material that could reveal answers to upcoming questions in the same quiz.
 4. Show the action prompt:
 
-   **`[n]` Next question** · **`[c]` Chat about this**
+   **`[n]` Next question** · or **type a follow-up to chat about this topic**
 
    - If the user types `n` — present the next question.
-   - If the user types `c` — enter **chat mode**: the user can ask free-form follow-up questions about the concept, command, or topic from the current question. Answer conversationally, going deeper than the deep-dive block. Stay on-topic. When the user types `n` or says they're ready to continue, present the next question.
-   - **Wait for one of these inputs before proceeding.** Do not show the next question until the user explicitly types `n`.
+   - If the user types anything else — treat it as a follow-up about the current topic. Answer conversationally, going deeper than the deep-dive block. Stay on-topic. Then re-show this action prompt. When the user types `n`, present the next question.
+   - **Do not show the next question until the user explicitly types `n`.**
 
 5. Continue until all questions are done.
 6. After the last question, show a **score summary**:
