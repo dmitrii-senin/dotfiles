@@ -81,17 +81,17 @@ layout {
                 command_host_interval   "0"
                 command_host_rendermode "static"
 
-                command_cpu_command    "/Users/kairo5/.config/zellij/scripts/cpu.sh"
+                command_cpu_command    "bash -c \"$HOME/.config/zellij/scripts/cpu.sh\""
                 command_cpu_format     "{stdout}"
                 command_cpu_interval   "5"
                 command_cpu_rendermode "dynamic"
 
-                command_mem_command    "/Users/kairo5/.config/zellij/scripts/mem.sh"
+                command_mem_command    "bash -c \"$HOME/.config/zellij/scripts/mem.sh\""
                 command_mem_format     "{stdout}"
                 command_mem_interval   "5"
                 command_mem_rendermode "dynamic"
 
-                command_bat_command    "/Users/kairo5/.config/zellij/scripts/battery.sh"
+                command_bat_command    "bash -c \"$HOME/.config/zellij/scripts/battery.sh\""
                 command_bat_format     "{stdout}"
                 command_bat_interval   "30"
                 command_bat_rendermode "dynamic"
