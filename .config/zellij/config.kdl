@@ -19,6 +19,10 @@
 //   Alt+p       pin / unpin focused floating pane
 //   Alt+e       embed ↔ float toggle for focused pane
 //   Alt+u       enter scroll mode + page up
+//   Alt+d       detach session
+//   Alt+q       quit zellij (session stays resurrectable)
+//   Alt+Q       kill+delete current session (with confirm)
+//   Alt+o       open session manager (rename/switch sessions)
 //   Alt+/       open this keymap (help.txt)
 //
 // Vim-aware navigation
@@ -154,6 +158,12 @@ keybinds clear-defaults=true {
         bind "Esc" "Enter" "q" { SwitchToMode "Normal"; }
         bind "d" { Detach; }
         bind "q" { Quit; }
+        bind "o" "Alt o" {
+            LaunchPlugin "session-manager" {
+                floating true
+            };
+            SwitchToMode "Normal";
+        }
     }
 
     // Quick keys (work in any non-locked mode)
@@ -182,6 +192,19 @@ keybinds clear-defaults=true {
         bind "Alt 8" { GoToTab 8; }
         bind "Alt 9" { GoToTab 9; }
         bind "Alt u" { SwitchToMode "Scroll"; HalfPageScrollUp; }
+        bind "Alt d" { Detach; }
+        bind "Alt q" { Quit; }
+        bind "Alt Q" {
+            Run "bash" "-c" "read -p 'Kill+delete current session \"$ZELLIJ_SESSION_NAME\"? [y/N] ' a && [[ \"$a\" =~ ^[Yy]$ ]] && zellij delete-session --force \"$ZELLIJ_SESSION_NAME\"" {
+                floating true
+                close_on_exit true
+            };
+        }
+        bind "Alt o" {
+            LaunchPlugin "session-manager" {
+                floating true
+            };
+        }
         bind "Alt /" {
             Run "bash" "-c" "less ~/.config/zellij/help.txt" {
                 close_on_exit true

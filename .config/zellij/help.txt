@@ -16,6 +16,10 @@ QUICK KEYS (any non-locked mode)
   Alt p              pin / unpin focused floating pane
   Alt e              embed <-> float toggle for focused pane
   Alt u              enter scroll mode + half page up
+  Alt d              detach session
+  Alt q              quit zellij (session stays resurrectable)
+  Alt Q              kill+delete current session (with confirm)
+  Alt o              open session manager (rename/switch sessions)
   Alt /              open this keymap
 
 NORMAL (default)
@@ -99,6 +103,9 @@ SESSION MODE (prefix → o)
   Esc/Enter/q        back
   d                  detach
   q                  quit zellij
+  o / Alt o          open session manager
+
+  CLI: zellij action rename-session NAME    (rename current session)
 
 RENAME TAB (Alt+r  or  prefix → t → r)
   Esc                cancel rename
