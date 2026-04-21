@@ -5,3 +5,5 @@ lazyvim.json
 *.swp
 
 zsh-meta/
+
+.claude/skills/lpic-202/progress.md
