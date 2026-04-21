@@ -1,96 +1,115 @@
 Zellij Keybindings (press q to close)
 ========================================
 
-NORMAL (default)
-  Ctrl g               lock
-  Ctrl Space           tmux mode
-  Alt j                prev tab
-  Alt k                next tab
-  Alt w                toggle floating panes
+QUICK KEYS (any non-locked mode)
+  Alt s              new pane (split down)
+  Alt v              new pane (split right)
+  Alt f              new floating pane
+  Alt x              close focused pane
+  Alt n              new tab
+  Alt r              rename current tab
+  Alt 1..9           jump to tab N
+  Alt j / k          prev / next tab
+  Alt H / L          move current tab left / right
+  Alt w              toggle floating panes (show/hide)
+  Alt z              zoom (toggle fullscreen) current pane
+  Alt p              pin / unpin focused floating pane
+  Alt e              embed <-> float toggle for focused pane
+  Alt u              enter scroll mode + half page up
+  Alt /              open this keymap
 
-TMUX MODE (Ctrl+Space)
-  Esc                  back
-  p                    pane mode
-  t                    tab mode
-  n                    resize mode
-  /                    scroll mode
-  o                    session mode
-  h                    focus left
-  j                    focus down
-  k                    focus up
-  l                    focus right
-  s                    split down
-  v                    split right
-  f                    new floating pane
-  >                    move pane (reposition float)
-  c                    new tab
-  x                    close pane
-  q                    quit zellij
+NORMAL (default)
+  Alt g              lock
+  Ctrl Space         tmux mode
+
+TMUX MODE (Ctrl+Space) — discoverable mode router
+  Esc                back
+  ?                  open this keymap
+  p                  pane mode
+  t                  tab mode
+  r                  resize mode
+  /                  scroll mode
+  o                  session mode
+  h / j / k / l      focus left / down / up / right
+  s                  split down
+  v                  split right
+  f                  new floating pane
+  >                  move pane (reposition float)
+  n                  new tab
+  x                  close pane
+  q                  quit zellij
 
 PANE MODE (prefix → p)
-  Esc/Enter/q          back
-  s                    split down
-  v                    split right
-  x                    close pane
-  f                    fullscreen
-  w                    floating panes
-  h                    focus left
-  j                    focus down
-  k                    focus up
-  l                    focus right
+  Esc/Enter/q        back
+  s                  split down
+  v                  split right
+  x                  close pane
+  f                  fullscreen
+  w                  toggle floating panes
+  p                  pin / unpin floating pane
+  e                  embed <-> float
+  r                  rename pane
+  h / j / k / l      focus left / down / up / right
 
 TAB MODE (prefix → t)
-  Esc/Enter/q          back
-  n                    new tab
-  x                    close tab
-  r                    rename tab
-  h/j                  prev tab
-  l/k                  next tab
-  1                    tab 1
-  2                    tab 2
-  3                    tab 3
-  4                    tab 4
-  5                    tab 5
+  Esc/Enter/q        back
+  n                  new tab
+  x                  close tab
+  r                  rename tab
+  h / j              prev tab
+  l / k              next tab
+  H / J              move tab left
+  L / K              move tab right
+  1..5               jump to tab N
 
-RESIZE MODE (prefix → n)
-  Esc/Enter/q          back
-  h/Left               grow left
-  j/Down               grow down
-  k/Up                 grow up
-  l/Right              grow right
-  H                    shrink left
-  J                    shrink down
-  K                    shrink up
-  L                    shrink right
+  (Tab numbers are positional and renumber automatically when a tab is closed.)
 
-SCROLL MODE (prefix → /)
-  Esc/q                back
-  j/Down               scroll down
-  k/Up                 scroll up
-  d                    half page down
-  u                    half page up
-  /                    search
-  e                    edit scrollback
+RESIZE MODE (prefix → r)
+  Esc/Enter/q        back
+  h / Left           grow left
+  j / Down           grow down
+  k / Up             grow up
+  l / Right          grow right
+  H                  shrink left
+  J                  shrink down
+  K                  shrink up
+  L                  shrink right
+
+SCROLL MODE (prefix → /  or  Alt+u)
+  Esc/q              back
+  j / Down           scroll down
+  k / Up             scroll up
+  d / Ctrl d         half page down
+  u / Ctrl u         half page up
+  /                  search
+  e                  edit scrollback
 
 ENTER SEARCH (scroll → /)
-  Esc                  scroll mode
-  Enter                confirm search
+  Esc                scroll mode
+  Enter              confirm search
 
 SEARCH
-  Esc/q                back
-  j/Down               scroll down
-  k/Up                 scroll up
-  n                    next match
-  N                    prev match
+  Esc/q              back
+  j / Down           scroll down
+  k / Up             scroll up
+  n                  next match
+  N                  prev match
 
 SESSION MODE (prefix → o)
-  Esc/Enter/q          back
-  d                    detach
-  q                    quit zellij
+  Esc/Enter/q        back
+  d                  detach
+  q                  quit zellij
 
-RENAME TAB
-  Esc                  cancel rename
-  Enter                back
+RENAME TAB (Alt+r  or  prefix → t → r)
+  Esc                cancel rename
+  Enter              confirm
 
-LOCKED (Ctrl+g)
-  Ctrl g               back
+RENAME PANE (prefix → p → r)
+  Esc                cancel rename
+  Enter              confirm
+
+LOCKED (Alt+g)
+  Alt g              back
+
+NAVIGATION (vim-aware, any non-locked mode)
+  Ctrl h / j / k / l seamless vim <-> zellij pane focus

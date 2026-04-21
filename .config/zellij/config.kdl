@@ -1,14 +1,31 @@
-// Zellij Configuration
+// Zellij Configuration — press Alt+/ inside zellij for the full keymap
 //
-// Prefix: Ctrl+Space (tmux mode), then:
-//   p → Pane mode    t → Tab mode     n → Resize mode
-//   / → Scroll mode  o → Session mode
-//   s → split down   v → split right  c → new tab
-//   f → new floating pane
+// Tmux prefix (Ctrl+Space) — discoverable mode router
+//   ?  help          p  pane mode      t  tab mode
+//   r  resize mode   /  scroll mode    o  session mode
+//   s  split down    v  split right    f  new floating pane
+//   n  new tab       x  close pane     q  quit
 //
-// Alt+j/k → prev/next tab
-// Alt+w → toggle floating panes (show/hide)
-// Ctrl+h/j/k/l → seamless vim/zellij pane navigation
+// Quick keys (any non-locked mode)
+//   Alt+s/v/f   new pane down / right / floating
+//   Alt+x       close pane
+//   Alt+r       rename current tab
+//   Alt+n       new tab
+//   Alt+1..9    jump to tab N
+//   Alt+j/k     prev / next tab
+//   Alt+H/L     move tab left / right
+//   Alt+w       toggle floating panes (show/hide)
+//   Alt+z       zoom (toggle fullscreen) current pane
+//   Alt+p       pin / unpin focused floating pane
+//   Alt+e       embed ↔ float toggle for focused pane
+//   Alt+u       enter scroll mode + page up
+//   Alt+/       open this keymap (help.txt)
+//
+// Vim-aware navigation
+//   Ctrl+h/j/k/l  seamless vim ↔ zellij pane focus
+//
+// Locking
+//   Alt+g       toggle locked mode (passes everything to terminal)
 
 default_layout "default"
 theme "catppuccin-macchiato"
@@ -18,15 +35,12 @@ show_startup_tips false
 
 keybinds clear-defaults=true {
     locked {
-        bind "Ctrl g" { SwitchToMode "Normal"; }
+        bind "Alt g" { SwitchToMode "Normal"; }
     }
 
     normal {
-        bind "Ctrl g" { SwitchToMode "Locked"; }
+        bind "Alt g" { SwitchToMode "Locked"; }
         bind "Ctrl Space" { SwitchToMode "Tmux"; }
-        bind "Alt j" { GoToPreviousTab; }
-        bind "Alt k" { GoToNextTab; }
-        bind "Ctrl u" { SwitchToMode "Scroll"; HalfPageScrollUp; }
     }
 
     tmux {
@@ -40,7 +54,7 @@ keybinds clear-defaults=true {
         }
         bind "p" { SwitchToMode "Pane"; }
         bind "t" { SwitchToMode "Tab"; }
-        bind "n" { SwitchToMode "Resize"; }
+        bind "r" { SwitchToMode "Resize"; }
         bind "/" { SwitchToMode "Scroll"; }
         bind "o" { SwitchToMode "Session"; }
         bind "h" { MoveFocus "Left"; SwitchToMode "Normal"; }
@@ -49,9 +63,12 @@ keybinds clear-defaults=true {
         bind "l" { MoveFocus "Right"; SwitchToMode "Normal"; }
         bind "s" { NewPane "Down"; SwitchToMode "Normal"; }
         bind "v" { NewPane "Right"; SwitchToMode "Normal"; }
-        bind "f" { NewPane { floating true; }; SwitchToMode "Normal"; }
+        bind "f" {
+            Run "zsh" { floating true; close_on_exit true; };
+            SwitchToMode "Normal";
+        }
         bind ">" { MovePane; SwitchToMode "Normal"; }
-        bind "c" { NewTab; SwitchToMode "Normal"; }
+        bind "n" { NewTab; SwitchToMode "Normal"; }
         bind "x" { CloseFocus; SwitchToMode "Normal"; }
         bind "q" { Quit; }
     }
@@ -63,6 +80,9 @@ keybinds clear-defaults=true {
         bind "x" { CloseFocus; SwitchToMode "Normal"; }
         bind "f" { ToggleFocusFullscreen; SwitchToMode "Normal"; }
         bind "w" { ToggleFloatingPanes; SwitchToMode "Normal"; }
+        bind "p" { TogglePanePinned; SwitchToMode "Normal"; }
+        bind "e" { TogglePaneEmbedOrFloating; SwitchToMode "Normal"; }
+        bind "r" { SwitchToMode "RenamePane"; PaneNameInput 0; }
         bind "h" { MoveFocus "Left"; }
         bind "j" { MoveFocus "Down"; }
         bind "k" { MoveFocus "Up"; }
@@ -76,6 +96,8 @@ keybinds clear-defaults=true {
         bind "r" { SwitchToMode "RenameTab"; TabNameInput 0; }
         bind "h" "j" { GoToPreviousTab; }
         bind "l" "k" { GoToNextTab; }
+        bind "H" "J" { MoveTab "Left"; }
+        bind "L" "K" { MoveTab "Right"; }
         bind "1" { GoToTab 1; SwitchToMode "Normal"; }
         bind "2" { GoToTab 2; SwitchToMode "Normal"; }
         bind "3" { GoToTab 3; SwitchToMode "Normal"; }
@@ -123,15 +145,49 @@ keybinds clear-defaults=true {
         bind "Enter" { SwitchToMode "Normal"; }
     }
 
+    renamepane {
+        bind "Esc" { UndoRenamePane; SwitchToMode "Normal"; }
+        bind "Enter" { SwitchToMode "Normal"; }
+    }
+
     session {
         bind "Esc" "Enter" "q" { SwitchToMode "Normal"; }
         bind "d" { Detach; }
         bind "q" { Quit; }
     }
 
-    // Quick floating-pane toggle (works in any non-locked mode)
+    // Quick keys (work in any non-locked mode)
     shared_except "locked" {
+        bind "Alt j" { GoToPreviousTab; }
+        bind "Alt k" { GoToNextTab; }
         bind "Alt w" { ToggleFloatingPanes; }
+        bind "Alt z" { ToggleFocusFullscreen; }
+        bind "Alt H" { MoveTab "Left"; }
+        bind "Alt L" { MoveTab "Right"; }
+        bind "Alt p" { TogglePanePinned; }
+        bind "Alt e" { TogglePaneEmbedOrFloating; }
+        bind "Alt n" { NewTab; }
+        bind "Alt s" { NewPane "Down"; }
+        bind "Alt v" { NewPane "Right"; }
+        bind "Alt f" { Run "zsh" { floating true; close_on_exit true; }; }
+        bind "Alt x" { CloseFocus; }
+        bind "Alt r" { SwitchToMode "RenameTab"; TabNameInput 0; }
+        bind "Alt 1" { GoToTab 1; }
+        bind "Alt 2" { GoToTab 2; }
+        bind "Alt 3" { GoToTab 3; }
+        bind "Alt 4" { GoToTab 4; }
+        bind "Alt 5" { GoToTab 5; }
+        bind "Alt 6" { GoToTab 6; }
+        bind "Alt 7" { GoToTab 7; }
+        bind "Alt 8" { GoToTab 8; }
+        bind "Alt 9" { GoToTab 9; }
+        bind "Alt u" { SwitchToMode "Scroll"; HalfPageScrollUp; }
+        bind "Alt /" {
+            Run "bash" "-c" "less ~/.config/zellij/help.txt" {
+                close_on_exit true
+                floating true
+            };
+        }
     }
 
     // Seamless vim/zellij pane navigation with Ctrl+h/j/k/l

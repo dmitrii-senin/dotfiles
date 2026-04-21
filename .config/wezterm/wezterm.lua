@@ -55,4 +55,24 @@ config.mouse_bindings = {
   },
 }
 
+-- Map Cmd+<key> -> Alt+<key> so macOS Cmd works as Meta for zellij/tmux/zsh.
+-- Excluded: c (copy), v (paste), q (emergency quit), t (new WezTerm tab).
+local cmd_as_alt_keys = {
+  "a","b","d","e","f","g","h","i","j","k","l","m",
+  "n","o","p","r","s","u","w","x","y","z",
+  "0","1","2","3","4","5","6","7","8","9",
+  "/", ",", ".", ";", "'",
+}
+config.keys = config.keys or {}
+for _, k in ipairs(cmd_as_alt_keys) do
+  table.insert(config.keys, {
+    key = k, mods = "CMD",
+    action = act.SendKey { key = k, mods = "ALT" },
+  })
+  table.insert(config.keys, {
+    key = k, mods = "SHIFT|CMD",
+    action = act.SendKey { key = k, mods = "SHIFT|ALT" },
+  })
+end
+
 return config
