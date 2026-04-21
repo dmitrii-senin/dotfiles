@@ -6,6 +6,7 @@ NORMAL (default)
   Ctrl Space           tmux mode
   Alt j                prev tab
   Alt k                next tab
+  Alt w                toggle floating panes
 
 TMUX MODE (Ctrl+Space)
   Esc                  back
@@ -20,6 +21,8 @@ TMUX MODE (Ctrl+Space)
   l                    focus right
   s                    split down
   v                    split right
+  f                    new floating pane
+  >                    move pane (reposition float)
   c                    new tab
   x                    close pane
   q                    quit zellij
@@ -51,10 +54,14 @@ TAB MODE (prefix → t)
 
 RESIZE MODE (prefix → n)
   Esc/Enter/q          back
-  h/Left               resize left
-  j/Down               resize down
-  k/Up                 resize up
-  l/Right              resize right
+  h/Left               grow left
+  j/Down               grow down
+  k/Up                 grow up
+  l/Right              grow right
+  H                    shrink left
+  J                    shrink down
+  K                    shrink up
+  L                    shrink right
 
 SCROLL MODE (prefix → /)
   Esc/q                back

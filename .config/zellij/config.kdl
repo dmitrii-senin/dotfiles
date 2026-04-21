@@ -4,8 +4,10 @@
 //   p → Pane mode    t → Tab mode     n → Resize mode
 //   / → Scroll mode  o → Session mode
 //   s → split down   v → split right  c → new tab
+//   f → new floating pane
 //
 // Alt+j/k → prev/next tab
+// Alt+w → toggle floating panes (show/hide)
 // Ctrl+h/j/k/l → seamless vim/zellij pane navigation
 
 default_layout "default"
@@ -47,6 +49,8 @@ keybinds clear-defaults=true {
         bind "l" { MoveFocus "Right"; SwitchToMode "Normal"; }
         bind "s" { NewPane "Down"; SwitchToMode "Normal"; }
         bind "v" { NewPane "Right"; SwitchToMode "Normal"; }
+        bind "f" { NewPane { floating true; }; SwitchToMode "Normal"; }
+        bind ">" { MovePane; SwitchToMode "Normal"; }
         bind "c" { NewTab; SwitchToMode "Normal"; }
         bind "x" { CloseFocus; SwitchToMode "Normal"; }
         bind "q" { Quit; }
@@ -85,6 +89,10 @@ keybinds clear-defaults=true {
         bind "j" "Down" { Resize "Increase Down"; }
         bind "k" "Up" { Resize "Increase Up"; }
         bind "l" "Right" { Resize "Increase Right"; }
+        bind "H" { Resize "Decrease Left"; }
+        bind "J" { Resize "Decrease Down"; }
+        bind "K" { Resize "Decrease Up"; }
+        bind "L" { Resize "Decrease Right"; }
     }
 
     scroll {
@@ -119,6 +127,11 @@ keybinds clear-defaults=true {
         bind "Esc" "Enter" "q" { SwitchToMode "Normal"; }
         bind "d" { Detach; }
         bind "q" { Quit; }
+    }
+
+    // Quick floating-pane toggle (works in any non-locked mode)
+    shared_except "locked" {
+        bind "Alt w" { ToggleFloatingPanes; }
     }
 
     // Seamless vim/zellij pane navigation with Ctrl+h/j/k/l
