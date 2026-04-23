@@ -14,6 +14,7 @@
 //   Alt+1..9    jump to tab N
 //   Alt+j/k     prev / next tab
 //   Alt+H/L     move tab left / right
+//   Alt+h/l     move pane left / right (slides floating panes; swaps tiled neighbors)
 //   Alt+w       toggle floating panes (show/hide)
 //   Alt+z       zoom (toggle fullscreen) current pane
 //   Alt+p       pin / unpin focused floating pane
@@ -174,6 +175,8 @@ keybinds clear-defaults=true {
         bind "Alt z" { ToggleFocusFullscreen; }
         bind "Alt H" { MoveTab "Left"; }
         bind "Alt L" { MoveTab "Right"; }
+        bind "Alt h" { MovePane "Left"; }
+        bind "Alt l" { MovePane "Right"; }
         bind "Alt p" { TogglePanePinned; }
         bind "Alt e" { TogglePaneEmbedOrFloating; }
         bind "Alt n" { NewTab; }

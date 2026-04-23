@@ -11,6 +11,7 @@ QUICK KEYS (any non-locked mode)
   Alt 1..9           jump to tab N
   Alt j / k          prev / next tab
   Alt H / L          move current tab left / right
+  Alt h / l          move pane left / right (slides floats; swaps tiled neighbors)
   Alt w              toggle floating panes (show/hide)
   Alt z              zoom (toggle fullscreen) current pane
   Alt p              pin / unpin focused floating pane
