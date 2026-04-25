@@ -7,3 +7,6 @@ lazyvim.json
 zsh-meta/
 
 .claude/skills/lpic-202/progress.md
+.claude/skills/ccna-prep/data/weak-areas.json
+.claude/skills/ccna-prep/data/flashcards.json
+.claude/skills/ccna-prep/data/command-journal.md
