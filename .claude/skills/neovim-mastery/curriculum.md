@@ -11,6 +11,7 @@ A staged, 16-session ladder. Each session is a single topic file under `topics/`
 | **C** | IDE features                   | 8–11     |
 | **D** | Language workflows             | 12–14    |
 | **E** | Operational mastery            | 15–16    |
+| **F** | Mastery & extension            | 17–19    |
 
 ## Sessions
 
@@ -32,6 +33,14 @@ A staged, 16-session ladder. Each session is a single topic file under `topics/`
 | 14  | D     | Rust workflow                               | rust_analyzer (direct vs rustaceanvim tradeoff), inlay hints, `crates.nvim`, codelldb debug. | 8, 9, 11 |
 | 15  | E     | Build / run / test / debug orchestration    | overseer.nvim, neotest, nvim-dap patterns shared across languages; when to leave for terminal. | 12, 13, 14 |
 | 16  | E     | Git, performance, long-term config evolution | gitsigns + lazygit + diffview; `nvim --startuptime` and `:Lazy profile`; pruning conventions. | 7, 15   |
+| 17  | F     | `:help` discipline & API surface tour       | Master `:help` navigation, `:helpgrep`, `:lua = <expr>`, `:scriptnames`, `:messages`; tour `vim.api`/`vim.lsp`/`vim.diagnostic`/`vim.treesitter`. | 1, 6, 8 |
+| 18  | F     | Custom textobjects & operators              | Write your own textobjects (`vim.keymap.set` in `o`/`x` mode) and operators via `g@` + `opfunc`; know when to delegate to `mini.ai`. | 2, 3, 9 |
+| 19  | F     | Treesitter queries & local plugin dev       | Write `.scm` queries under `~/.config/nvim/queries/<lang>/`; structure local plugins under `lua/custom/plugins/local/` with `dir =`. | 7, 9    |
+
+In addition to the numbered curriculum, the skill exposes two practice modes that draw from [`topics/drills/motion-corpus.md`](topics/drills/motion-corpus.md) with state in [`references/drill-state.md`](references/drill-state.md):
+
+- `/neovim-mastery drill [domain]` — Leitner-box-aware spaced repetition over 70+ motion drills.
+- `/neovim-mastery warmup` — 5 random level:1 drills, ≤ 5 min, ideal as a daily start.
 
 ---
 
@@ -57,8 +66,15 @@ When `$ARGUMENTS` is a keyword (not a number, not `list`/`audit`/`review`/`free`
 | `rust`, `cargo`, `rustaceanvim`, `crates`    | 14        |
 | `dap`, `debug`, `debugger`, `codelldb`, `build`, `run`, `test`, `neotest`, `overseer`, `task` | 15 |
 | `git`, `gitsigns`, `lazygit`, `diffview`, `perf`, `performance`, `startuptime`, `profile`, `evolution`, `prune` | 16 |
+| `help`, `:help`, `tutor`, `vimtutor`, `api`, `vim.api`, `vim.fn`, `discover`, `discovery`, `messages`, `scriptnames` | 17 |
+| `custom-textobject`, `custom-textobjects`, `opfunc`, `g@`, `custom-operator`, `custom-operators`, `mini.ai` | 18 |
+| `query`, `queries`, `scm`, `:EditQuery`, `:InspectTree`, `plugin-dev`, `plugin-development`, `local-plugin`, `dir=` | 19 |
+| `drill`, `drills`, `practice` | → drill mode (not a session — invoke as `/neovim-mastery drill [domain]`) |
+| `warmup`, `warm-up`, `warm`  | → warmup mode (`/neovim-mastery warmup`) |
 
 If a keyword is ambiguous (e.g., the user types `lsp clangd`), pick the more specific session (12 over 8). If it's unresolvable, list 2–3 candidate sessions and ask.
+
+Note: keywords `motion`/`motions`/`textobject`/`textobjects` resolve to **session 02** (the foundational topic). The keywords above for *custom* textobjects resolve to **18**. If the user types just `motion`, ASK whether they mean session 02 or want to drill: `/neovim-mastery drill word-motions`.
 
 ---
 
@@ -78,3 +94,4 @@ If a keyword is ambiguous (e.g., the user types `lsp clangd`), pick the more spe
 - **C — IDE features.** The pieces that turn Neovim into an IDE: LSP, treesitter, fuzzy finding, project search.
 - **D — Language workflows.** Per-language fluency for the user's stack (C++, Python, Rust).
 - **E — Operational mastery.** Build/test/debug orchestration; git; performance; long-term care of the config itself.
+- **F — Mastery & extension.** Stop relying on plugins for one-off ideas. Read source like docs, write your own textobjects/operators/queries/local plugins.

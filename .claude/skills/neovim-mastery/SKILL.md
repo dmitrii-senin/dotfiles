@@ -1,7 +1,7 @@
 ---
 name: neovim-mastery
-description: Neovim 0.12+ mastery and IDE-workflow coach for a C++/Python/Rust developer. Teaches modal editing, Lua config, lazy.nvim, vim.lsp.config/.enable + native completion, treesitter, dap+codelldb, telescope, conform, debugging, testing, build/run orchestration, git, performance investigation, and long-term config evolution. Anchored to the user's actual config at ~/x/dotfiles/.config/nvim.
-argument-hint: "[N | topic-keyword | list | audit | review <topic> | free <question>]"
+description: Neovim 0.12+ mastery and IDE-workflow coach for a C++/Python/Rust developer. Teaches modal editing, Lua config, lazy.nvim, vim.lsp.config/.enable + native completion, treesitter, dap+codelldb, telescope, conform, debugging, testing, build/run orchestration, git, performance investigation, long-term config evolution, plugin development, and treesitter queries. Includes a spaced-repetition motion-drill engine. Anchored to the user's actual config at ~/x/dotfiles/.config/nvim.
+argument-hint: "[N | topic-keyword | list | audit | review <topic> | free <question> | drill [domain] | warmup]"
 disable-model-invocation: true
 ---
 
@@ -40,7 +40,9 @@ Parse `$ARGUMENTS`:
 | `audit`                            | Read every file under `~/x/dotfiles/.config/nvim/lua/custom/`. Cross-reference against `references/current-config-snapshot.md` and the upgrade-candidates list in `references/customization.md`. Produce a **ranked upgrade list** (HIGH/MED/LOW), each with rationale and a proposed diff. **Ask before writing.** Refresh `current-config-snapshot.md` if you accept any change. |
 | `review <topic>`                   | Load the matching topic file but emit a **one-screen cheat sheet only** — no concepts, no drills, no troubleshooting. Tier the shortcuts.                                                                                                                                       |
 | `free <question>`                  | Coach-mode ad-hoc Q&A. Ground in the user's real config. Ask at most ONE clarifying question, only if the answer materially changes.                                                                                                                                            |
-| *(empty)*                          | Check for a `last_session` marker in `references/current-config-snapshot.md`. If present, summarize last session and propose 2–3 next paths. If absent, fall through to `list`.                                                                                                  |
+| `drill [domain]`                   | Run the **drill protocol** below. `domain` is optional and matches a domain prefix from [`topics/drills/motion-corpus.md`](topics/drills/motion-corpus.md) (`hd`, `wm`, `to`, `op`, `ss`, `mj`, `rg`, `mc`, `ex`, `fw`, `lsp`, `ts`) or a friendly alias (`hjkl`, `word`, `textobjects`/`text-objects`, `operators`, `search`, `marks`, `registers`, `macros`, `ex`, `folds`, `windows`, `lsp`, `treesitter`/`structural`). |
+| `warmup`                           | Pick 5 random `level:1` drills (eligibility per `references/drill-state.md`). Cap session at 5 minutes. Useful at the start of each coding day. Will also be auto-suggested if `last_practiced` in `drill-state.md` is older than 14 days when any other mode runs. |
+| *(empty)*                          | Check for a `last_session` marker in `references/current-config-snapshot.md`. If present, summarize last session and propose 2–3 next paths. If absent, fall through to `list`. Also check `last_practiced` in `references/drill-state.md` and propose `warmup` if stale (>14d). |
 
 If the input is ambiguous, say so and offer 2–3 specific options. Do not guess.
 
@@ -62,6 +64,29 @@ When running a numbered session (or a keyword-resolved one), follow this skeleto
 10. **Next session pointer** — one line: "Next: `/neovim-mastery NN` (X) or `/neovim-mastery NN` (Y)."
 
 Then update the `last_session` marker in `references/current-config-snapshot.md`.
+
+---
+
+## Drill protocol (motion practice)
+
+When the user runs `drill [domain]` or `warmup`:
+
+1. **Load** [`topics/drills/motion-corpus.md`](topics/drills/motion-corpus.md) and [`references/drill-state.md`](references/drill-state.md).
+2. **Resolve domain.** For `drill <alias>`, map alias to prefix (`hjkl→hd`, `word→wm`, `textobjects/text-objects→to`, `operators→op`, `search→ss`, `marks→mj`, `registers→rg`, `macros→mc`, `ex→ex`, `folds→fw`, `windows→fw`, `lsp→lsp`, `treesitter/structural→ts`). For `warmup` use level:1 across all domains. For `drill` with no arg, use all domains.
+3. **Select 5 drills** following the **Selection rules** in `drill-state.md`:
+   - Filter by domain (or level:1 for `warmup`).
+   - Apply Leitner-box eligibility (box 1 = any time, box 2 = >3d, box 3 = >7d, box 4 = >30d since `last_seen`).
+   - Sort: box ascending, weak-key match first, fewest attempts first.
+   - Take first 5. (For `warmup`, randomize among eligible level:1.)
+4. **Run them in the user's open buffer.** For each drill:
+   - Print: `# <id>` then the prompt verbatim. Do **not** print target keystrokes.
+   - Wait for `done <id>` / `stuck <id> [details]` / `skip <id>`. Drill responses do **not** auto-advance.
+   - On `stuck`, reveal the target and the relevant `:help` topic in 1-3 lines. Offer to retry (`retry <id>`) once before moving on.
+5. **Update `references/drill-state.md`** following the **Update rules** in that file. Rewrite the whole `## Drills` table and `## Weak keys` block on every change.
+6. **End-of-session summary**: 1 line each — `solved/total`, `boxes promoted: N`, `weak keys today: <list>`. Suggest the next domain to drill (the one with the most box=1 entries).
+7. **Update `last_practiced: today`** in `drill-state.md` regardless of solve count.
+
+Drill mode does **not** invoke the 10-step session protocol — it is its own loop. Edit policy still applies (no config edits inside drill mode unless the user explicitly asks).
 
 ---
 
@@ -111,8 +136,10 @@ Other refusals:
 - [`references/anti-patterns.md`](references/anti-patterns.md) — extended refuse-list with examples.
 - [`references/customization.md`](references/customization.md) — adaptation rules per language / build / debugger; full upgrade-candidate list for `audit` mode.
 - [`references/current-config-snapshot.md`](references/current-config-snapshot.md) — cached inventory of the user's setup (Neovim version, plugins, LSP servers, formatters, debuggers, keymap taxonomy, last completed session).
+- [`references/drill-state.md`](references/drill-state.md) — persistent drill state (Leitner box, attempts, weak keys, last_practiced) for the `drill` and `warmup` modes.
+- [`topics/drills/motion-corpus.md`](topics/drills/motion-corpus.md) — 70+ motion drills indexed by domain, fed by `drill`/`warmup`.
 
-When invoking the session for topic `N`, load `topics/NN-*.md` for the full content. **Always read this SKILL.md plus the relevant topic file at minimum**; load reference files only when the topic or question requires them.
+When invoking the session for topic `N`, load `topics/NN-*.md` for the full content. **Always read this SKILL.md plus the relevant topic file at minimum**; load reference files only when the topic or question requires them. For `drill`/`warmup`, load `motion-corpus.md` + `drill-state.md`.
 
 ---
 

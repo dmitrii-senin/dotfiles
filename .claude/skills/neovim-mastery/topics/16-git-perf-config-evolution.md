@@ -153,6 +153,20 @@ print((vim.uv.hrtime() - t) / 1e6, "ms")
 
 Or add `pcall` + duration check + `vim.notify` if you want instrumentation.
 
+### Bootstrap a fresh machine reproducibly
+
+Two pieces work together:
+
+1. **`mason-tool-installer`** declares the full external-tool set (LSPs, formatters, debuggers, linters) in `lua/custom/plugins/mason.lua`. On a new machine, opening Neovim runs `:MasonToolsInstall` automatically (`run_on_start = true`). No more "wait, did I install codelldb on this laptop?"
+
+2. **`:checkhealth custom`** runs `lua/custom/health.lua`, which asserts:
+   - **Required-on-PATH**: `rg`, `fd`, `git`, `lazygit`.
+   - **Recommended runtimes**: `python3`, `cargo`, `node`, `g++`, `make`.
+   - **Mason-managed binaries**: every entry in `ensure_installed`, checked under `~/.local/share/nvim/mason/bin/`.
+   - **Neovim version**: ≥ 0.11 required, ≥ 0.12 unlocks `vim.lsp.foldexpr` etc.
+
+After installing dotfiles on a new machine: open Neovim, wait for `:Lazy` and `:Mason` to settle, run `:checkhealth custom`. Anything red is a real blocker.
+
 ### Add a CHANGELOG to your config
 
 `~/x/dotfiles/.config/nvim/CHANGELOG.md`:

@@ -44,9 +44,13 @@ return {
       },
     })
 
-    vim.keymap.set("n", "<Leader>-", require("oil").toggle_float, { desc = "Open parent directory" })
+    vim.keymap.set("n", "<Leader>-", require("oil").toggle_float, { desc = "Open parent directory (float)" })
     vim.keymap.set("n", "<Leader>_", function()
       require("oil").toggle_float(vim.fn.getcwd())
-    end, { desc = "Open current working directory" })
+    end, { desc = "Open cwd (float)" })
+    vim.keymap.set("n", "<Leader>e", require("oil").toggle_float, { desc = "File [E]xplorer (parent dir)" })
+    vim.keymap.set("n", "<Leader>E", function()
+      require("oil").toggle_float(vim.fn.getcwd())
+    end, { desc = "File [E]xplorer (cwd)" })
   end,
 }

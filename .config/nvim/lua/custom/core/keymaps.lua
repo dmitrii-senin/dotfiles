@@ -48,6 +48,15 @@ map("n", "<Leader>lq", "<Cmd>copen<cr>", { desc = "Quickfix List" })
 map("n", "[q", vim.cmd.cprev, { desc = "Previous Quickfix" })
 map("n", "]q", vim.cmd.cnext, { desc = "Next Quickfix" })
 
+-- vim.snippet — built-in snippet jumping (insert + select only; normal-mode
+-- <C-l>/<C-h> remain bound to window navigation above).
+map({ "i", "s" }, "<C-l>", function()
+  if vim.snippet.active({ direction = 1 }) then return vim.snippet.jump(1) end
+end, { desc = "Snippet jump forward", expr = true })
+map({ "i", "s" }, "<C-h>", function()
+  if vim.snippet.active({ direction = -1 }) then return vim.snippet.jump(-1) end
+end, { desc = "Snippet jump backward", expr = true })
+
 -- diagnostic
 local diagnostic_goto = function(next, severity)
   severity = severity and vim.diagnostic.severity[severity] or nil
@@ -78,25 +87,7 @@ map("n", "<Leader><tab>]", "<Cmd>tabnext<cr>", { desc = "Next Tab" })
 map("n", "<Leader><tab>d", "<Cmd>tabclose<cr>", { desc = "Close Tab" })
 map("n", "<Leader><tab>[", "<Cmd>tabprevious<cr>", { desc = "Previous Tab" })
 
--- Code execution
-map("n", "<Leader>xf", function()
-  local ft = vim.bo.filetype
-  local file = vim.fn.expand("%")
-  if ft == "lua" then
-    vim.cmd("source %")
-  else
-    local cmds = {
-      cpp = "g++ -std=c++20 -O2 -o /tmp/a.out " .. file .. " && /tmp/a.out",
-      c = "gcc -O2 -o /tmp/a.out " .. file .. " && /tmp/a.out",
-      python = "python3 " .. file,
-      rust = "cargo run",
-    }
-    if cmds[ft] then
-      vim.cmd("split | terminal " .. cmds[ft])
-    end
-  end
-end, { desc = "E[x]ecute [F]ile" })
-
+-- Lua eval (one-line config debugging — :so % for full file)
 map("n", "<Leader>xx", "<Cmd>.lua<CR>", { desc = "E[x]ecute Line (Lua)" })
 map("v", "<Leader>xx", "<Cmd>.lua<CR>", { desc = "E[x]ecute Selection (Lua)" })
 
