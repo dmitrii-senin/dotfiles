@@ -37,10 +37,11 @@ A staged, 16-session ladder. Each session is a single topic file under `topics/`
 | 18  | F     | Custom textobjects & operators              | Write your own textobjects (`vim.keymap.set` in `o`/`x` mode) and operators via `g@` + `opfunc`; know when to delegate to `mini.ai`. | 2, 3, 9 |
 | 19  | F     | Treesitter queries & local plugin dev       | Write `.scm` queries under `~/.config/nvim/queries/<lang>/`; structure local plugins under `lua/custom/plugins/local/` with `dir =`. | 7, 9    |
 
-In addition to the numbered curriculum, the skill exposes two practice modes that draw from [`topics/drills/motion-corpus.md`](topics/drills/motion-corpus.md) with state in [`references/drill-state.md`](references/drill-state.md):
+In addition to the numbered curriculum, the skill exposes three practice modes. State for all three lives in [`references/drill-state.md`](references/drill-state.md):
 
-- `/neovim-mastery drill [domain]` — Leitner-box-aware spaced repetition over 70+ motion drills.
-- `/neovim-mastery warmup` — 5 random level:1 drills, ≤ 5 min, ideal as a daily start.
+- `/neovim-mastery drill [domain]` — Leitner-box-aware spaced repetition over 70+ motion drills (buffer-based; you practice in your own Neovim and self-report). Source: [`topics/drills/motion-corpus.md`](topics/drills/motion-corpus.md).
+- `/neovim-mastery warmup` — 5 random level:1 drills, ≤ 5 min, ideal as a daily start. Buffer-based; draws from `motion-corpus.md` only.
+- `/neovim-mastery text-drill [domain]` — in-prompt simulated drills. Coach shows before/after buffers with cursor markers; you reply with keystrokes; coach simulates and grades automatically. Deterministic ops only (motions, text-objects, operators, basic search/substitute). Source: [`topics/drills/text-drill-corpus.md`](topics/drills/text-drill-corpus.md).
 
 ---
 

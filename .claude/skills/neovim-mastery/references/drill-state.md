@@ -58,9 +58,9 @@ After each `skip <id>`:
 ## Initial state
 
 ```
-last_practiced: 2026-04-25
-total_attempts: 0
-total_solved: 0
+last_practiced: 2026-04-26
+total_attempts: 5
+total_solved: 2
 
 ## Drills
 | id    | attempts | solved | stuck | last_seen   | box | weak_keys | notes |
@@ -75,14 +75,14 @@ total_solved: 0
 | wm-01 | 0        | 0      | 0     | -           | 1   |           |       |
 | wm-02 | 0        | 0      | 0     | -           | 1   |           |       |
 | wm-03 | 0        | 0      | 0     | -           | 1   |           |       |
-| wm-04 | 0        | 0      | 0     | -           | 1   |           |       |
+| wm-04 | 1        | 0      | 1     | 2026-04-26  | 1   | f, t      |       |
 | wm-05 | 0        | 0      | 0     | -           | 1   |           |       |
 | wm-06 | 0        | 0      | 0     | -           | 1   |           |       |
 | wm-07 | 0        | 0      | 0     | -           | 1   |           |       |
 | wm-08 | 0        | 0      | 0     | -           | 1   |           |       |
 | wm-09 | 0        | 0      | 0     | -           | 1   |           |       |
 | to-01 | 0        | 0      | 0     | -           | 1   |           |       |
-| to-02 | 0        | 0      | 0     | -           | 1   |           |       |
+| to-02 | 1        | 1      | 0     | 2026-04-26  | 2   |           |       |
 | to-03 | 0        | 0      | 0     | -           | 1   |           |       |
 | to-04 | 0        | 0      | 0     | -           | 1   |           |       |
 | to-05 | 0        | 0      | 0     | -           | 1   |           |       |
@@ -92,7 +92,7 @@ total_solved: 0
 | to-09 | 0        | 0      | 0     | -           | 1   |           |       |
 | to-10 | 0        | 0      | 0     | -           | 1   |           |       |
 | op-01 | 0        | 0      | 0     | -           | 1   |           |       |
-| op-02 | 0        | 0      | 0     | -           | 1   |           |       |
+| op-02 | 1        | 1      | 0     | 2026-04-26  | 2   |           |       |
 | op-03 | 0        | 0      | 0     | -           | 1   |           |       |
 | op-04 | 0        | 0      | 0     | -           | 1   |           |       |
 | op-05 | 0        | 0      | 0     | -           | 1   |           |       |
@@ -112,7 +112,7 @@ total_solved: 0
 | mj-01 | 0        | 0      | 0     | -           | 1   |           |       |
 | mj-02 | 0        | 0      | 0     | -           | 1   |           |       |
 | mj-03 | 0        | 0      | 0     | -           | 1   |           |       |
-| mj-04 | 0        | 0      | 0     | -           | 1   |           |       |
+| mj-04 | 1        | 0      | 1     | 2026-04-26  | 1   | last-edit |       |
 | mj-05 | 0        | 0      | 0     | -           | 1   |           |       |
 | mj-06 | 0        | 0      | 0     | -           | 1   |           |       |
 | rg-01 | 0        | 0      | 0     | -           | 1   |           |       |
@@ -139,7 +139,7 @@ total_solved: 0
 | fw-04 | 0        | 0      | 0     | -           | 1   |           |       |
 | fw-05 | 0        | 0      | 0     | -           | 1   |           |       |
 | lsp-01 | 0       | 0      | 0     | -           | 1   |           |       |
-| lsp-02 | 0       | 0      | 0     | -           | 1   |           |       |
+| lsp-02 | 1       | 0      | 1     | 2026-04-26  | 1   | definition |       |
 | lsp-03 | 0       | 0      | 0     | -           | 1   |           |       |
 | lsp-04 | 0       | 0      | 0     | -           | 1   |           |       |
 | lsp-05 | 0       | 0      | 0     | -           | 1   |           |       |
@@ -151,14 +151,50 @@ total_solved: 0
 | ts-03 | 0        | 0      | 0     | -           | 1   |           |       |
 | ts-04 | 0        | 0      | 0     | -           | 1   |           |       |
 | ts-05 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-01 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-02 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-03 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-04 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-05 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-06 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-07 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-08 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-09 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-10 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-11 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-12 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-13 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-14 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-15 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-16 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-17 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-18 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-19 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-20 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-21 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-22 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-23 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-24 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-25 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-26 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-27 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-28 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-29 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-30 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-31 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-32 | 0        | 0      | 0     | -           | 1   |           |       |
 
 ## Weak keys
-(none yet)
+- `f`: 1
+- `t`: 1
+- `last-edit`: 1
+- `definition`: 1
 ```
 
 ## Coach notes
 
-- The state file is **markdown** so a human can scan it. The coach must rewrite the whole `## Drills` table and `## Weak keys` list each update — this is fine, the file is small (~80 rows).
-- **Never** remove drills from the table, even if they vanish from `motion-corpus.md` (orphaned IDs are tolerable and may be re-added).
-- When adding new drills to the corpus, also add a row here with `box=1, attempts=0, solved=0, stuck=0, last_seen=-`.
+- The state file is **markdown** so a human can scan it. The coach must rewrite the whole `## Drills` table and `## Weak keys` list each update. The table is now ~100 rows after `td-*` were added — still scannable, but watch the trend.
+- **Never** remove drills from the table, even if they vanish from `motion-corpus.md` or `text-drill-corpus.md` (orphaned IDs are tolerable and may be re-added).
+- When adding new drills to either corpus, also add a row here with `box=1, attempts=0, solved=0, stuck=0, last_seen=-`.
 - If `last_practiced` is more than 14 days old, when the user opens any session, propose a `warmup` first.
+- IDs come from two corpora: `<prefix>-NN` (buffer-based, from `motion-corpus.md`: `hd`, `wm`, `to`, `op`, `ss`, `mj`, `rg`, `mc`, `ex`, `fw`, `lsp`, `ts`) and `td-NN` (in-prompt simulated, from `text-drill-corpus.md`). The selection rules apply uniformly. `warmup` mode draws **only** from `motion-corpus.md` level:1 (not `td-*`) in v1.
