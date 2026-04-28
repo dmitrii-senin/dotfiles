@@ -1,0 +1,49 @@
+{
+  "chapter": "vol2-ch24",
+  "title": "Understanding Ansible and Terraform",
+  "weeks": [23],
+  "cards": [
+    {
+      "id": "v2c24-01",
+      "front": "Compare Ansible, Puppet, and Chef at a high level.",
+      "back": "Ansible: agentless (SSH/HTTP), push-based, YAML playbooks, easiest to learn — strong for network automation. Puppet: agent-based, declarative DSL, pull-based, mature for server config. Chef: agent-based, Ruby DSL, pull-based. Ansible is dominant for Cisco network automation.",
+      "topic": "config-management-tools"
+    },
+    {
+      "id": "v2c24-02",
+      "front": "What is an Ansible playbook structure (high-level)?",
+      "back": "YAML file with one or more 'plays', each targeting hosts and listing 'tasks' that call modules (ios_config, ios_facts, etc.). Inventory file lists managed hosts. Variables defined per host/group. Handlers run on change events. Idempotent — running twice = same result.",
+      "topic": "ansible"
+    },
+    {
+      "id": "v2c24-03",
+      "front": "Why is Ansible 'agentless' and what does it use to talk to network devices?",
+      "back": "Agentless = no software installed on managed devices. Ansible connects from the control node via SSH (network_cli connection) or NETCONF/RESTCONF (httpapi). For Cisco, modules in `cisco.ios`, `cisco.iosxr`, `cisco.nxos` collections handle the syntax.",
+      "topic": "ansible"
+    },
+    {
+      "id": "v2c24-04",
+      "front": "What is Terraform, and how does it differ from Ansible?",
+      "back": "Terraform (HashiCorp) is INFRASTRUCTURE as code — declares the desired infrastructure (VMs, networks, security groups) using HCL. Maintains state file. Provider plugins for AWS/Azure/GCP/Cisco. Best for provisioning; Ansible is better for configuration. They complement each other.",
+      "topic": "terraform"
+    },
+    {
+      "id": "v2c24-05",
+      "front": "Compare configuration drift detection in Ansible vs Terraform.",
+      "back": "Terraform: maintains a state file; `terraform plan` shows drift between actual infrastructure and declared. Ansible: idempotent modules detect changes per-run; doesn't keep persistent state. Both report what would change before applying.",
+      "topic": "config-drift"
+    },
+    {
+      "id": "v2c24-06",
+      "front": "What is NETCONF, and how does it compare to SNMP for config management?",
+      "back": "NETCONF (RFC 6241): standardized network management protocol over SSH (port 830). Uses XML payloads. Designed for CONFIG manipulation (vs SNMP which is more about reading metrics). Supports candidate config (stage changes, then commit). Cisco IOS XE supports NETCONF + YANG models.",
+      "topic": "netconf"
+    },
+    {
+      "id": "v2c24-07",
+      "front": "What is YANG, and how does it relate to NETCONF/RESTCONF?",
+      "back": "YANG (RFC 6020) is a DATA MODELING language — describes the structure of configuration and state data. NETCONF and RESTCONF use YANG models to validate operations. Cisco/IETF/OpenConfig publish YANG models. Tools: pyang to validate, ncclient (Python) to talk NETCONF.",
+      "topic": "yang"
+    }
+  ]
+}

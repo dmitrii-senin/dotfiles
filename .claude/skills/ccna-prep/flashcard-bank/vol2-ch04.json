@@ -1,0 +1,43 @@
+{
+  "chapter": "vol2-ch04",
+  "title": "Building a Wireless LAN",
+  "weeks": [21],
+  "cards": [
+    {
+      "id": "v2c4-01",
+      "front": "Name the 4 WLC ports/interfaces conceptually.",
+      "back": "Service port (out-of-band mgmt). Management interface (in-band mgmt, AP-WLC CAPWAP). Virtual interface (1.1.1.1 — used for guest portal redirects, mobility). AP-Manager (older models — terminates CAPWAP; merged into mgmt on newer). Dynamic interfaces (per WLAN/VLAN client traffic).",
+      "topic": "wlc-interfaces"
+    },
+    {
+      "id": "v2c4-02",
+      "front": "Switch-port config for an AP that uses CAPWAP back to a WLC?",
+      "back": "Access port on the AP's management VLAN: `switchport mode access`, `switchport access vlan X`. PoE for power: `power inline auto`. The AP gets DHCP, learns WLC IP via DHCP option 43 or DNS (CISCO-CAPWAP-CONTROLLER), forms CAPWAP tunnel.",
+      "topic": "ap-switchport"
+    },
+    {
+      "id": "v2c4-03",
+      "front": "AP discovers its WLC. What 4 mechanisms can it use?",
+      "back": "(1) DHCP option 43 (vendor-specific, returns WLC IP). (2) DNS lookup of CISCO-CAPWAP-CONTROLLER.<domain>. (3) Subnet broadcast. (4) Statically configured 'priming' (manual IP via console). Most production deployments use option 43 or DNS.",
+      "topic": "ap-wlc-discovery"
+    },
+    {
+      "id": "v2c4-04",
+      "front": "Configure a basic WLAN on a Cisco WLC (high-level steps via GUI).",
+      "back": "(1) Create a Dynamic Interface for the user VLAN. (2) WLANs → Create New → enter SSID, profile name. (3) General tab: enable Status, map to interface. (4) Security tab: choose WPA2/WPA3 + 802.1X or PSK. (5) QoS, advanced → save. (6) Apply.",
+      "topic": "wlan-config"
+    },
+    {
+      "id": "v2c4-05",
+      "front": "What is RRM and what does it do?",
+      "back": "Radio Resource Management — WLC feature that automatically tunes AP radios: channel selection (DCA — Dynamic Channel Assignment) and transmit power (TPC — Transmit Power Control). Adjusts dynamically to interference and AP density. Reduces manual RF planning.",
+      "topic": "rrm"
+    },
+    {
+      "id": "v2c4-06",
+      "front": "Why use a separate VLAN/SSID for guest Wi-Fi?",
+      "back": "Isolation — guests can't reach internal resources. Often combined with: captive portal for sign-in, guest-anchor (tunneling guest traffic to a DMZ WLC), strict ACLs, DHCP lease limits, and bandwidth caps. Keeps guest devices off the corporate network entirely.",
+      "topic": "guest-wlan"
+    }
+  ]
+}

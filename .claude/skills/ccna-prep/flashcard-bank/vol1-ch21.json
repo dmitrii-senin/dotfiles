@@ -1,0 +1,61 @@
+{
+  "chapter": "vol1-ch21",
+  "title": "Understanding OSPF Concepts",
+  "weeks": [12],
+  "cards": [
+    {
+      "id": "v1c21-01",
+      "front": "What type of routing protocol is OSPF?",
+      "back": "Link-state, classless, IGP. Uses Dijkstra's SPF algorithm to compute the best path. Open standard (RFC 2328 for OSPFv2 IPv4, RFC 5340 for OSPFv3 IPv6). AD = 110.",
+      "topic": "ospf-fundamentals"
+    },
+    {
+      "id": "v1c21-02",
+      "front": "List the 7 OSPF neighbor states in order.",
+      "back": "Down → Init → 2-Way → ExStart → Exchange → Loading → Full. Adjacency must reach FULL for routes to be exchanged. (DR/BDR adjacencies progress to Full; non-DR/BDR pairs stop at 2-Way on multi-access networks.)",
+      "topic": "ospf-neighbor-states"
+    },
+    {
+      "id": "v1c21-03",
+      "front": "What 5 conditions must match for OSPF neighbors to form an adjacency?",
+      "back": "(1) Same area ID. (2) Same hello/dead interval. (3) Same subnet (must be on same network/mask). (4) Same authentication (if enabled). (5) Matching MTU (must be the same). (6) Compatible network type. (7) Both must agree on stub flags.",
+      "topic": "ospf-adjacency"
+    },
+    {
+      "id": "v1c21-04",
+      "front": "Default hello and dead timers on OSPF for broadcast/PtP networks?",
+      "back": "Hello = 10 seconds, Dead = 40 seconds (4× hello). On NBMA / non-broadcast networks: Hello = 30, Dead = 120. Both ends must match exactly or no adjacency.",
+      "topic": "ospf-timers"
+    },
+    {
+      "id": "v1c21-05",
+      "front": "What is an OSPF DR/BDR and why does OSPF elect them?",
+      "back": "On multi-access networks (broadcast Ethernet), to avoid every router becoming neighbors with every other router (n² adjacencies), one Designated Router and one Backup are elected. All other routers (DROther) form full adjacency only with DR and BDR. DR floods LSAs on behalf of the segment.",
+      "topic": "ospf-dr-bdr"
+    },
+    {
+      "id": "v1c21-06",
+      "front": "How is the OSPF DR elected, and what are the tiebreakers?",
+      "back": "(1) Highest OSPF priority (default 1, range 0-255; priority 0 = ineligible). (2) Highest router-ID. NOT preemptive — once elected, the DR stays until it dies, even if a higher-priority router joins later. To force re-election: clear OSPF process or shut/no-shut.",
+      "topic": "ospf-dr-bdr"
+    },
+    {
+      "id": "v1c21-07",
+      "front": "How is the OSPF Router-ID determined?",
+      "back": "Order of preference: (1) Manually configured `router-id A.B.C.D`. (2) Highest IP on a loopback interface. (3) Highest IP on any active interface. Best practice: explicitly set router-id with a loopback so it's stable.",
+      "topic": "ospf-router-id"
+    },
+    {
+      "id": "v1c21-08",
+      "front": "What is a Link State Advertisement (LSA), and what's the LSDB?",
+      "back": "LSA = an OSPF message describing one piece of network state (a router, a link, an external route, etc.). The LSDB (Link-State Database) is the complete set of LSAs each router has — identical across all routers in the same area. SPF runs against the LSDB.",
+      "topic": "ospf-lsa"
+    },
+    {
+      "id": "v1c21-09",
+      "front": "What is the purpose of OSPF AREAS?",
+      "back": "Limit LSA flooding scope, reduce LSDB size, and contain SPF recalculations. Each area has its own LSDB. Area 0 (backbone) must connect to all other areas. Routers connecting two areas are ABRs (Area Border Routers).",
+      "topic": "ospf-areas"
+    }
+  ]
+}

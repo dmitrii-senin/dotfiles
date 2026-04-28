@@ -1,0 +1,49 @@
+{
+  "chapter": "vol2-ch13",
+  "title": "Device Management Protocols",
+  "weeks": [16],
+  "cards": [
+    {
+      "id": "v2c13-01",
+      "front": "What does NTP do, and what UDP port?",
+      "back": "Network Time Protocol — synchronizes clocks across devices. UDP/123. Critical for log timestamps, certificates, Kerberos. Strata: Stratum 0 (atomic/GPS), Stratum 1 (directly attached), through Stratum 15. Stratum 16 = unsynchronized.",
+      "topic": "ntp"
+    },
+    {
+      "id": "v2c13-02",
+      "front": "Configure a router to use NTP server 10.1.1.5 and to be an NTP server for clients.",
+      "back": "Client side: `ntp server 10.1.1.5`. Server side (any device with synced clock can be one): nothing extra needed — just keep clock synced. Authentication: `ntp authenticate` + `ntp authentication-key`. Verify: `show ntp status` (synced? stratum?), `show ntp associations`.",
+      "topic": "ntp-config"
+    },
+    {
+      "id": "v2c13-03",
+      "front": "What does CDP do, and how is it limited?",
+      "back": "Cisco Discovery Protocol — Layer 2 neighbor discovery, sends multicast to 0100.0ccc.cccc every 60s. Reveals neighbor's hostname, capability, IP, IOS version, port. Cisco-only. Disable globally with `no cdp run`; per-port with `no cdp enable`.",
+      "topic": "cdp"
+    },
+    {
+      "id": "v2c13-04",
+      "front": "What does LLDP do, and how does it differ from CDP?",
+      "back": "Link Layer Discovery Protocol (IEEE 802.1AB) — vendor-neutral equivalent of CDP. Default disabled on Cisco; enable with `lldp run` (and `lldp transmit`/`receive` per-port if needed). Hello interval 30s, hold 120s. Use for mixed-vendor environments.",
+      "topic": "lldp"
+    },
+    {
+      "id": "v2c13-05",
+      "front": "What syslog severity levels exist, in order from most to least severe?",
+      "back": "0 Emergency, 1 Alert, 2 Critical, 3 Error, 4 Warning, 5 Notification, 6 Informational, 7 Debug. Cisco default to console = level 7 (all). Mnemonic: 'Every Awesome Cisco Engineer Will Need Ice-cream Daily'.",
+      "topic": "syslog-severity"
+    },
+    {
+      "id": "v2c13-06",
+      "front": "Configure a router to send syslog to a server, only WARNING and above.",
+      "back": "```\nlogging host 10.1.1.5\nlogging trap warnings    ! or 'level 4'\nlogging on\n```\n`logging buffered <severity>` for the local buffer. `logging console <severity>` for console output. `service timestamps log datetime msec localtime` for accurate logs.",
+      "topic": "syslog-config"
+    },
+    {
+      "id": "v2c13-07",
+      "front": "Memorize: what UDP/TCP port does syslog use?",
+      "back": "UDP/514 (default). Some implementations support TCP/514 or TLS-encrypted (TCP/6514) for reliability/confidentiality. Cisco IOS uses UDP/514 by default.",
+      "topic": "syslog-ports"
+    }
+  ]
+}

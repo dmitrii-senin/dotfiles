@@ -1,0 +1,79 @@
+{
+  "chapter": "vol1-ch08",
+  "title": "Implementing Ethernet Virtual LANs",
+  "weeks": [6, 7],
+  "cards": [
+    {
+      "id": "v1c8-01",
+      "front": "What is a VLAN and why use one?",
+      "back": "Virtual LAN — a logical L2 broadcast domain on a switched network, identified by a VLAN ID (1-4094). Lets you segment a single physical switch into multiple isolated broadcast domains for security, traffic isolation, and reducing broadcast scope.",
+      "topic": "vlan-basics"
+    },
+    {
+      "id": "v1c8-02",
+      "front": "What are the valid VLAN ID ranges, and which are 'normal' vs 'extended'?",
+      "back": "1-4094 total. Normal range: 1-1005 (1, 1002-1005 reserved; 1002-1005 are for legacy Token Ring/FDDI). Extended range: 1006-4094 — must use VTP transparent mode (or VTPv3) on older switches. VLAN 0 and 4095 are reserved.",
+      "topic": "vlan-basics"
+    },
+    {
+      "id": "v1c8-03",
+      "front": "What's the difference between an access port and a trunk port?",
+      "back": "Access port: belongs to a single VLAN, frames are untagged. Connects end devices (PCs, printers). Trunk port: carries multiple VLANs between switches by tagging frames with VLAN IDs (802.1Q). Configured `switchport mode access` or `switchport mode trunk`.",
+      "topic": "access-vs-trunk"
+    },
+    {
+      "id": "v1c8-04",
+      "front": "Configure VLAN 20 named 'sales' and assign Fa0/1 to it.",
+      "back": "```\nvlan 20\n name sales\n exit\ninterface fa0/1\n switchport mode access\n switchport access vlan 20\n```",
+      "topic": "vlan-config"
+    },
+    {
+      "id": "v1c8-05",
+      "front": "What does the 802.1Q tag look like, where is it inserted in the frame, and how big is it?",
+      "back": "4 bytes inserted after the source MAC field, before the type/length field. Contains: TPID (2 bytes, 0x8100 = 'this is 802.1Q'), PCP (3 bits priority), CFI (1 bit), VLAN ID (12 bits = 0-4095). Native VLAN frames are NOT tagged.",
+      "topic": "8021q-trunking"
+    },
+    {
+      "id": "v1c8-06",
+      "front": "What is the native VLAN, and what's the security best practice around it?",
+      "back": "The single VLAN whose frames cross a trunk UNTAGGED. Default = VLAN 1. Best practice: change to an unused VLAN (and match on both ends!) or globally tag the native VLAN with `vlan dot1q tag native`. Mismatched native VLANs = traffic landing in the wrong VLAN, plus CDP log warnings.",
+      "topic": "native-vlan"
+    },
+    {
+      "id": "v1c8-07",
+      "front": "Configure a trunk on Gi0/1 with native VLAN 99, allowing only VLANs 10, 20, and 99.",
+      "back": "```\ninterface gi0/1\n switchport trunk encapsulation dot1q  ! only on switches that support both ISL and 802.1Q\n switchport mode trunk\n switchport trunk native vlan 99\n switchport trunk allowed vlan 10,20,99\n```",
+      "topic": "vlan-config"
+    },
+    {
+      "id": "v1c8-08",
+      "front": "What does DTP do, and what are its modes?",
+      "back": "Dynamic Trunking Protocol — Cisco-proprietary, autonegotiates trunking between switches. Modes: `dynamic auto` (passively waits — won't initiate), `dynamic desirable` (actively initiates), `trunk` (forced on), `access` (forced off, no DTP). Disable DTP for security with `switchport nonegotiate`.",
+      "topic": "dtp"
+    },
+    {
+      "id": "v1c8-09",
+      "front": "DTP outcome matrix: which combinations form a trunk?",
+      "back": "trunk + trunk → trunk. trunk + dynamic anything → trunk. desirable + desirable → trunk. desirable + auto → trunk. auto + auto → ACCESS (no trunk!). access + anything → access.",
+      "topic": "dtp"
+    },
+    {
+      "id": "v1c8-10",
+      "front": "What does VTP do, and why is it dangerous in default mode?",
+      "back": "VLAN Trunking Protocol — propagates VLAN configuration changes across all switches in the same VTP domain. Modes: server, client, transparent, off. Danger: a new switch with default mode (server) and a higher revision number can WIPE the VLAN database on the entire domain. Mitigations: disable VTP, use transparent mode, or VTPv3 with primary/secondary roles.",
+      "topic": "vtp"
+    },
+    {
+      "id": "v1c8-11",
+      "front": "What is the default VLAN that all switch ports belong to out of the box?",
+      "back": "VLAN 1 (default). Cisco best practice: don't use VLAN 1 for user traffic or as the native trunk VLAN — change both for security.",
+      "topic": "vlan-basics"
+    },
+    {
+      "id": "v1c8-12",
+      "front": "What command shows VLAN-to-port assignments in a compact table?",
+      "back": "`show vlan brief` — lists each VLAN, its name, status, and the access ports assigned. `show vlan` (without brief) adds extra fields (MTU, parent, etc.).",
+      "topic": "show-commands"
+    }
+  ]
+}

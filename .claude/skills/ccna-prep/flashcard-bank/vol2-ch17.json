@@ -1,0 +1,49 @@
+{
+  "chapter": "vol2-ch17",
+  "title": "SNMP, FTP, and TFTP",
+  "weeks": [20],
+  "cards": [
+    {
+      "id": "v2c17-01",
+      "front": "What does SNMP do, and what's the difference between manager and agent?",
+      "back": "Simple Network Management Protocol — collects metrics and configuration data from devices. Manager (NMS): the monitoring station polling for data and receiving traps. Agent: software on the device that responds to requests and sends traps. Data structured in MIB (Management Information Base) addressed by OIDs.",
+      "topic": "snmp"
+    },
+    {
+      "id": "v2c17-02",
+      "front": "What's the difference between SNMP polling (Get) and SNMP traps?",
+      "back": "Get: manager actively requests data from agent (UDP/161). Trap: agent unsolicited push to manager when an event occurs (UDP/162). Inform: like trap but ack'd by manager. Reduces NMS polling load by letting agents notify on events.",
+      "topic": "snmp-get-trap"
+    },
+    {
+      "id": "v2c17-03",
+      "front": "Compare SNMPv1, v2c, and v3 — which is secure?",
+      "back": "v1: clear-text community strings, no auth/encryption (legacy). v2c: improvements (Get-Bulk, more error codes), but STILL clear-text community strings. v3: per-user auth (HMAC-SHA), encryption (AES), integrity. ONLY v3 is secure — use it in production.",
+      "topic": "snmp-versions"
+    },
+    {
+      "id": "v2c17-04",
+      "front": "Configure basic SNMPv2c read-only community 'monitor' and a trap host.",
+      "back": "```\nsnmp-server community monitor RO\nsnmp-server host 10.1.1.5 version 2c monitor\nsnmp-server enable traps\nsnmp-server location DC1-RACK7\nsnmp-server contact netops@example.com\n```",
+      "topic": "snmp-config"
+    },
+    {
+      "id": "v2c17-05",
+      "front": "Configure a basic SNMPv3 user with auth (SHA) and priv (AES-128).",
+      "back": "```\nsnmp-server group MYGRP v3 priv\nsnmp-server user admin MYGRP v3 auth sha AuthPass priv aes 128 PrivPass\n```\nGroups define security level + access; users belong to groups. Verify: `show snmp user`.",
+      "topic": "snmpv3-config"
+    },
+    {
+      "id": "v2c17-06",
+      "front": "What's the difference between FTP, SFTP, FTPS, and TFTP?",
+      "back": "FTP: TCP/20 (data) + 21 (control), no encryption. TFTP: UDP/69, no auth, used for IOS/config transfer in trusted networks. FTPS: FTP over TLS. SFTP: file transfer over SSH (TCP/22, completely different protocol from FTP). Cisco supports `copy <protocol>` for file transfer.",
+      "topic": "ftp-tftp"
+    },
+    {
+      "id": "v2c17-07",
+      "front": "Copy startup-config to a TFTP server at 10.1.1.5.",
+      "back": "`copy startup-config tftp:` (interactive — prompts for server and filename). Or in one line: `copy startup-config tftp://10.1.1.5/r1-startup`. Backup IOS image: `copy flash:c2900-... tftp:`. Reverse: `copy tftp: flash:` to restore.",
+      "topic": "config-management"
+    }
+  ]
+}

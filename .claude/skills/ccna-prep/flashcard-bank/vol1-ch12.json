@@ -1,0 +1,49 @@
+{
+  "chapter": "vol1-ch12",
+  "title": "Analyzing Classful IPv4 Networks",
+  "weeks": [4],
+  "cards": [
+    {
+      "id": "v1c12-01",
+      "front": "List the 5 IPv4 address classes, their first-octet range, and default mask.",
+      "back": "A: 1-126, /8 (255.0.0.0). B: 128-191, /16 (255.255.0.0). C: 192-223, /24 (255.255.255.0). D: 224-239, multicast (no mask). E: 240-255, experimental/reserved. (127 is loopback; 0 is reserved.)",
+      "topic": "ipv4-classes"
+    },
+    {
+      "id": "v1c12-02",
+      "front": "What are the 3 RFC 1918 PRIVATE address ranges?",
+      "back": "10.0.0.0/8 (one Class A), 172.16.0.0/12 (sixteen contiguous Class Bs: 172.16.0.0–172.31.255.255), 192.168.0.0/16 (256 Class Cs: 192.168.0.0–192.168.255.255).",
+      "topic": "ipv4-private"
+    },
+    {
+      "id": "v1c12-03",
+      "front": "Identify the class of these addresses: 10.0.0.5, 172.16.0.5, 192.168.0.5, 224.0.0.5, 169.254.0.5.",
+      "back": "10.0.0.5 → Class A (private). 172.16.0.5 → Class B (private). 192.168.0.5 → Class C (private). 224.0.0.5 → Class D (multicast — used by OSPF AllSPFRouters). 169.254.0.5 → Class B but special (APIPA — link-local, when DHCP fails).",
+      "topic": "ipv4-classes"
+    },
+    {
+      "id": "v1c12-04",
+      "front": "Why is 127.0.0.0/8 reserved, and how is it used?",
+      "back": "Loopback — refers to the local host itself. 127.0.0.1 is the standard 'localhost' address. Packets sent to 127.x.x.x never leave the device; useful for testing TCP/IP stack and inter-process communication.",
+      "topic": "ipv4-reserved"
+    },
+    {
+      "id": "v1c12-05",
+      "front": "What is APIPA, and what address range does it use?",
+      "back": "Automatic Private IP Addressing — 169.254.0.0/16. A host that fails to get a DHCP lease self-assigns an address from this range so it can talk to other APIPA hosts on the same L2 segment. Cannot route off-segment. Microsoft term; Linux uses Avahi/zeroconf.",
+      "topic": "ipv4-reserved"
+    },
+    {
+      "id": "v1c12-06",
+      "front": "Calculate: Given 172.16.45.200, what is the classful network address?",
+      "back": "Class B (172.16-191.x.x). Default mask /16. Network address = 172.16.0.0. Broadcast = 172.16.255.255. Number of host addresses = 65,534.",
+      "topic": "subnetting-math"
+    },
+    {
+      "id": "v1c12-07",
+      "front": "Why don't modern networks use classful routing protocols (RIPv1, IGRP) anymore?",
+      "back": "They don't carry subnet mask in routing updates, so they assume the classful default. This breaks VLSM and discontiguous subnets. CIDR (1993) and classless protocols (OSPF, EIGRP, RIPv2, BGP) carry masks in updates and route by longest-match instead.",
+      "topic": "ipv4-classes"
+    }
+  ]
+}

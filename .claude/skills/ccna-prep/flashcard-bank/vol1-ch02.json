@@ -1,0 +1,61 @@
+{
+  "chapter": "vol1-ch02",
+  "title": "Fundamentals of Ethernet LANs",
+  "weeks": [1],
+  "cards": [
+    {
+      "id": "v1c2-01",
+      "front": "What is the structure (in fields, in order) of an Ethernet II frame?",
+      "back": "Preamble (7 bytes) | SFD (1) | Destination MAC (6) | Source MAC (6) | Type/EtherType (2) | Data + Pad (46-1500) | FCS (4). The 802.3 variant replaces Type with a Length field.",
+      "topic": "ethernet-frame"
+    },
+    {
+      "id": "v1c2-02",
+      "front": "How long is a MAC address and how is it formatted?",
+      "back": "48 bits = 6 bytes, written as 12 hex digits. Cisco format groups them in 4-character chunks separated by dots (e.g., 0200.1111.2222); IEEE uses 6 hyphen-separated pairs.",
+      "topic": "mac-address"
+    },
+    {
+      "id": "v1c2-03",
+      "front": "What's the difference between unicast, broadcast, and multicast Ethernet addresses?",
+      "back": "Unicast: one specific NIC; the I/G bit (least-significant bit of the 1st byte) is 0. Broadcast: ffff.ffff.ffff (all bits 1) — sent to every host in the broadcast domain. Multicast: I/G bit = 1, range 0100.5e00.0000–0100.5e7f.ffff for IPv4 multicast mappings.",
+      "topic": "mac-address"
+    },
+    {
+      "id": "v1c2-04",
+      "front": "What is the FCS field in an Ethernet frame and what does it do?",
+      "back": "Frame Check Sequence — 4-byte CRC trailer used for error detection. The receiver recomputes the CRC over the frame; if it doesn't match the FCS, the frame is silently discarded. Ethernet does not retransmit; upper layers (TCP) handle that.",
+      "topic": "ethernet-frame"
+    },
+    {
+      "id": "v1c2-05",
+      "front": "Distinguish a collision domain from a broadcast domain.",
+      "back": "Collision domain = a set of devices whose frames can collide on the wire. Hubs/repeaters extend collision domains; switches break them (each switch port is its own collision domain). Broadcast domain = a set of devices that receive each other's broadcasts; switches extend broadcast domains, routers (or VLAN boundaries) break them.",
+      "topic": "switching-fundamentals"
+    },
+    {
+      "id": "v1c2-06",
+      "front": "What's the difference between straight-through and crossover UTP cabling, and when do you use each?",
+      "back": "Straight-through: same pinout each end (T568A↔A or B↔B); used between unlike devices (PC↔switch, switch↔router). Crossover: one end T568A, other end T568B; used between like devices (switch↔switch, router↔router, PC↔router, PC↔PC). Modern Auto-MDIX makes this irrelevant on most ports — but the exam still tests it.",
+      "topic": "utp-cabling"
+    },
+    {
+      "id": "v1c2-07",
+      "front": "What are the minimum and maximum payload sizes for an Ethernet frame, and what does this mean for short messages?",
+      "back": "Minimum 46 bytes, maximum 1500 bytes (the standard MTU). Frames smaller than 46 bytes get padded. Total frame size including header/FCS: 64–1518 bytes (1522 with 802.1Q tag).",
+      "topic": "ethernet-frame"
+    },
+    {
+      "id": "v1c2-08",
+      "front": "What are the 4 standard UTP categories used on the CCNA, and their max bandwidth?",
+      "back": "Cat 5: 100 Mbps (legacy). Cat 5e: 1 Gbps. Cat 6: 1 Gbps over 100 m, up to 10 Gbps over 55 m. Cat 6a: 10 Gbps over 100 m. Cat 8: 25/40 Gbps over 30 m (data center).",
+      "topic": "utp-cabling"
+    },
+    {
+      "id": "v1c2-09",
+      "front": "What is the OUI portion of a MAC address?",
+      "back": "Organizationally Unique Identifier — the first 24 bits (3 bytes) of a MAC, assigned to the NIC vendor by IEEE. The remaining 24 bits are vendor-assigned to make each MAC globally unique.",
+      "topic": "mac-address"
+    }
+  ]
+}

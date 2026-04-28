@@ -1,0 +1,49 @@
+{
+  "chapter": "vol2-ch16",
+  "title": "First Hop Redundancy Protocols",
+  "weeks": [20],
+  "cards": [
+    {
+      "id": "v2c16-01",
+      "front": "What problem do FHRPs solve?",
+      "back": "If a host's default gateway router fails, the host loses connectivity even when a redundant router exists. FHRPs (HSRP, VRRP, GLBP) let two routers share a single virtual IP (and MAC) — hosts use the virtual IP as their gateway, and a backup takes over instantly if the active fails.",
+      "topic": "fhrp-purpose"
+    },
+    {
+      "id": "v2c16-02",
+      "front": "Compare HSRP, VRRP, and GLBP at a high level.",
+      "back": "HSRP (Cisco): active/standby, virtual IP/MAC. VRRP (IETF, RFC 5798): active/backup, similar to HSRP, vendor-neutral. GLBP (Cisco): active/active load-balancing — multiple routers actively share traffic via different virtual MACs per host. CCNA focuses heavily on HSRP.",
+      "topic": "fhrp-types"
+    },
+    {
+      "id": "v2c16-03",
+      "front": "Configure HSRP group 1 on Gi0/0 with virtual IP 10.1.1.1, priority 110, and preemption.",
+      "back": "```\ninterface gi0/0\n ip address 10.1.1.2 255.255.255.0\n standby version 2\n standby 1 ip 10.1.1.1\n standby 1 priority 110\n standby 1 preempt\n```\nDefault priority 100 — higher wins. Without `preempt`, a recovered higher-priority router won't take over.",
+      "topic": "hsrp-config"
+    },
+    {
+      "id": "v2c16-04",
+      "front": "What's the HSRPv2 virtual MAC format?",
+      "back": "0000.0c9f.fXXX where XXX is the group number in hex. (HSRPv1 uses 0000.0c07.acXX with 8-bit group max.) Hosts ARP for the virtual IP and learn this virtual MAC; the active router responds with it.",
+      "topic": "hsrp-mac"
+    },
+    {
+      "id": "v2c16-05",
+      "front": "What are HSRP states (in order)?",
+      "back": "Initial → Listen → Speak → Standby → Active. (Or Disabled if interface is down.) Only Standby and Active routers exchange Hello packets actively. Use `show standby brief` to see current state.",
+      "topic": "hsrp-states"
+    },
+    {
+      "id": "v2c16-06",
+      "front": "What is HSRP interface tracking, and why use it?",
+      "back": "Lower the active router's priority if a tracked interface (typically the WAN uplink) goes down — letting the standby with intact uplink become active. Example: `standby 1 track gi0/1 30` (lose 30 priority points if Gi0/1 down).",
+      "topic": "hsrp-tracking"
+    },
+    {
+      "id": "v2c16-07",
+      "front": "What are the default HSRP timers, and how do you tune them?",
+      "back": "Hello = 3 sec, Hold = 10 sec. Tune for faster failover: `standby 1 timers msec 200 msec 700` (200ms hello, 700ms hold). Sub-second failover for VoIP-friendly environments.",
+      "topic": "hsrp-timers"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "chapter": "vol2-ch22",
+  "title": "Cisco Software-Defined Access (Cisco SD-Access)",
+  "weeks": [23],
+  "cards": [
+    {
+      "id": "v2c22-01",
+      "front": "What is SD-Access at a high level?",
+      "back": "Cisco's enterprise campus fabric solution. Underlay: traditional IP routing (often IS-IS) for switch-to-switch reachability. Overlay: VXLAN tunnels carrying user/segment traffic on top. Controlled via Catalyst Center. Identity-based segmentation via TrustSec / SGTs.",
+      "topic": "sd-access"
+    },
+    {
+      "id": "v2c22-02",
+      "front": "Compare underlay and overlay in SD-Access.",
+      "back": "Underlay: physical L3 routed network — every link is a routed L3 link (no STP), runs IS-IS or OSPF. Provides reachability between fabric devices. Overlay: VXLAN-encapsulated tunnels carrying user data, identified by VNI; each user's segment is logically isolated regardless of physical topology.",
+      "topic": "underlay-overlay"
+    },
+    {
+      "id": "v2c22-03",
+      "front": "What are the SD-Access fabric roles?",
+      "back": "Edge node: access switch where users connect, originates VXLAN. Border node: edge of fabric, connects to outside (Internet, WAN, traditional network). Control plane node: LISP map-server (tracks endpoint location). Plus Catalyst Center as the controller.",
+      "topic": "sd-access-roles"
+    },
+    {
+      "id": "v2c22-04",
+      "front": "What is a Security Group Tag (SGT) in SD-Access / TrustSec?",
+      "back": "Identity-based label assigned to traffic based on user/device/role (e.g., 'employee', 'contractor', 'IoT'). Travels with the packet via the CMD field (Cisco Meta Data). Policy enforcement is based on SGT, not IP — works regardless of where the user moves in the network.",
+      "topic": "sgt-trustsec"
+    },
+    {
+      "id": "v2c22-05",
+      "front": "What is VXLAN and how does it differ from VLANs?",
+      "back": "Virtual eXtensible LAN — encapsulates Ethernet frames inside UDP/IP. Adds 24-bit VNI (VXLAN Network Identifier) supporting 16M segments (vs VLAN's 4094). Allows L2 over L3 backbone — extends VLANs across routed networks without bridging the L2.",
+      "topic": "vxlan"
+    },
+    {
+      "id": "v2c22-06",
+      "front": "What does LISP do in SD-Access?",
+      "back": "Locator/ID Separation Protocol — separates 'who' (endpoint identifier, EID) from 'where' (router locator, RLOC). Edge nodes register endpoints with the LISP control-plane (map-server). When traffic arrives, the edge queries the map-server for the destination's RLOC and tunnels it via VXLAN. Enables seamless mobility.",
+      "topic": "lisp"
+    }
+  ]
+}

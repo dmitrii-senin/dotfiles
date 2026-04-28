@@ -1,0 +1,43 @@
+{
+  "chapter": "vol1-ch28",
+  "title": "Implementing IPv6 Addressing on Hosts",
+  "weeks": [14],
+  "cards": [
+    {
+      "id": "v1c28-01",
+      "front": "What is SLAAC, and what does it use to discover the prefix?",
+      "back": "Stateless Address Autoconfiguration. Host sends ICMPv6 Router Solicitation (RS) to ff02::2; router replies with Router Advertisement (RA) carrying the /64 prefix. Host generates the lower 64 bits via EUI-64 (or random per RFC 7217) and uses prefix + interface ID. No DHCP server needed.",
+      "topic": "slaac"
+    },
+    {
+      "id": "v1c28-02",
+      "front": "What's the M flag in an RA, and what does it tell hosts?",
+      "back": "Managed Address Configuration flag. M=0 (default): use SLAAC for address. M=1: use DHCPv6 for address (stateful). Pair with O flag (Other): if O=1, use DHCPv6 for OTHER info (DNS, etc.) even if SLAAC for address.",
+      "topic": "slaac"
+    },
+    {
+      "id": "v1c28-03",
+      "front": "Configure a Cisco router to act as a DHCPv6 stateless server (SLAAC for addresses, DHCPv6 for DNS).",
+      "back": "```\nipv6 dhcp pool DHCPV6\n dns-server 2001:4860:4860::8888\n domain-name example.com\ninterface gi0/0\n ipv6 nd other-config-flag\n ipv6 dhcp server DHCPV6\n```\nThe `other-config-flag` sets the O bit in RAs.",
+      "topic": "dhcpv6"
+    },
+    {
+      "id": "v1c28-04",
+      "front": "Compare DHCPv6 stateful vs stateless.",
+      "back": "Stateful: server assigns full IPv6 addresses (M=1 in RA). Server tracks leases. Like DHCP for IPv4. Stateless: SLAAC handles the address; server only provides supplementary config like DNS (O=1, M=0). Cisco supports both.",
+      "topic": "dhcpv6"
+    },
+    {
+      "id": "v1c28-05",
+      "front": "What's the IPv6 default gateway, and how is it learned?",
+      "back": "Hosts use the link-local address of the router that sent them an RA as their default gateway (NOT a configured GUA). Learned automatically via NDP — no static config needed if SLAAC is in play. Verify on host with `ip -6 route show default` (Linux) or `netsh int ipv6 show route` (Windows).",
+      "topic": "ipv6-default-gateway"
+    },
+    {
+      "id": "v1c28-06",
+      "front": "What happens when a host generates an IPv6 address with SLAAC but the address is already taken?",
+      "back": "DAD detects the duplicate (NS goes out; if NA returns, the address is in use). The host's IPv6 stack marks the address as 'duplicate' and won't use it. Operator needs to investigate (rare in practice with EUI-64, more common with random/manual).",
+      "topic": "ipv6-ndp"
+    }
+  ]
+}

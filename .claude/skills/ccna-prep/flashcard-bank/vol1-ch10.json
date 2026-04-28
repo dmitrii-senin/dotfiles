@@ -1,0 +1,67 @@
+{
+  "chapter": "vol1-ch10",
+  "title": "RSTP and EtherChannel Configuration",
+  "weeks": [9],
+  "cards": [
+    {
+      "id": "v1c10-01",
+      "front": "Name the 5 RSTP port roles and how they differ from classic STP.",
+      "back": "Root, Designated (same as 802.1D), plus: Alternate (backup path to root if primary fails), Backup (backup designated on a shared segment — rare), Disabled. RSTP merges Blocking + Listening into a single 'Discarding' state, drastically speeding convergence.",
+      "topic": "rstp-roles"
+    },
+    {
+      "id": "v1c10-02",
+      "front": "Name the 3 RSTP port states (instead of classic STP's 5).",
+      "back": "Discarding (replaces Disabled, Blocking, Listening), Learning, Forwarding. Sub-second convergence vs 802.1D's 30-50s.",
+      "topic": "rstp-states"
+    },
+    {
+      "id": "v1c10-03",
+      "front": "What is an RSTP edge port and what feature on Cisco accomplishes the same thing?",
+      "back": "Edge port = port connected to an end device (PC/server), not another switch. Skips the transition through Discarding/Learning and goes straight to Forwarding. Cisco implements this as `spanning-tree portfast` (per-port) or `spanning-tree portfast default` (global, on all access ports).",
+      "topic": "portfast"
+    },
+    {
+      "id": "v1c10-04",
+      "front": "What does BPDU Guard do, and where is it used?",
+      "back": "If a port configured with `spanning-tree bpduguard enable` receives a BPDU (meaning someone plugged a switch into an end-user port), the port goes err-disabled. Used on edge/PortFast ports to prevent rogue switches from joining the topology.",
+      "topic": "bpdu-guard"
+    },
+    {
+      "id": "v1c10-05",
+      "front": "What does Root Guard do, and how does it differ from BPDU Guard?",
+      "back": "Root Guard prevents a port from accepting a 'superior' BPDU that would make a downstream switch the new root. If a superior BPDU is received, the port goes 'root-inconsistent' (effectively blocking) until BPDUs stop. Used on DESIGNATED ports facing customer/access switches. BPDU Guard, by contrast, err-disables on ANY BPDU.",
+      "topic": "root-guard"
+    },
+    {
+      "id": "v1c10-06",
+      "front": "Configure an LACP EtherChannel using ports Gi0/1-2.",
+      "back": "```\ninterface range gi0/1 - 2\n channel-protocol lacp\n channel-group 1 mode active\n```\nOther mode is `passive`. For PAgP use modes `desirable`/`auto`. For static (no negotiation): `channel-group 1 mode on`. Both ends must use compatible modes.",
+      "topic": "etherchannel-config"
+    },
+    {
+      "id": "v1c10-07",
+      "front": "EtherChannel mode matrix: which combinations form a bundle?",
+      "back": "LACP: active+active ✓, active+passive ✓, passive+passive ✗. PAgP: desirable+desirable ✓, desirable+auto ✓, auto+auto ✗. Static: on+on ✓ (no negotiation; misconfig risk). Mixing protocols (LACP+PAgP) NEVER works.",
+      "topic": "etherchannel-config"
+    },
+    {
+      "id": "v1c10-08",
+      "front": "What configuration must match across member ports of an EtherChannel?",
+      "back": "Speed, duplex, allowed VLANs, native VLAN, switchport mode (access/trunk), encapsulation (dot1q), STP port cost/priority. Mismatches cause the bundle to suspend the offending port. Bundle a maximum of 8 active links per EtherChannel.",
+      "topic": "etherchannel-config"
+    },
+    {
+      "id": "v1c10-09",
+      "front": "How do you verify EtherChannel status, and what flags should you see for healthy LACP?",
+      "back": "`show etherchannel summary` — flag column should read `(SU)` for the channel (S=Layer 2, U=in use) and each member port should show `P` (bundled). Other flags: `s` (suspended), `H` (hot-standby in LACP), `I` (individual / not bundled — bad sign).",
+      "topic": "show-commands"
+    },
+    {
+      "id": "v1c10-10",
+      "front": "What is Loop Guard and when do you use it?",
+      "back": "When a port stops receiving BPDUs (e.g., unidirectional fiber failure), it could transition to forwarding and create a loop. Loop Guard puts the port into 'loop-inconsistent' state instead of letting it transition. Used on root and alternate ports of point-to-point links. Configured per port: `spanning-tree guard loop` or globally with `spanning-tree loopguard default`.",
+      "topic": "loop-guard"
+    }
+  ]
+}

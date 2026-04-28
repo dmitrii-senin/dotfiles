@@ -1,0 +1,49 @@
+{
+  "chapter": "vol2-ch14",
+  "title": "Network Address Translation",
+  "weeks": [17],
+  "cards": [
+    {
+      "id": "v2c14-01",
+      "front": "Define the 4 NAT address terms: inside local, inside global, outside local, outside global.",
+      "back": "Inside local: real IP of inside host (private). Inside global: translated IP of inside host as seen from outside (public). Outside global: real IP of outside host (public). Outside local: translated IP of outside host as seen from inside (rare, used in NAT'd-to-NAT'd setups). 'Local' = inside view, 'global' = outside view.",
+      "topic": "nat-terms"
+    },
+    {
+      "id": "v2c14-02",
+      "front": "Configure static NAT mapping inside host 10.1.1.10 to outside IP 200.1.1.10.",
+      "back": "```\ninterface gi0/0\n ip nat inside\ninterface gi0/1\n ip nat outside\nip nat inside source static 10.1.1.10 200.1.1.10\n```\nVerify: `show ip nat translations`, `show ip nat statistics`.",
+      "topic": "nat-static"
+    },
+    {
+      "id": "v2c14-03",
+      "front": "Configure dynamic NAT for the 10.1.1.0/24 inside hosts using a pool 200.1.1.10–200.1.1.20.",
+      "back": "```\nip nat pool POOL1 200.1.1.10 200.1.1.20 netmask 255.255.255.0\naccess-list 1 permit 10.1.1.0 0.0.0.255\nip nat inside source list 1 pool POOL1\n```\nNo overload — once pool exhausted, new hosts can't translate.",
+      "topic": "nat-dynamic"
+    },
+    {
+      "id": "v2c14-04",
+      "front": "Configure PAT (NAT overload) using the outbound interface IP.",
+      "back": "```\naccess-list 1 permit 10.1.1.0 0.0.0.255\nip nat inside source list 1 interface gi0/1 overload\n```\nMost common form for small/branch networks — many internal hosts share one public IP via port translation.",
+      "topic": "pat"
+    },
+    {
+      "id": "v2c14-05",
+      "front": "How does PAT differentiate concurrent connections from multiple inside hosts to the same outside server?",
+      "back": "By translating BOTH source IP AND source port. Each inside flow gets a unique source port (from the ephemeral range) on the public IP. Return packets are matched in the NAT table by destination IP+port to find the original inside host+port.",
+      "topic": "pat"
+    },
+    {
+      "id": "v2c14-06",
+      "front": "What command displays current NAT translations and statistics?",
+      "back": "`show ip nat translations` (active mappings, with pro/inside-local/global/outside). `show ip nat statistics` (counters, pool utilization, translations created/dropped).",
+      "topic": "show-commands"
+    },
+    {
+      "id": "v2c14-07",
+      "front": "Common NAT issue: 'outside hosts can't initiate to inside server'. Why and how to fix?",
+      "back": "Default NAT only translates outbound flows; inbound has no mapping until inside-initiated. Fix with STATIC NAT (or port forwarding via `ip nat inside source static tcp 10.1.1.10 80 200.1.1.10 80`) so the inside server is reachable from outside.",
+      "topic": "nat-troubleshooting"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "chapter": "vol2-ch07",
+  "title": "Named and Extended IP ACLs",
+  "weeks": [18],
+  "cards": [
+    {
+      "id": "v2c7-01",
+      "front": "Extended ACL number ranges and what they match on.",
+      "back": "100-199 (and 2000-2699). Match on: source IP, dest IP, protocol (TCP/UDP/ICMP/IP), source port, dest port, TCP flags (`established`), DSCP. Best practice: place close to the SOURCE — kills unwanted traffic before it consumes bandwidth.",
+      "topic": "extended-acl"
+    },
+    {
+      "id": "v2c7-02",
+      "front": "Extended ACL syntax — deny TCP from 10.1.1.0/24 to host 192.168.1.10 port 23 (Telnet), permit everything else.",
+      "back": "```\naccess-list 100 deny tcp 10.1.1.0 0.0.0.255 host 192.168.1.10 eq 23\naccess-list 100 permit ip any any\ninterface gi0/0\n ip access-group 100 in\n```",
+      "topic": "extended-acl"
+    },
+    {
+      "id": "v2c7-03",
+      "front": "Named ACL syntax — convert the previous numbered ACL to named.",
+      "back": "```\nip access-list extended BLOCK-TELNET\n deny tcp 10.1.1.0 0.0.0.255 host 192.168.1.10 eq 23\n permit ip any any\ninterface gi0/0\n ip access-group BLOCK-TELNET in\n```\nNamed ACLs let you EDIT individual lines (sequence numbers) — numbered ACLs don't.",
+      "topic": "named-acl"
+    },
+    {
+      "id": "v2c7-04",
+      "front": "How do you insert a line in the middle of a named ACL?",
+      "back": "Each entry has a sequence number (10, 20, 30 by default). Enter the ACL config and just type with a custom sequence: `ip access-list extended NAME` then `15 permit tcp ...` — inserts between 10 and 20. Resequence with `ip access-list resequence NAME 10 10`.",
+      "topic": "named-acl"
+    },
+    {
+      "id": "v2c7-05",
+      "front": "Port matching keywords — `eq`, `gt`, `lt`, `range`, `neq`. Examples?",
+      "back": "`eq 80` (port 80). `gt 1023` (greater than 1023). `lt 1024` (less than 1024). `range 1024 65535` (inclusive range). `neq 80` (not equal to 80). Used after a host/network in extended ACL: `permit tcp any any eq 443`.",
+      "topic": "extended-acl"
+    },
+    {
+      "id": "v2c7-06",
+      "front": "What does the `established` keyword in extended ACL do?",
+      "back": "Matches TCP segments with ACK or RST flag set — i.e., return traffic for an existing connection. Used to allow OUTBOUND-initiated sessions to receive replies, while still blocking INBOUND-initiated TCP. Example: `permit tcp any any established`.",
+      "topic": "tcp-established"
+    },
+    {
+      "id": "v2c7-07",
+      "front": "Where should you APPLY a standard vs extended ACL, and why?",
+      "back": "Standard: close to DESTINATION (matches only on source — placing too far from destination would block legitimate traffic to other destinations from that source). Extended: close to SOURCE (matches on full 5-tuple — drop unwanted packets early to save bandwidth).",
+      "topic": "acl-placement"
+    }
+  ]
+}

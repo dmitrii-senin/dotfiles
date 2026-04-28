@@ -1,0 +1,43 @@
+{
+  "chapter": "vol2-ch18",
+  "title": "LAN Architecture",
+  "weeks": [22],
+  "cards": [
+    {
+      "id": "v2c18-01",
+      "front": "Name the 3 layers of Cisco's hierarchical campus design and what each does.",
+      "back": "Access: connects end devices (PCs, APs, printers); high port density. Distribution: aggregates access switches, enforces policy (ACLs, QoS), L3 boundary. Core: high-speed backbone between distribution blocks. Each layer has clear responsibilities — keeps the network scalable and predictable.",
+      "topic": "campus-design"
+    },
+    {
+      "id": "v2c18-02",
+      "front": "What is collapsed core, and when is it appropriate?",
+      "back": "Combine distribution and core into one tier (no separate core layer). Suitable for small/medium campuses where a separate core would be over-engineering. Most modern enterprise designs are 2-tier (collapsed) — keeps cabling and L3 boundaries simpler.",
+      "topic": "campus-design"
+    },
+    {
+      "id": "v2c18-03",
+      "front": "What is the spine-leaf topology, and where is it used?",
+      "back": "Data center fabric. Every leaf (top-of-rack switch) connects to every spine; no leaf-to-leaf or spine-to-spine links. Equal cost paths between any two leaves (always 2 hops). Optimized for east-west (server-to-server) traffic, which dominates modern apps.",
+      "topic": "spine-leaf"
+    },
+    {
+      "id": "v2c18-04",
+      "front": "What is a SOHO LAN, and what device commonly handles it?",
+      "back": "Small Office / Home Office — small network with usually one wireless router/firewall combining router + L2 switch + Wi-Fi AP + DHCP + NAT in one device. Cisco/Meraki MR/MX appliances or consumer-grade routers (Netgear, ASUS).",
+      "topic": "soho"
+    },
+    {
+      "id": "v2c18-05",
+      "front": "Compare 2-tier vs 3-tier campus design.",
+      "back": "3-tier (Access + Distribution + Core): scales to large campuses with many distribution blocks. 2-tier (Access + Distribution-as-Core): cheaper, simpler, suitable for small-medium sites. Choice depends on size, scaling needs, traffic patterns.",
+      "topic": "campus-design"
+    },
+    {
+      "id": "v2c18-06",
+      "front": "What is PoE, and what are the IEEE standards?",
+      "back": "Power over Ethernet — delivers DC power over the same UTP cable as data. 802.3af (PoE): 15.4W. 802.3at (PoE+): 30W. 802.3bt Type 3: 60W. 802.3bt Type 4 (UPoE): 90W. Used to power phones, APs, cameras, IoT — eliminates separate power.",
+      "topic": "poe"
+    }
+  ]
+}

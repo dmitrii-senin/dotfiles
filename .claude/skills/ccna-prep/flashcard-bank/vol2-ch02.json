@@ -1,0 +1,43 @@
+{
+  "chapter": "vol2-ch02",
+  "title": "Analyzing Cisco Wireless Architectures",
+  "weeks": [21],
+  "cards": [
+    {
+      "id": "v2c2-01",
+      "front": "Compare autonomous AP and controller-based (lightweight) AP deployment models.",
+      "back": "Autonomous: each AP is a complete device, configured individually (CLI/web). Doesn't scale — every AP its own SSID, security, etc. Controller-based: APs are 'lightweight' — minimal local config, all policy/intelligence on a central WLC. Scales to hundreds of APs with consistent config and seamless roaming.",
+      "topic": "wireless-architectures"
+    },
+    {
+      "id": "v2c2-02",
+      "front": "What is CAPWAP, and what 2 separate tunnels does it use?",
+      "back": "Control And Provisioning of Wireless Access Points — the protocol between Lightweight APs and the WLC. Uses 2 UDP tunnels: Control (UDP 5246, encrypted DTLS — config, RRM, statistics) and Data (UDP 5247, optionally encrypted — wraps 802.11 frames).",
+      "topic": "capwap"
+    },
+    {
+      "id": "v2c2-03",
+      "front": "Compare split-MAC vs local-MAC architectures.",
+      "back": "Split-MAC (lightweight + WLC, default Cisco): real-time 802.11 functions (acks, retransmissions, beacons) handled by AP; non-real-time (auth, association, encryption keying, mgmt) handled by WLC. Local-MAC: AP handles everything, WLC just sets policy. Split-MAC enables centralized control.",
+      "topic": "split-mac"
+    },
+    {
+      "id": "v2c2-04",
+      "front": "What is FlexConnect (formerly H-REAP), and when is it useful?",
+      "back": "Lightweight AP mode where the AP can switch user data LOCALLY (instead of tunneling to the WLC) when WAN to the WLC is slow. Useful in branch offices: APs report to a centralized WLC over WAN, but data stays on local LAN. Maintains operation if WAN to WLC fails.",
+      "topic": "flexconnect"
+    },
+    {
+      "id": "v2c2-05",
+      "front": "What's the difference between embedded WLC, cloud-based, and on-prem WLC?",
+      "back": "Embedded WLC: WLC software on the switch (like Cisco Catalyst 9800). On-prem hardware WLC: dedicated appliance (e.g., 9800-CL VM or 5520 hardware). Cloud-based: Cisco Meraki MR APs managed from cloud dashboard — no on-site WLC needed. Cloud is simplest; embedded saves rack space; on-prem is most powerful.",
+      "topic": "wlc-types"
+    },
+    {
+      "id": "v2c2-06",
+      "front": "What's an SSID-to-VLAN mapping, and why does it matter?",
+      "back": "Each SSID is mapped to a single VLAN at the WLC. Wireless clients on that SSID get DHCP from that VLAN's pool, and traffic is tagged onto that VLAN at the AP-to-switch trunk. Used to separate guest, employee, IoT into different VLANs/subnets/security policies.",
+      "topic": "ssid-vlan"
+    }
+  ]
+}

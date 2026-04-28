@@ -1,0 +1,55 @@
+{
+  "chapter": "vol1-ch06",
+  "title": "Configuring Basic Switch Management",
+  "weeks": [2],
+  "cards": [
+    {
+      "id": "v1c6-01",
+      "front": "What's the purpose of a management IP on a Layer 2 Cisco switch, and where is it configured?",
+      "back": "L2 switches don't route — they need an IP only so admins can SSH/Telnet/HTTP in remotely. Configured on a special interface called the management VLAN's SVI: `interface vlan 1` (or whichever mgmt VLAN), then `ip address X Y` and `no shutdown`. Plus `ip default-gateway` for off-subnet access.",
+      "topic": "switch-mgmt"
+    },
+    {
+      "id": "v1c6-02",
+      "front": "Configure SSH on a Cisco switch — list the required steps.",
+      "back": "(1) Set hostname (not 'Switch') and `ip domain-name <name>` (RSA key needs both). (2) `crypto key generate rsa modulus 2048` (or 1024). (3) Local user with `username X secret Y` or AAA. (4) `line vty 0 15` → `login local` (or `login authentication`) → `transport input ssh` (or `ssh telnet`). (5) Ideally `ip ssh version 2`.",
+      "topic": "ssh-config"
+    },
+    {
+      "id": "v1c6-03",
+      "front": "What are the line types on a switch and what does each represent?",
+      "back": "`line console 0` — physical RJ-45/USB console port. `line vty 0 15` — 16 virtual TTYs for Telnet/SSH (numbered 0-15). `line aux 0` — auxiliary port (modem on routers, rarely on switches). Each line can have its own login method, password, transport.",
+      "topic": "vty-lines"
+    },
+    {
+      "id": "v1c6-04",
+      "front": "What's the difference between `enable password` and `enable secret`?",
+      "back": "`enable password` stores the password in clear text (Type 0) or weak Type 7 reversible encryption. `enable secret` hashes with MD5 (Type 5) or stronger (Type 8 PBKDF2, Type 9 scrypt). If both are set, `enable secret` always wins. Modern best practice: only use `enable secret`.",
+      "topic": "passwords"
+    },
+    {
+      "id": "v1c6-05",
+      "front": "What does `service password-encryption` do, and what type results?",
+      "back": "Applies Cisco's Type 7 reversible 'encryption' (really obfuscation) to existing and future plain-text passwords in the config (e.g., `enable password`, line passwords). Easily reversible — DOES NOT secure passwords; use `enable secret` and `username … secret` instead.",
+      "topic": "passwords"
+    },
+    {
+      "id": "v1c6-06",
+      "front": "What's the purpose of `banner motd`, `banner login`, and `banner exec`?",
+      "back": "MOTD (message of the day): displayed before login prompt, all sessions. Login: displayed after MOTD, before username prompt. Exec: displayed AFTER successful authentication. Syntax: `banner motd #...text...#` where `#` is a delimiter (any character not in the message).",
+      "topic": "banners"
+    },
+    {
+      "id": "v1c6-07",
+      "front": "What does `no shutdown` do, and why is it needed on switch SVIs but not access ports?",
+      "back": "Brings an interface administratively up. SVIs and router interfaces default to `shutdown` (administratively down) and require `no shutdown`. Switch access ports default to administratively UP, so they don't need it.",
+      "topic": "switch-mgmt"
+    },
+    {
+      "id": "v1c6-08",
+      "front": "How do you save the running-config to NVRAM in two equivalent commands?",
+      "back": "`copy running-config startup-config` (full form) or `write memory` (short form, often abbreviated `wr`). Both write the in-RAM config to NVRAM as the startup-config.",
+      "topic": "config-management"
+    }
+  ]
+}

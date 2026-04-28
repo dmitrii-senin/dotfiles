@@ -1,0 +1,49 @@
+{
+  "chapter": "vol2-ch19",
+  "title": "WAN Architecture",
+  "weeks": [19],
+  "cards": [
+    {
+      "id": "v2c19-01",
+      "front": "What is a leased line, and what L2 protocols typically run on one?",
+      "back": "A dedicated point-to-point circuit from a service provider — guaranteed bandwidth between two sites. L2 protocols: HDLC (Cisco default, simple), PPP (open standard, supports auth/multilink/CHAP). MPLS provider links typically present as Ethernet to the customer.",
+      "topic": "leased-line"
+    },
+    {
+      "id": "v2c19-02",
+      "front": "Compare HDLC and PPP at a high level.",
+      "back": "HDLC: Cisco's proprietary variant (with vendor-type field), simple, no authentication. PPP: open standard (RFC 1661); LCP for link setup, NCP per-protocol; supports CHAP/PAP authentication, multilink, compression. PPP is preferred for non-Cisco interop or when auth is needed.",
+      "topic": "hdlc-vs-ppp"
+    },
+    {
+      "id": "v2c19-03",
+      "front": "What does MPLS provide as a WAN service, and how do customers see it?",
+      "back": "MPLS L3VPN: customer routers (CE) peer with provider edge (PE) routers via OSPF/BGP/static. Customer treats the WAN as a private cloud — any-to-any reachability over the SP backbone. MPLS L2VPN (VPLS, EoMPLS): provider transparently extends Ethernet between sites — customer treats it as one big L2 domain.",
+      "topic": "mpls"
+    },
+    {
+      "id": "v2c19-04",
+      "front": "What's a site-to-site IPsec VPN, and what 2 phases does it use?",
+      "back": "Encrypted tunnel between two sites' edge devices over the public internet. Phase 1 (IKE/ISAKMP): negotiate the secure management channel (DH key exchange, mutual auth via PSK/cert). Phase 2 (IPsec): negotiate the actual data SAs (encryption + authentication algorithms). Then user data flows encrypted.",
+      "topic": "ipsec-vpn"
+    },
+    {
+      "id": "v2c19-05",
+      "front": "What's GRE, and why combine it with IPsec?",
+      "back": "Generic Routing Encapsulation — point-to-point tunnel that can carry MULTICAST and non-IP protocols (which IPsec alone can't). Use GRE-over-IPsec when you need: routing protocols across the tunnel (OSPF/EIGRP need multicast), and the encryption that IPsec provides. Pattern: GRE tunnel + crypto map/IPsec profile.",
+      "topic": "gre-tunnel"
+    },
+    {
+      "id": "v2c19-06",
+      "front": "Compare site-to-site VPN vs remote-access VPN.",
+      "back": "Site-to-site: between two sites' gateways (router/firewall). User devices unaware. Always-on. Remote-access: individual user with VPN client (AnyConnect, OpenVPN) connecting to corporate gateway. Authenticates per user. Used by remote employees.",
+      "topic": "vpn-types"
+    },
+    {
+      "id": "v2c19-07",
+      "front": "What is SD-WAN at a conceptual level?",
+      "back": "Software-Defined WAN — centrally controlled overlay across multiple transport types (MPLS, internet, LTE). The controller picks the best path per application based on policy and real-time link metrics (loss, latency, jitter). Cisco implementations: Viptela (vEdge), Meraki MX. Replaces traditional static-WAN designs.",
+      "topic": "sdwan"
+    }
+  ]
+}

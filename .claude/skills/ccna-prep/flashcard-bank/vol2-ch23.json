@@ -1,0 +1,49 @@
+{
+  "chapter": "vol2-ch23",
+  "title": "Understanding REST and JSON",
+  "weeks": [22],
+  "cards": [
+    {
+      "id": "v2c23-01",
+      "front": "What is REST, and what 4 HTTP verbs map to CRUD?",
+      "back": "REpresentational State Transfer — architectural style for stateless web APIs. CRUD mapping: Create → POST, Read → GET, Update → PUT (full) or PATCH (partial), Delete → DELETE. Resources accessed via URL paths; data exchanged usually as JSON.",
+      "topic": "rest-crud"
+    },
+    {
+      "id": "v2c23-02",
+      "front": "What do these HTTP status code ranges mean?",
+      "back": "1xx: informational. 2xx: success (200 OK, 201 Created, 204 No Content). 3xx: redirection (301, 302). 4xx: client error (400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found). 5xx: server error (500 Internal, 503 Unavailable).",
+      "topic": "http-status-codes"
+    },
+    {
+      "id": "v2c23-03",
+      "front": "What is JSON and what are its primitive data types?",
+      "back": "JavaScript Object Notation — text-based data format. Types: string (\"…\"), number (123, 1.5), boolean (true/false), null, array ([…]), object ({key: value, …}). Lighter than XML, native to most modern APIs.",
+      "topic": "json"
+    },
+    {
+      "id": "v2c23-04",
+      "front": "Compare JSON, XML, and YAML.",
+      "back": "JSON: bracket/comma syntax, lightweight, easy for machines, ubiquitous in REST. XML: tag-based, verbose, schema validation, used in NETCONF and older APIs. YAML: indentation-based, human-readable, used by Ansible/Kubernetes/CI configs. All three encode the same kind of structured data.",
+      "topic": "data-formats"
+    },
+    {
+      "id": "v2c23-05",
+      "front": "Compare REST and SOAP.",
+      "back": "REST: stateless, typically JSON-over-HTTP, simple URL paths, lightweight. SOAP: XML-based, strict schema (WSDL), heavier, supports advanced features like WS-Security, used in enterprise / legacy systems. CCNA cares about REST primarily.",
+      "topic": "rest-vs-soap"
+    },
+    {
+      "id": "v2c23-06",
+      "front": "What's the difference between authentication via API key, OAuth, and Basic Auth?",
+      "back": "API key: static token in header/URL — simple but if leaked = full access. Basic Auth: base64(user:pass) in Authorization header — sends creds every call (weak). OAuth 2.0: token-based, scope-limited, time-limited; user grants app access without sharing password. OAuth is the modern standard.",
+      "topic": "api-auth"
+    },
+    {
+      "id": "v2c23-07",
+      "front": "What is idempotency in REST, and which HTTP methods are idempotent?",
+      "back": "Idempotent: making the same request multiple times has the same effect as making it once. GET, PUT, DELETE are idempotent (PUT to /users/5 with same body always = same end state). POST is NOT idempotent (each POST typically creates a new resource).",
+      "topic": "idempotency"
+    }
+  ]
+}

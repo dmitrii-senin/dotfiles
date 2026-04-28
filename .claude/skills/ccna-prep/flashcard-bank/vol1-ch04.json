@@ -1,0 +1,67 @@
+{
+  "chapter": "vol1-ch04",
+  "title": "Using the Command-Line Interface",
+  "weeks": [2],
+  "cards": [
+    {
+      "id": "v1c4-01",
+      "front": "Name and describe the four main IOS CLI modes and their prompt strings.",
+      "back": "User EXEC: `Router>` — limited show commands, no config. Privileged EXEC: `Router#` — all show/debug, can enter config. Global Configuration: `Router(config)#` — system-wide config. Sub-config (interface, line, router, vlan, etc.): `Router(config-if)#`, `Router(config-line)#`, `Router(config-router)#`, etc.",
+      "topic": "ios-modes"
+    },
+    {
+      "id": "v1c4-02",
+      "front": "How do you move from User EXEC to Privileged EXEC and back?",
+      "back": "Up: `enable` (often abbreviated `en`). Down: `disable` from privileged back to user. Exit any session entirely: `exit` or `logout` from user EXEC.",
+      "topic": "ios-modes"
+    },
+    {
+      "id": "v1c4-03",
+      "front": "How do you enter Global Configuration mode?",
+      "back": "From Privileged EXEC: `configure terminal` (abbreviated `conf t`). Modifies the running-config in RAM directly. Optional alternatives `configure memory` (from startup) and `configure network` (from TFTP) exist but are rarely used.",
+      "topic": "ios-modes"
+    },
+    {
+      "id": "v1c4-04",
+      "front": "What's the difference between `exit`, `end`, and Ctrl-Z in IOS configuration mode?",
+      "back": "`exit`: move up ONE level (e.g., from interface sub-config back to global config). `end`: jump straight back to Privileged EXEC, skipping intermediate levels. `Ctrl-Z`: same as `end`. From Global Config, `exit` and `end` both go to Privileged EXEC.",
+      "topic": "ios-modes"
+    },
+    {
+      "id": "v1c4-05",
+      "front": "What does `?` do in IOS CLI? Give 3 ways it's used.",
+      "back": "(1) Bare `?` lists all commands available in the current mode. (2) `co?` lists commands starting with 'co'. (3) `show ?` lists valid next words after `show`. Plus `show ip route ?` shows valid options/parameters at that position.",
+      "topic": "cli-help"
+    },
+    {
+      "id": "v1c4-06",
+      "front": "What's the difference between the running-config and startup-config?",
+      "back": "running-config: live configuration in RAM (volatile — lost on reboot). startup-config: saved in NVRAM, loaded at boot. Save with `copy running-config startup-config` (or `write memory` / `wr`).",
+      "topic": "config-management"
+    },
+    {
+      "id": "v1c4-07",
+      "front": "What does `terminal monitor` do?",
+      "back": "Enables logging output (syslog/debug messages) to be displayed on a remote terminal session (Telnet/SSH). By default, log messages only appear on the console. Disable with `terminal no monitor`. Often paired with `logging synchronous` on the line to keep prompts tidy.",
+      "topic": "cli-tools"
+    },
+    {
+      "id": "v1c4-08",
+      "front": "What does the `do` command do in configuration modes?",
+      "back": "Lets you execute a Privileged EXEC command (typically `show`) without leaving config mode. Example: `Router(config)# do show ip int brief`. Saves time vs `end`/`show`/`conf t`.",
+      "topic": "cli-tools"
+    },
+    {
+      "id": "v1c4-09",
+      "front": "What command shows the IOS image version, uptime, and hardware details?",
+      "back": "`show version`. Reveals IOS image filename, software version, uptime since last reload, configuration register value (`0x2102` is the normal default), interface count, and hardware model.",
+      "topic": "show-commands"
+    },
+    {
+      "id": "v1c4-10",
+      "front": "How do you erase the saved configuration and reboot to factory-like state?",
+      "back": "`erase startup-config` (or `erase nvram:`, or `write erase`), then `reload`. The router boots with no startup-config and prompts the setup-mode dialog. Running-config in RAM is unchanged until reload.",
+      "topic": "config-management"
+    }
+  ]
+}

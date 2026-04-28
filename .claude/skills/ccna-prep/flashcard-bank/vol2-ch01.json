@@ -1,0 +1,49 @@
+{
+  "chapter": "vol2-ch01",
+  "title": "Fundamentals of Wireless Networks",
+  "weeks": [21],
+  "cards": [
+    {
+      "id": "v2c1-01",
+      "front": "Name the 4 main wireless network types and their scope.",
+      "back": "WPAN (Personal, ~10m, e.g., Bluetooth). WLAN (Local, ~50m indoor, e.g., Wi-Fi 802.11). WMAN (Metropolitan, e.g., WiMAX). WWAN (Wide-area, e.g., 4G/5G cellular).",
+      "topic": "wireless-types"
+    },
+    {
+      "id": "v2c1-02",
+      "front": "What does CSMA/CA do, and why does Wi-Fi use it instead of CSMA/CD?",
+      "back": "Carrier Sense Multiple Access with Collision AVOIDANCE. Wi-Fi can't detect collisions while transmitting (radios are half-duplex), so it tries to AVOID them: listen, wait random backoff, optionally use RTS/CTS handshake before sending. Acks confirm receipt; missed acks trigger retransmission.",
+      "topic": "wireless-csmaca"
+    },
+    {
+      "id": "v2c1-03",
+      "front": "List the main 802.11 standards and their key bands/speeds.",
+      "back": "802.11b: 2.4 GHz, 11 Mbps. 802.11a: 5 GHz, 54 Mbps. 802.11g: 2.4 GHz, 54 Mbps. 802.11n (Wi-Fi 4): 2.4/5 GHz, ~600 Mbps, MIMO. 802.11ac (Wi-Fi 5): 5 GHz, multi-Gbps. 802.11ax (Wi-Fi 6): 2.4/5/6 GHz, OFDMA, 9.6 Gbps theoretical.",
+      "topic": "wireless-standards"
+    },
+    {
+      "id": "v2c1-04",
+      "front": "How many non-overlapping channels does 2.4 GHz Wi-Fi have in the US, and which are they?",
+      "back": "3 non-overlapping channels: 1, 6, 11 (each 22 MHz wide; spaced 25 MHz apart). The band has 11 channels total in the US (1-11), 13 in Europe — but only 3 don't overlap. Always design WLANs around 1/6/11 to avoid interference.",
+      "topic": "wireless-channels"
+    },
+    {
+      "id": "v2c1-05",
+      "front": "What's the difference between Ad-hoc, Infrastructure, and Mesh wireless modes?",
+      "back": "Ad-hoc (IBSS): peer-to-peer, no AP. Infrastructure (BSS/ESS): clients connect via APs to wired LAN — standard model. Mesh: APs interconnect wirelessly to backhaul, extending coverage without dragging Ethernet to each AP.",
+      "topic": "wireless-modes"
+    },
+    {
+      "id": "v2c1-06",
+      "front": "What are BSS, ESS, BSSID, and SSID?",
+      "back": "BSS: Basic Service Set — coverage of a single AP. BSSID: BSS Identifier — typically the AP's radio MAC address. ESS: Extended Service Set — multiple APs sharing the same SSID, allowing clients to roam. SSID: Service Set Identifier — the network's human-readable name.",
+      "topic": "wireless-bss-ess"
+    },
+    {
+      "id": "v2c1-07",
+      "front": "What does an AP do at L2 between wireless and wired sides?",
+      "back": "The AP bridges the wireless BSS to a wired VLAN. Frames going wireless→wired are translated from 802.11 → 802.3 Ethernet (and vice versa). The wired interface is typically a trunk carrying multiple VLANs, one per SSID.",
+      "topic": "wireless-ap"
+    }
+  ]
+}

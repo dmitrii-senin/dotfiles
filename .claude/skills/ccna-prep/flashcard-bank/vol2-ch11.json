@@ -1,0 +1,49 @@
+{
+  "chapter": "vol2-ch11",
+  "title": "Implementing Switch Port Security",
+  "weeks": [20],
+  "cards": [
+    {
+      "id": "v2c11-01",
+      "front": "What does port security do, and on which port types is it supported?",
+      "back": "Limits which MAC addresses can use a switch port (and how many). Supported on access ports and trunks (and host-mode ports). NOT supported on SPAN, dynamic auto/desirable, or EtherChannel members.",
+      "topic": "port-security"
+    },
+    {
+      "id": "v2c11-02",
+      "front": "Configure port security on Fa0/1 to allow up to 2 MACs, learned dynamically, sticky-saved, and shutdown on violation.",
+      "back": "```\ninterface fa0/1\n switchport mode access     ! prerequisite\n switchport port-security\n switchport port-security maximum 2\n switchport port-security mac-address sticky\n switchport port-security violation shutdown\n```",
+      "topic": "port-security-config"
+    },
+    {
+      "id": "v2c11-03",
+      "front": "What are the 3 port-security violation modes and what does each do?",
+      "back": "shutdown (default): err-disable port, log syslog, increment counter. restrict: drop offending frames, log syslog, increment counter — port stays up. protect: drop offending frames silently, no log, no counter increment, port stays up.",
+      "topic": "port-security-violation"
+    },
+    {
+      "id": "v2c11-04",
+      "front": "What's the difference between dynamic, sticky, and static MAC learning in port security?",
+      "back": "Dynamic: switch learns MACs into RAM only — lost on reboot. Sticky: dynamically learn AND save to running-config (so they survive reboot if you `wr mem`). Static: manually configured `switchport port-security mac-address AAAA.BBBB.CCCC` — never learned, never aged.",
+      "topic": "port-security-mac"
+    },
+    {
+      "id": "v2c11-05",
+      "front": "Port is err-disabled — how do you bring it back?",
+      "back": "Manual: `shutdown` then `no shutdown` on the interface. Automatic: enable err-disable recovery globally — `errdisable recovery cause psecure-violation` and `errdisable recovery interval 300` (auto-recover after 5 min).",
+      "topic": "errdisable"
+    },
+    {
+      "id": "v2c11-06",
+      "front": "How do you verify port security state and learned MACs?",
+      "back": "`show port-security` (summary across all ports). `show port-security interface fa0/1` (detailed: mode, max, current count, violations, action). `show port-security address` (every secured MAC).",
+      "topic": "show-commands"
+    },
+    {
+      "id": "v2c11-07",
+      "front": "Why does port security require the port to be in 'access' mode?",
+      "back": "By design, port security applies per-port and per-VLAN. Trunk ports also support it but require additional `switchport port-security maximum X vlan Y` syntax. The simplest scenario is `switchport mode access` + port-security commands. Default `dynamic auto` mode is incompatible.",
+      "topic": "port-security"
+    }
+  ]
+}

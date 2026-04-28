@@ -1,0 +1,55 @@
+{
+  "chapter": "vol1-ch07",
+  "title": "Configuring and Verifying Switch Interfaces",
+  "weeks": [2],
+  "cards": [
+    {
+      "id": "v1c7-01",
+      "front": "How do you enter interface configuration mode for a single port versus a range?",
+      "back": "Single: `interface gigabitethernet0/1` (abbrev `int gi0/1` or `int g0/1`). Range: `interface range gi0/1 - 5` or `interface range gi0/1, gi0/3, gi0/5`. Same commands then apply to every port in the range.",
+      "topic": "interface-config"
+    },
+    {
+      "id": "v1c7-02",
+      "front": "How do you set port speed and duplex manually, and what are the defaults?",
+      "back": "`speed {10|100|1000|auto}` and `duplex {half|full|auto}`. Default is `auto` for both — IEEE autonegotiation. If both ends auto: matched. If one is fixed and the other auto: mismatch risk (auto side often falls back to half-duplex on a 100 Mbps link).",
+      "topic": "switch-interface"
+    },
+    {
+      "id": "v1c7-03",
+      "front": "What does `show interfaces status` reveal compared to `show ip interface brief`?",
+      "back": "`show interfaces status` (switch-only) gives one line per port: status, VLAN, duplex, speed, type. `show ip interface brief` gives interface, IP address, OK?, status, protocol — usable on routers and switches. Use `status` for switch port quick view; `brief` for IP/L3 view.",
+      "topic": "show-commands"
+    },
+    {
+      "id": "v1c7-04",
+      "front": "What does the 'line protocol is up/down' field really mean on `show interfaces`?",
+      "back": "Two-part status: 'Interface' = layer 1 (cable/medium); 'line protocol' = layer 2 (keepalives, framing, encapsulation). 'up/up' = working. 'up/down' = L2 issue (encapsulation, keepalive, no neighbor). 'down/down' = L1 issue (cable, no signal). 'administratively down' = `shutdown` set.",
+      "topic": "interface-status"
+    },
+    {
+      "id": "v1c7-05",
+      "front": "What are runts, giants, CRC errors, and late collisions in `show interfaces` output?",
+      "back": "Runts: frames < 64 bytes (often collisions or bad NIC). Giants: > 1518 bytes (or 1522 with 802.1Q) — usually MTU mismatch. CRC errors: FCS check failed (cable, EMI, duplex mismatch). Late collisions: collision after first 512 bits — almost always indicates a duplex mismatch.",
+      "topic": "interface-errors"
+    },
+    {
+      "id": "v1c7-06",
+      "front": "If you see 'CRC' and 'late collisions' on a switch interface, what's the most likely cause?",
+      "back": "Duplex mismatch — one side full-duplex, other side half-duplex. Half-duplex side detects collisions late because the full-duplex side ignores CSMA/CD and transmits whenever. Verify with `show interfaces` and `show interfaces … status`; fix by hard-coding both ends to full duplex or letting both autonegotiate.",
+      "topic": "interface-errors"
+    },
+    {
+      "id": "v1c7-07",
+      "front": "How do you administratively disable an interface and re-enable it?",
+      "back": "Disable: `shutdown` in interface config. Re-enable: `no shutdown`. Disabled state shows as 'administratively down' in `show ip interface brief`.",
+      "topic": "interface-config"
+    },
+    {
+      "id": "v1c7-08",
+      "front": "Why is it best practice to manually disable autonegotiation on switch-to-switch trunks/uplinks but leave it on access ports?",
+      "back": "Trunks: hard-code speed/duplex (gigabit/full) to avoid autoneg quirks during convergence and for predictable performance. Access ports: leave auto-MDIX and autoneg on so any user device works without manual config.",
+      "topic": "switch-interface"
+    }
+  ]
+}

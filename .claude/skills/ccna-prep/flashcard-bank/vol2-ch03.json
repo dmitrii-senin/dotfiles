@@ -1,0 +1,43 @@
+{
+  "chapter": "vol2-ch03",
+  "title": "Securing Wireless Networks",
+  "weeks": [21],
+  "cards": [
+    {
+      "id": "v2c3-01",
+      "front": "Compare WEP, WPA, WPA2, WPA3 — why was each replaced?",
+      "back": "WEP: RC4 + 40/104-bit key — broken in 2001, trivial to crack. WPA (interim): TKIP, still weak. WPA2: AES-CCMP, 802.11i, secure for years. WPA3: AES-GCMP, SAE handshake (replaces 4-way), forward secrecy, mandatory PMF. Use WPA3 if available; WPA2 minimum.",
+      "topic": "wireless-security"
+    },
+    {
+      "id": "v2c3-02",
+      "front": "Compare WPA2-Personal (PSK) vs WPA2-Enterprise (802.1X).",
+      "back": "Personal: shared passphrase used by all clients (PSK). Easy but no per-user identity. Enterprise: each user authenticates via 802.1X to a RADIUS server; unique credentials, can revoke individual users, supports cert-based auth (EAP-TLS). Used in corporate environments.",
+      "topic": "wireless-security"
+    },
+    {
+      "id": "v2c3-03",
+      "front": "What is the 4-way handshake in WPA2, and what does it derive?",
+      "back": "Mutual authentication and key derivation between AP and client. Both already share a PMK (Pairwise Master Key — derived from PSK or 802.1X). The 4 messages exchange nonces and confirm message integrity, deriving a fresh PTK (Pairwise Transient Key) used to encrypt the session.",
+      "topic": "wpa2-handshake"
+    },
+    {
+      "id": "v2c3-04",
+      "front": "What is PMF (Protected Management Frames), and why does WPA3 require it?",
+      "back": "Encrypts/authenticates 802.11 management frames (deauth, disassociate). Without PMF, attackers can spoof deauth frames to kick clients off, then capture the 4-way handshake or run other attacks. WPA3 mandates PMF; WPA2 supports it as optional.",
+      "topic": "wireless-security"
+    },
+    {
+      "id": "v2c3-05",
+      "front": "What replaces the PSK 4-way handshake in WPA3-Personal?",
+      "back": "SAE (Simultaneous Authentication of Equals) — Dragonfly handshake. Resistant to offline dictionary attacks (each guess requires a fresh AP interaction). Provides forward secrecy — even if PSK is compromised later, past sessions remain encrypted.",
+      "topic": "wpa3"
+    },
+    {
+      "id": "v2c3-06",
+      "front": "What are EAP-TLS, PEAP, and EAP-FAST?",
+      "back": "All are 802.1X EAP methods used in WPA2/3-Enterprise. EAP-TLS: mutual cert auth (most secure, requires PKI). PEAP: server cert + inner method (often MSCHAPv2 with username/password) — most common. EAP-FAST: Cisco proprietary, uses PAC instead of certs.",
+      "topic": "eap-methods"
+    }
+  ]
+}

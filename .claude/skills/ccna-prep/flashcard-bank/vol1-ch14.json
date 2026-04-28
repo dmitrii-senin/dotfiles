@@ -1,0 +1,49 @@
+{
+  "chapter": "vol1-ch14",
+  "title": "Analyzing Existing Subnets",
+  "weeks": [4],
+  "cards": [
+    {
+      "id": "v1c14-01",
+      "front": "Step-by-step: given an IP and prefix, find network, broadcast, first usable, last usable.",
+      "back": "(1) Determine the 'interesting octet' (where the mask is non-0/non-255). (2) Block size = 256 − mask in that octet. (3) Network = round IP's interesting octet DOWN to nearest multiple of block size. (4) Broadcast = network + block size − 1 in the interesting octet. (5) First usable = network + 1. Last usable = broadcast − 1.",
+      "topic": "subnet-analysis"
+    },
+    {
+      "id": "v1c14-02",
+      "front": "Analyze 192.168.42.135/27. Network, broadcast, range?",
+      "back": "/27 → mask 255.255.255.224 → block size 32 in 4th octet. 135 ÷ 32 = 4 r 7 → network = 192.168.42.128. Broadcast = 128 + 31 = 192.168.42.159. Usable = .129–.158 (30 hosts).",
+      "topic": "subnet-analysis"
+    },
+    {
+      "id": "v1c14-03",
+      "front": "Analyze 10.50.78.200/22. Network, broadcast, range?",
+      "back": "/22 → mask 255.255.252.0 → interesting octet = 3rd, block size = 4. 78 ÷ 4 = 19 r 2 → network = 10.50.76.0. Broadcast = 10.50.79.255 (76+3=79, then .255). Usable = 10.50.76.1–10.50.79.254 (1022 hosts).",
+      "topic": "subnet-analysis"
+    },
+    {
+      "id": "v1c14-04",
+      "front": "How do you tell whether two IPs are on the SAME subnet?",
+      "back": "Apply the same mask to both addresses; if the network address comes out identical, they're on the same subnet. Quick check: identical octets in network bits, AND interesting-octet values fall in the same block.",
+      "topic": "subnet-analysis"
+    },
+    {
+      "id": "v1c14-05",
+      "front": "Magic number / block size method — what's the trick?",
+      "back": "Block size = 256 − interesting mask octet. List network IDs in multiples of block size in the interesting octet. The address belongs to the highest network ID ≤ its interesting octet. Faster than binary conversion for /17–/30 questions.",
+      "topic": "subnetting-shortcuts"
+    },
+    {
+      "id": "v1c14-06",
+      "front": "Memorize: number of usable hosts for /24, /25, /26, /27, /28, /29, /30.",
+      "back": "/24=254, /25=126, /26=62, /27=30, /28=14, /29=6, /30=2 (point-to-point standard). Each /+1 halves and subtracts 1.",
+      "topic": "subnetting-math"
+    },
+    {
+      "id": "v1c14-07",
+      "front": "Memorize: number of subnets created from a /24 with various borrowed bits.",
+      "back": "Borrow 1 bit → /25 → 2 subnets. /26 → 4. /27 → 8. /28 → 16. /29 → 32. /30 → 64. /31 → 128 (PtP only).",
+      "topic": "subnetting-math"
+    }
+  ]
+}

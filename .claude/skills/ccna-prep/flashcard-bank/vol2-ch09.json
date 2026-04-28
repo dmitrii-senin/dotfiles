@@ -1,0 +1,49 @@
+{
+  "chapter": "vol2-ch09",
+  "title": "Security Architectures",
+  "weeks": [19],
+  "cards": [
+    {
+      "id": "v2c9-01",
+      "front": "Define the CIA triad in security.",
+      "back": "Confidentiality (only authorized parties can read data), Integrity (data hasn't been altered), Availability (systems are reachable when needed). Almost every security control aligns to one or more of these. Mitigating availability attacks is sometimes called 'hardening'.",
+      "topic": "cia-triad"
+    },
+    {
+      "id": "v2c9-02",
+      "front": "Differentiate threat, vulnerability, and exploit.",
+      "back": "Threat = potential cause of an unwanted incident (e.g., 'attacker'). Vulnerability = a weakness in a system that a threat could exploit (e.g., 'unpatched bug'). Exploit = the actual technique/tool used to take advantage of a vulnerability.",
+      "topic": "security-terms"
+    },
+    {
+      "id": "v2c9-03",
+      "front": "Common attack types — name 5 categories tested on the CCNA.",
+      "back": "Reconnaissance (scanning, ping sweep). Access (password cracking, social engineering, phishing). DoS/DDoS (resource exhaustion). Spoofing (IP, ARP, MAC). MITM (packet capture/modification, e.g., DHCP spoofing). Plus malware (viruses, worms, trojans, ransomware).",
+      "topic": "attack-types"
+    },
+    {
+      "id": "v2c9-04",
+      "front": "What's the difference between a firewall and an IDS/IPS?",
+      "back": "Firewall: enforces rules on traffic flow (allow/deny). Inline. IDS: detects and alerts on attacks but doesn't block — passive (off the data path). IPS: detects AND blocks — inline. Modern NGFWs combine firewall + IPS + app awareness in one box.",
+      "topic": "firewall-vs-ids"
+    },
+    {
+      "id": "v2c9-05",
+      "front": "Compare stateless packet filter vs stateful firewall.",
+      "back": "Stateless: each packet evaluated independently against rules (like Cisco ACLs). Stateful: tracks connection state (TCP handshake, UDP pseudo-state) — automatically allows return traffic for permitted outbound flows. Stateful is much more secure and easier to manage; ACLs need `established` to fake similar behavior.",
+      "topic": "stateful-firewall"
+    },
+    {
+      "id": "v2c9-06",
+      "front": "Define DMZ in network architecture.",
+      "back": "Demilitarized Zone — a perimeter network between the trusted internal LAN and the untrusted Internet. Hosts services that need internet exposure (web, mail, DNS) but isolated from internal hosts. Two-firewall (or one firewall, multi-leg) design controls traffic between Inside, DMZ, and Outside.",
+      "topic": "dmz"
+    },
+    {
+      "id": "v2c9-07",
+      "front": "What is multi-factor authentication?",
+      "back": "Authentication using ≥2 factors from different categories: 'something you know' (password), 'something you have' (token, phone), 'something you are' (biometric). Drastically reduces account takeover even if one factor is compromised.",
+      "topic": "mfa"
+    }
+  ]
+}

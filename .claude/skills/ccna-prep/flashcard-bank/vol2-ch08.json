@@ -1,0 +1,49 @@
+{
+  "chapter": "vol2-ch08",
+  "title": "Applied IP ACLs",
+  "weeks": [18],
+  "cards": [
+    {
+      "id": "v2c8-01",
+      "front": "How do you apply an ACL to restrict VTY (SSH/Telnet) access?",
+      "back": "```\nip access-list standard MGMT-ALLOW\n permit 10.10.10.0 0.0.0.255\nline vty 0 15\n access-class MGMT-ALLOW in\n```\nNote: VTY uses `access-class`, NOT `ip access-group`. Use a standard ACL — extended is unnecessary here.",
+      "topic": "vty-acl"
+    },
+    {
+      "id": "v2c8-02",
+      "front": "An ACL is applied 'in' on Gi0/0. Which traffic does it filter?",
+      "back": "Packets ARRIVING on Gi0/0 (entering the interface from the wire). 'out' filters packets LEAVING the interface. Same ACL applied 'in' vs 'out' has different effects depending on direction of expected flow.",
+      "topic": "acl-direction"
+    },
+    {
+      "id": "v2c8-03",
+      "front": "How do you see WHICH ACL is applied to which interface and direction?",
+      "back": "`show ip interface gi0/0` — look for 'Outgoing access list is X' and 'Inbound access list is Y' lines. Or `show running-config interface gi0/0` for the configuration view.",
+      "topic": "show-commands"
+    },
+    {
+      "id": "v2c8-04",
+      "front": "What does `log` keyword do at the end of an ACL line?",
+      "back": "Generates a syslog/console message every time that line is matched. Useful for auditing/troubleshooting. Performance impact on busy networks. Example: `deny ip any any log`. Output: `%SEC-6-IPACCESSLOGP: list 100 denied tcp 10.1.1.5 -> 192.168.1.10`.",
+      "topic": "acl-logging"
+    },
+    {
+      "id": "v2c8-05",
+      "front": "Can you have multiple ACLs on the same interface in the same direction?",
+      "back": "No — only ONE ACL per interface, per direction, per protocol. (You can have inbound + outbound on the same interface, just not two inbound.) If you need to combine logic, merge them into a single ACL.",
+      "topic": "acl-rules"
+    },
+    {
+      "id": "v2c8-06",
+      "front": "Common mistake: ACL blocking is not working. What 4 things do you check?",
+      "back": "(1) ACL applied to the right interface and direction (`show ip interface`). (2) Match criteria correct (wildcard mask?). (3) Order of entries — earlier permit might match first. (4) Hit counts on `show access-lists` — if zero, the traffic isn't reaching the ACL.",
+      "topic": "acl-troubleshooting"
+    },
+    {
+      "id": "v2c8-07",
+      "front": "What's the implicit handling of return traffic for an ACL — does Cisco track sessions?",
+      "back": "No — IOS standard ACLs are STATELESS. They don't remember outbound flows. To allow return traffic, you must explicitly permit it (e.g., `established` keyword for TCP, or open ephemeral port range). Stateful filtering needs Zone-Based Firewall or ASA.",
+      "topic": "acl-stateless"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "chapter": "vol1-ch27",
+  "title": "Implementing IPv6 Addressing on Routers",
+  "weeks": [14],
+  "cards": [
+    {
+      "id": "v1c27-01",
+      "front": "Three ways to configure an IPv6 address on a Cisco interface — show syntax for each.",
+      "back": "Manual full: `ipv6 address 2001:db8:1::1/64`. EUI-64 derived: `ipv6 address 2001:db8:1::/64 eui-64`. Link-local only: `ipv6 enable` (auto-creates fe80::/64 link-local; no global address). Multiple GUAs are allowed per interface — each with its own subnet.",
+      "topic": "ipv6-config"
+    },
+    {
+      "id": "v1c27-02",
+      "front": "How do you set a specific link-local address on an interface?",
+      "back": "`ipv6 address fe80::1 link-local`. Useful for predictable next-hop in routing tables (e.g., OSPFv3). Otherwise, link-local is auto-derived from EUI-64 and harder to remember.",
+      "topic": "ipv6-link-local"
+    },
+    {
+      "id": "v1c27-03",
+      "front": "How do you verify IPv6 interfaces and addresses on Cisco?",
+      "back": "`show ipv6 interface brief` (compact: name, status, addresses). `show ipv6 interface gi0/0` (detailed: link-local, joined multicast groups, MTU, NDP info). `show ipv6 route` (routing table).",
+      "topic": "show-commands"
+    },
+    {
+      "id": "v1c27-04",
+      "front": "What multicast group does an IPv6 interface JOIN automatically when configured?",
+      "back": "(1) ff02::1 (all nodes — every IPv6 host). (2) ff02::1:ffXX:XXXX (solicited-node, derived from last 24 bits of each unicast address). Routers also join ff02::2 (all routers). OSPFv3 joins ff02::5 / ff02::6.",
+      "topic": "ipv6-multicast"
+    },
+    {
+      "id": "v1c27-05",
+      "front": "Configure an IPv6 static route to 2001:db8:2::/64 via next-hop 2001:db8:0::2.",
+      "back": "`ipv6 route 2001:db8:2::/64 2001:db8:0::2`. With exit interface (recommended for link-local next-hops): `ipv6 route 2001:db8:2::/64 gi0/1 fe80::1`. Default route: `ipv6 route ::/0 <next-hop>`.",
+      "topic": "ipv6-static"
+    },
+    {
+      "id": "v1c27-06",
+      "front": "What's the trick about IPv6 static routes with link-local next-hops?",
+      "back": "You MUST specify the exit interface, because link-local addresses are only meaningful within a single link (fe80::1 could exist on dozens of interfaces). Format: `ipv6 route <prefix> <interface> <link-local-next-hop>`.",
+      "topic": "ipv6-static"
+    }
+  ]
+}

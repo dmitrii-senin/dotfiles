@@ -1,0 +1,49 @@
+{
+  "chapter": "vol1-ch26",
+  "title": "IPv6 Addressing and Subnetting",
+  "weeks": [14],
+  "cards": [
+    {
+      "id": "v1c26-01",
+      "front": "Map the major IPv6 address types to their prefix:",
+      "back": "Global Unicast (GUA): 2000::/3 — internet-routable. Unique Local (ULA): fc00::/7 (private use, RFC 4193). Link-Local: fe80::/10 — auto-assigned per interface, never routed. Multicast: ff00::/8. Loopback: ::1/128. Unspecified: ::/128.",
+      "topic": "ipv6-types"
+    },
+    {
+      "id": "v1c26-02",
+      "front": "What is the standard IPv6 LAN subnet mask, and why?",
+      "back": "/64. Lower 64 bits = interface ID. SLAAC and EUI-64 require a 64-bit interface ID, so /64 is the de facto standard for any LAN. Smaller subnets break SLAAC; larger waste space.",
+      "topic": "ipv6-subnetting"
+    },
+    {
+      "id": "v1c26-03",
+      "front": "What is a typical ISP allocation size for an enterprise IPv6, and how do you carve subnets from it?",
+      "back": "Common: /48 to a site (16 bits = 65,536 /64 LANs). Or /56 to small site (8 bits = 256 /64 LANs). The 4th hex group (hextet) becomes the subnet identifier. Example: 2001:db8:abcd::/48 → /64 subnets like 2001:db8:abcd:0010::/64, 2001:db8:abcd:0020::/64, etc.",
+      "topic": "ipv6-subnetting"
+    },
+    {
+      "id": "v1c26-04",
+      "front": "What are link-local addresses (fe80::/10) used for?",
+      "back": "Mandatory on every IPv6-enabled interface. Used for OSPFv3, EIGRPv6, NDP, and any control-plane traffic between directly-connected hosts. Routers use link-local as next-hop in IPv6 routing tables. Generated automatically (EUI-64) or with `ipv6 enable`.",
+      "topic": "ipv6-link-local"
+    },
+    {
+      "id": "v1c26-05",
+      "front": "Configure an IPv6 GUA on Gi0/0 with EUI-64 derivation.",
+      "back": "```\ninterface gi0/0\n ipv6 address 2001:db8:1::/64 eui-64\n no shutdown\n```\nThe lower 64 bits will be derived from the interface MAC using EUI-64. To assign a specific full address: `ipv6 address 2001:db8:1::1/64`.",
+      "topic": "ipv6-config"
+    },
+    {
+      "id": "v1c26-06",
+      "front": "How does EUI-64 derive the interface ID from a 48-bit MAC?",
+      "back": "(1) Split MAC into two 24-bit halves. (2) Insert FFFE in the middle (so 6 bytes → 8 bytes). (3) Flip the 7th bit (universal/local bit) of the first byte. Example: MAC 0022.0033.4455 → 0222.00FF.FE33.4455 (note 00 → 02, flipping the U/L bit).",
+      "topic": "eui-64"
+    },
+    {
+      "id": "v1c26-07",
+      "front": "Multicast — list 4 well-known IPv6 multicast addresses.",
+      "back": "ff02::1 — all nodes on the link. ff02::2 — all routers. ff02::5 — all OSPF routers. ff02::6 — all OSPF DRs. ff02::1:ffXX:XXXX — solicited-node multicast (used by NDP, derived from last 24 bits of unicast).",
+      "topic": "ipv6-multicast"
+    }
+  ]
+}

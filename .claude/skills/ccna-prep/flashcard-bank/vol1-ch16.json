@@ -1,0 +1,55 @@
+{
+  "chapter": "vol1-ch16",
+  "title": "Operating Cisco Routers",
+  "weeks": [10],
+  "cards": [
+    {
+      "id": "v1c16-01",
+      "front": "What's the difference between a router interface and a switch interface, in terms of L3 addressing?",
+      "back": "Router interfaces are LAYER 3 — each has its own IP/mask and is in its own subnet. Switch access ports are L2 — no IP; the switch SVI (interface vlan X) is the IP-bearing interface. Trunks carry multiple VLANs but no per-VLAN IP on a pure L2 switch.",
+      "topic": "router-fundamentals"
+    },
+    {
+      "id": "v1c16-02",
+      "front": "Configure an IP address and bring up router interface Gi0/0.",
+      "back": "```\ninterface gi0/0\n ip address 10.1.1.1 255.255.255.0\n no shutdown\n```\nDefault state is `shutdown` on routers (unlike switch access ports). Verify with `show ip int brief`.",
+      "topic": "router-interface"
+    },
+    {
+      "id": "v1c16-03",
+      "front": "What does `bandwidth` configured on an interface affect?",
+      "back": "It does NOT change the actual link speed. It's a parameter used by routing protocols (OSPF cost calculation: cost = ref-bw / bandwidth) and `show interfaces` output. Misconfigured bandwidth = wrong OSPF metrics. For accuracy, set it to match the actual link speed (in kbps).",
+      "topic": "router-interface"
+    },
+    {
+      "id": "v1c16-04",
+      "front": "Why are loopback interfaces useful on routers?",
+      "back": "Always-up logical interface — never goes down unless administratively shut. Used as a stable router-id for OSPF/BGP, as a management IP, and as a source IP for control-plane traffic. Configure: `interface loopback 0` then `ip address X X`.",
+      "topic": "loopback-interface"
+    },
+    {
+      "id": "v1c16-05",
+      "front": "What is the boot process of a Cisco router (4 steps)?",
+      "back": "(1) POST (Power-On Self-Test, ROM). (2) Bootstrap loads (ROM). (3) Locate and load IOS image (flash, then TFTP fallback, then ROMmon). (4) Locate and load startup-config from NVRAM (or enter setup mode if missing). Configuration register `0x2102` controls this; `0x2142` skips startup-config (used for password recovery).",
+      "topic": "boot-process"
+    },
+    {
+      "id": "v1c16-06",
+      "front": "Memorize: what is the default configuration register on a Cisco router and what does it do?",
+      "back": "0x2102 — normal boot: load IOS from flash, load startup-config. Other notable values: 0x2142 (skip startup-config — password recovery), 0x2120 (boot to ROMmon — diagnostics). Set with `config-register 0xNNNN` from global config.",
+      "topic": "boot-process"
+    },
+    {
+      "id": "v1c16-07",
+      "front": "What does `show running-config` show vs `show startup-config`?",
+      "back": "`show running-config` (or `show run`): live config in RAM, includes any unsaved changes. `show startup-config` (or `show start`): saved config in NVRAM, what loads at next reload. They differ if you've made changes without `copy run start`.",
+      "topic": "config-management"
+    },
+    {
+      "id": "v1c16-08",
+      "front": "Memory types in a Cisco router and what each holds.",
+      "back": "RAM: running-config, IOS in execution, routing tables, ARP cache (volatile). Flash: IOS image (non-volatile). NVRAM: startup-config (non-volatile, small). ROM: bootstrap, ROMmon, mini-IOS — for boot-time and recovery (non-volatile).",
+      "topic": "router-memory"
+    }
+  ]
+}

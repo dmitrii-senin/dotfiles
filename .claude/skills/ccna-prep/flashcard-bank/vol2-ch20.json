@@ -1,0 +1,43 @@
+{
+  "chapter": "vol2-ch20",
+  "title": "Cloud Architecture",
+  "weeks": [22],
+  "cards": [
+    {
+      "id": "v2c20-01",
+      "front": "Name the 5 essential characteristics of cloud computing per NIST.",
+      "back": "(1) On-demand self-service. (2) Broad network access. (3) Resource pooling (multi-tenant). (4) Rapid elasticity. (5) Measured service (pay-per-use). NIST SP 800-145.",
+      "topic": "cloud-characteristics"
+    },
+    {
+      "id": "v2c20-02",
+      "front": "Compare IaaS, PaaS, and SaaS.",
+      "back": "IaaS (Infrastructure): you get VMs, storage, networking; you manage OS and apps (AWS EC2, Azure VMs). PaaS (Platform): you get runtime/database/middleware; deploy code, ignore OS (Heroku, App Engine). SaaS (Software): finished application; you just use it (Office 365, Salesforce). Increasing managed-by-provider scope.",
+      "topic": "cloud-service-models"
+    },
+    {
+      "id": "v2c20-03",
+      "front": "Compare public, private, hybrid, and community cloud deployment models.",
+      "back": "Public: shared infrastructure, multi-tenant (AWS, Azure, GCP). Private: dedicated to one org, on-prem or hosted. Hybrid: mix of public and private with orchestration/data exchange. Community: shared by orgs with similar needs (gov, healthcare).",
+      "topic": "cloud-deployment-models"
+    },
+    {
+      "id": "v2c20-04",
+      "front": "Why does cloud computing affect WAN design?",
+      "back": "App traffic shifts from data center → cloud (often outside the corporate WAN). Internet bandwidth at branches becomes critical (formerly all traffic backhauled to HQ). Drives SD-WAN with direct internet access (DIA) and cloud onramps (Cisco Umbrella, Zscaler).",
+      "topic": "cloud-wan-impact"
+    },
+    {
+      "id": "v2c20-05",
+      "front": "What is a virtual machine vs a container at a high level?",
+      "back": "VM: full guest OS + virtual hardware via hypervisor (VMware, Hyper-V, KVM). Heavy, slow boot. Container: shared host kernel, isolated user space (Docker, containerd). Lightweight, sub-second start. Containers usually managed by orchestration (Kubernetes).",
+      "topic": "virtualization"
+    },
+    {
+      "id": "v2c20-06",
+      "front": "What is a hypervisor and what's the type 1 vs type 2 distinction?",
+      "back": "Software that runs and manages VMs. Type 1 (bare-metal): runs directly on hardware (ESXi, Hyper-V, KVM, Xen) — used in data centers. Type 2 (hosted): runs on top of an existing OS (VirtualBox, VMware Workstation) — used on developer laptops.",
+      "topic": "hypervisor"
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "chapter": "vol2-ch15",
+  "title": "Quality of Service (QoS)",
+  "weeks": [17],
+  "cards": [
+    {
+      "id": "v2c15-01",
+      "front": "What 4 traffic characteristics does QoS try to manage?",
+      "back": "Bandwidth (throughput), Delay (latency, end-to-end), Jitter (variation in delay — worst for voice/video), Loss (dropped packets). Voice and video are jitter/loss-sensitive; bulk data is bandwidth-sensitive.",
+      "topic": "qos-characteristics"
+    },
+    {
+      "id": "v2c15-02",
+      "front": "What does CLASSIFICATION mean in QoS, and what tools are used?",
+      "back": "Identifying traffic types (voice vs video vs bulk). Done via Class Maps that match on ACL, NBAR, DSCP, CoS, source/dest, etc. The output of classification is a class assignment that drives later marking/queuing decisions. Best done as close to the source as possible (trust boundary).",
+      "topic": "qos-classification"
+    },
+    {
+      "id": "v2c15-03",
+      "front": "What is MARKING in QoS, and what fields are used?",
+      "back": "Setting a priority field in the packet so downstream devices can quickly classify without re-inspection. L2: 802.1p CoS in 802.1Q tag (3 bits, 0-7). L3: IP DSCP (6 bits in IPv4 ToS / IPv6 Traffic Class), or older IP Precedence (3 bits). DSCP values like EF (46) for voice, AF41 (34) for interactive video.",
+      "topic": "qos-marking"
+    },
+    {
+      "id": "v2c15-04",
+      "front": "Compare CONGESTION MANAGEMENT (queueing) and CONGESTION AVOIDANCE.",
+      "back": "Congestion Management: Decides which queue serves first when interface is congested (LLQ for voice, CBWFQ for guaranteed bandwidth). Congestion Avoidance: Drops packets BEFORE the queue fills entirely to prevent TCP global synchronization (WRED selectively drops by class/precedence).",
+      "topic": "qos-queuing"
+    },
+    {
+      "id": "v2c15-05",
+      "front": "What's the difference between policing and shaping?",
+      "back": "Policing: drops or remarks packets exceeding the configured rate. Bursty, harsh on TCP. Used on inbound. Shaping: buffers excess packets and sends them later, smoothing the rate. Adds latency. Used outbound, often on the customer side of a metered link to avoid the ISP's policer dropping.",
+      "topic": "policing-shaping"
+    },
+    {
+      "id": "v2c15-06",
+      "front": "What's the recommended DSCP value for voice traffic, and what's its decimal/PHB name?",
+      "back": "EF (Expedited Forwarding) = decimal 46 (binary 101110). Reserved for low-loss, low-jitter, low-delay traffic — voice bearer. EF traffic typically gets a strict-priority (LLQ) queue.",
+      "topic": "dscp-values"
+    },
+    {
+      "id": "v2c15-07",
+      "front": "Where does QoS belong in a network design?",
+      "back": "Classify and mark at the EDGE (closest to source). Set the trust boundary at the access layer. Trust marks across the core. Apply queuing/dropping policies wherever congestion can occur (typically WAN edge interfaces). Test under load — QoS is invisible until the link is full.",
+      "topic": "qos-design"
+    }
+  ]
+}

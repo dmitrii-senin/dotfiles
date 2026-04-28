@@ -1,0 +1,49 @@
+{
+  "chapter": "vol1-ch18",
+  "title": "IP Routing in the LAN",
+  "weeks": [11],
+  "cards": [
+    {
+      "id": "v1c18-01",
+      "front": "What is Router-on-a-Stick (RoaS) and when do you use it?",
+      "back": "Inter-VLAN routing using a single router physical interface trunked to a switch. Sub-interfaces are created — one per VLAN — each with its own IP, acting as the default gateway for its VLAN. Used when no L3 switch is available; performance-limited by the router's single uplink.",
+      "topic": "router-on-stick"
+    },
+    {
+      "id": "v1c18-02",
+      "front": "Configure a sub-interface for VLAN 20 on Gi0/0 with IP 10.0.20.1/24.",
+      "back": "```\ninterface gi0/0\n no shutdown\ninterface gi0/0.20\n encapsulation dot1q 20\n ip address 10.0.20.1 255.255.255.0\n```\nNote: encapsulation must be set; without it, the sub-interface won't tag frames. Use `encapsulation dot1q 20 native` if VLAN 20 is the trunk's native VLAN.",
+      "topic": "router-on-stick"
+    },
+    {
+      "id": "v1c18-03",
+      "front": "What's a Layer 3 switch's SVI, and how do you enable inter-VLAN routing on it?",
+      "back": "Switch Virtual Interface — a logical interface tied to a VLAN, given an IP. To enable routing: `ip routing` (global). Then per VLAN: `interface vlan 20`, `ip address …`, `no shutdown`. Hosts in VLAN 20 use that SVI IP as their default gateway. L3 switches forward in hardware (ASIC) — much faster than RoaS.",
+      "topic": "l3-switch-svi"
+    },
+    {
+      "id": "v1c18-04",
+      "front": "What command on a Cisco multilayer switch enables IPv4 routing globally?",
+      "back": "`ip routing`. Without it, the switch behaves as pure L2 even with SVIs configured. Verify with `show ip route` (will show empty/error if not enabled).",
+      "topic": "l3-switch-svi"
+    },
+    {
+      "id": "v1c18-05",
+      "front": "What is a routed switch port (vs an SVI), and how do you configure one?",
+      "back": "A switch port operating in L3 mode, like a router interface. Configured with `no switchport` then `ip address …`. Used for switch-to-router or switch-to-switch L3 links — avoids creating an SVI just for a transit link.",
+      "topic": "routed-port"
+    },
+    {
+      "id": "v1c18-06",
+      "front": "RoaS vs L3 Switch SVI — when to use each?",
+      "back": "RoaS: small networks without a multilayer switch, low traffic between VLANs. Limits: single uplink bottleneck, software switching. L3 Switch SVI: any network with multilayer hardware. Hardware-accelerated, line-rate routing. Modern enterprise networks default to L3 switching.",
+      "topic": "inter-vlan-routing"
+    },
+    {
+      "id": "v1c18-07",
+      "front": "Common SVI failure: SVI shows down/down. What are the 3 conditions for an SVI to come up?",
+      "back": "(1) The corresponding VLAN must exist in the VLAN database. (2) The VLAN must have at least one ACTIVE port assigned (or a trunk allowing that VLAN). (3) The SVI itself must not be `shutdown`. Missing any of these → SVI stays down, breaking routing for that VLAN.",
+      "topic": "l3-switch-svi"
+    }
+  ]
+}

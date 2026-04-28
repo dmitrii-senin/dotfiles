@@ -1,0 +1,61 @@
+{
+  "chapter": "vol1-ch09",
+  "title": "Spanning Tree Protocol Concepts",
+  "weeks": [8],
+  "cards": [
+    {
+      "id": "v1c9-01",
+      "front": "What problem does STP solve?",
+      "back": "Layer-2 loops in switched topologies with redundant links. Without STP, a broadcast or unknown unicast loops forever, MAC tables churn, and the network melts down (broadcast storm). STP blocks redundant paths, leaving a loop-free tree, and re-enables them on failure.",
+      "topic": "stp-purpose"
+    },
+    {
+      "id": "v1c9-02",
+      "front": "What 3 problems does an L2 loop cause?",
+      "back": "(1) Broadcast storms — broadcasts circulate forever, saturating links. (2) MAC address table instability — switches see the same MAC on multiple ports, constantly reflashing. (3) Multiple frame copies — receivers get duplicates, breaking applications.",
+      "topic": "stp-purpose"
+    },
+    {
+      "id": "v1c9-03",
+      "front": "What is the bridge ID and how is the root bridge elected?",
+      "back": "Bridge ID = priority (4096 increments × extended system ID with VLAN) + MAC address. Switches exchange BPDUs; the lowest BID wins root election. Default priority 32768, modified to 32768+VLAN_ID by extended system ID. To force a switch to be root: lower its priority (`spanning-tree vlan X priority 4096`).",
+      "topic": "stp-election"
+    },
+    {
+      "id": "v1c9-04",
+      "front": "Name the 3 STP port roles and what each does in steady state.",
+      "back": "Root port (RP): one per non-root switch — best path back to the root. Designated port (DP): one per segment (link) — forwards traffic on that segment; root has all DPs. Blocking/Alternate port: any non-root, non-designated port — receives BPDUs but doesn't forward data, prevents loops.",
+      "topic": "stp-roles"
+    },
+    {
+      "id": "v1c9-05",
+      "front": "Name the 5 classic STP port states (802.1D) in transition order.",
+      "back": "Disabled (admin down) → Blocking (only listens to BPDUs) → Listening (15s) → Learning (15s) → Forwarding. Total convergence 30-50s. RSTP collapses to: Discarding, Learning, Forwarding.",
+      "topic": "stp-states"
+    },
+    {
+      "id": "v1c9-06",
+      "front": "How is the root port chosen when multiple paths exist?",
+      "back": "Tiebreakers in order: (1) Lowest cumulative path cost to root. (2) Lowest bridge ID of advertising neighbor. (3) Lowest sender port ID. (4) Lowest local port priority/ID. Cost is per-link based on speed (10 Gbps=2, 1 Gbps=4, 100 Mbps=19, 10 Mbps=100 — long path cost differs).",
+      "topic": "stp-election"
+    },
+    {
+      "id": "v1c9-07",
+      "front": "What's the difference between PVST+ and standard 802.1D?",
+      "back": "Cisco PVST+ runs an independent STP instance per VLAN, allowing per-VLAN root and load-sharing across redundant trunks. Default on Cisco switches. 802.1D is single-instance (one STP for the whole bridged network); MST groups multiple VLANs into one instance.",
+      "topic": "stp-flavors"
+    },
+    {
+      "id": "v1c9-08",
+      "front": "What happens to convergence time when a link fails in classic 802.1D STP?",
+      "back": "Up to 50 seconds: 20s max-age + 15s listening + 15s learning. Way too slow for modern networks — which is why RSTP (sub-second convergence with proposal/agreement and edge ports) is standard now.",
+      "topic": "stp-states"
+    },
+    {
+      "id": "v1c9-09",
+      "front": "What does `show spanning-tree` (or `show spanning-tree vlan X`) reveal?",
+      "back": "Per-VLAN: root bridge ID + cost + port, this switch's bridge ID, hello/forward-delay/max-age timers, then per-port: role (Root/Desg/Altn), state (FWD/BLK/DIS), cost, priority/portID. The first thing to check when diagnosing root election issues.",
+      "topic": "show-commands"
+    }
+  ]
+}

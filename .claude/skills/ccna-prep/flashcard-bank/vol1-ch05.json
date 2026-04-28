@@ -1,0 +1,55 @@
+{
+  "chapter": "vol1-ch05",
+  "title": "Analyzing Ethernet LAN Switching",
+  "weeks": [3],
+  "cards": [
+    {
+      "id": "v1c5-01",
+      "front": "Describe the 3 switch forwarding actions and what triggers each.",
+      "back": "Forward (known unicast): destination MAC is in the MAC table → forward out only that one port. Flood (unknown unicast or broadcast): destination not in table or is broadcast/multicast → send out all ports in the VLAN except the receiving port. Filter: don't forward back out the port it came in on.",
+      "topic": "switch-forwarding"
+    },
+    {
+      "id": "v1c5-02",
+      "front": "How does a switch BUILD its MAC address table?",
+      "back": "By examining the SOURCE MAC address of each frame it receives, recording it together with the inbound port and VLAN, and the current time. Entries age out (default 300 sec / 5 min on Cisco) if the MAC isn't seen again.",
+      "topic": "switch-forwarding"
+    },
+    {
+      "id": "v1c5-03",
+      "front": "What command displays the dynamic MAC address table on a Cisco switch?",
+      "back": "`show mac address-table` (or `show mac address-table dynamic` to filter to learned entries). Static entries can be added manually with `mac address-table static <mac> vlan <id> interface <intf>`.",
+      "topic": "show-commands"
+    },
+    {
+      "id": "v1c5-04",
+      "front": "What's the default MAC address-table aging time on a Cisco switch?",
+      "back": "300 seconds (5 minutes). Configurable per-VLAN with `mac address-table aging-time <seconds> vlan <id>`. Setting it to 0 disables aging.",
+      "topic": "switch-forwarding"
+    },
+    {
+      "id": "v1c5-05",
+      "front": "Why must a switch flood broadcasts and unknown unicasts within a VLAN?",
+      "back": "Without flooding, a host would never receive frames for which the switch hasn't yet learned the MAC, and broadcasts (like ARP, DHCP Discover) would never reach their target. Flooding is the price of self-learning, and it's why a VLAN = a broadcast domain.",
+      "topic": "switching-fundamentals"
+    },
+    {
+      "id": "v1c5-06",
+      "front": "What is the MAIN reason switches outperform hubs in modern LANs?",
+      "back": "Switches make per-port forwarding decisions (microsegmentation): each port is its own collision domain, supports full-duplex, and dedicated bandwidth. Hubs are shared-medium half-duplex repeaters — every host shares the same collision domain.",
+      "topic": "switching-fundamentals"
+    },
+    {
+      "id": "v1c5-07",
+      "front": "What is half-duplex vs full-duplex, and which causes collisions on Ethernet?",
+      "back": "Half-duplex: only one device transmits at a time on the segment; collisions are possible (must use CSMA/CD). Full-duplex: simultaneous send & receive on dedicated TX/RX pairs; no collisions, CSMA/CD disabled. Modern switched links are full-duplex by default.",
+      "topic": "switch-interface"
+    },
+    {
+      "id": "v1c5-08",
+      "front": "What does CSMA/CD do, and where is it still relevant?",
+      "back": "Carrier Sense Multiple Access with Collision Detection: listen before transmitting; if collision detected, send a jam signal, back off a random time, retransmit. Relevant only in half-duplex Ethernet (rare today — hubs and a few legacy access ports).",
+      "topic": "switching-fundamentals"
+    }
+  ]
+}

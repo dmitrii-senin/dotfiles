@@ -1,0 +1,49 @@
+{
+  "chapter": "vol1-ch11",
+  "title": "Perspectives on IPv4 Subnetting",
+  "weeks": [4],
+  "cards": [
+    {
+      "id": "v1c11-01",
+      "front": "What is the difference between a CLASSFUL network and a SUBNET?",
+      "back": "Classful network = the original /8 (Class A), /16 (Class B), or /24 (Class C) block defined by the leading bits. Subnet = a smaller block carved out of a classful network by 'borrowing' bits from the host portion to create a longer prefix.",
+      "topic": "subnetting-concepts"
+    },
+    {
+      "id": "v1c11-02",
+      "front": "Define network bits, subnet bits, and host bits in a subnet's address.",
+      "back": "Network bits = the original classful prefix length (8, 16, or 24). Subnet bits = bits borrowed from the host portion to identify subnets within the classful network. Host bits = the remaining bits used to identify specific hosts. Total always = 32.",
+      "topic": "subnetting-concepts"
+    },
+    {
+      "id": "v1c11-03",
+      "front": "Formula: how many SUBNETS does N borrowed bits create?",
+      "back": "2^N subnets. Example: borrow 3 bits → 2^3 = 8 subnets.",
+      "topic": "subnetting-math"
+    },
+    {
+      "id": "v1c11-04",
+      "front": "Formula: how many USABLE HOSTS per subnet does H host bits give?",
+      "back": "2^H − 2. Subtract 2 for the network (all-zero host) and broadcast (all-ones host) addresses. Example: /24 has 8 host bits → 2^8 − 2 = 254 usable hosts.",
+      "topic": "subnetting-math"
+    },
+    {
+      "id": "v1c11-05",
+      "front": "What is VLSM and what problem does it solve?",
+      "back": "Variable Length Subnet Masking — using different subnet masks within the same classful network. Solves address waste: a point-to-point link gets a /30 (2 hosts), a small LAN a /27 (30 hosts), a large LAN a /23 (510 hosts). Pre-VLSM (classful), every subnet had to use the same mask.",
+      "topic": "vlsm"
+    },
+    {
+      "id": "v1c11-06",
+      "front": "What's the relationship between prefix length and subnet mask?",
+      "back": "Prefix length = number of leading 1-bits in the mask. /24 = 255.255.255.0. /27 = 255.255.255.224. /30 = 255.255.255.252. /16 = 255.255.0.0. Each /1 increase doubles the number of subnets and halves the host count.",
+      "topic": "subnetting-math"
+    },
+    {
+      "id": "v1c11-07",
+      "front": "Two design goals when planning a subnet — what's the typical tradeoff?",
+      "back": "More subnets vs. more hosts per subnet. Borrow more bits = more subnets but smaller subnets. Borrow fewer = fewer subnets but more hosts each. Pick the smallest mask that satisfies your largest required subnet, then VLSM the rest.",
+      "topic": "subnetting-concepts"
+    }
+  ]
+}

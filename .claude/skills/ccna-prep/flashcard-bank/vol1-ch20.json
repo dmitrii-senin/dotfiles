@@ -1,0 +1,49 @@
+{
+  "chapter": "vol1-ch20",
+  "title": "Troubleshooting IPv4 Routing",
+  "weeks": [12],
+  "cards": [
+    {
+      "id": "v1c20-01",
+      "front": "What's the systematic order to troubleshoot 'I can't reach 10.2.2.5'?",
+      "back": "(1) Local config: own IP/mask/GW correct? (2) L1/L2: interface up/up? cable, switch port, VLAN? (3) ARP: can resolve gateway MAC? (4) Routing: does each router along the path have a route to 10.2.2.0? (5) Reverse path: does the destination have a route back? (6) ACLs/Firewall blocking?",
+      "topic": "ipv4-troubleshooting"
+    },
+    {
+      "id": "v1c20-02",
+      "front": "What does extended `ping` let you do that simple `ping` doesn't?",
+      "back": "Specify source IP, packet size, count, timeout, sweep range, DF bit, ToS. Run by typing `ping` with no arguments at privileged exec. Useful for testing path MTU, simulating large packets, sourcing from a specific interface.",
+      "topic": "ping-traceroute"
+    },
+    {
+      "id": "v1c20-03",
+      "front": "What does `traceroute` reveal, and how does it work?",
+      "back": "Lists each L3 hop along the path to a destination. Sends UDP packets (Cisco) or ICMP echoes (Windows) with incrementing TTL: 1, 2, 3… Each router decrements TTL; when TTL=0 it returns ICMP Time Exceeded, revealing its IP. Final hop returns ICMP Port Unreachable (or echo reply).",
+      "topic": "ping-traceroute"
+    },
+    {
+      "id": "v1c20-04",
+      "front": "What does it mean when traceroute shows '* * *' for a hop?",
+      "back": "The router at that hop didn't respond within the timeout. Could mean: ACL blocking ICMP unreachable, router disabled ICMP unreachable (`no ip unreachables`), router is down, or congestion. Often the hop after that does respond — the router is forwarding but silent.",
+      "topic": "ping-traceroute"
+    },
+    {
+      "id": "v1c20-05",
+      "front": "Common cause: ping from R1 to R2 works, but R2 to R1 fails. What to check?",
+      "back": "Asymmetric routing or a missing return route. R2 needs a route BACK to R1's source subnet. Check `show ip route` on R2 for R1's subnet. Common in lab setups when only outbound static routes are configured.",
+      "topic": "ipv4-troubleshooting"
+    },
+    {
+      "id": "v1c20-06",
+      "front": "What does `show ip arp` show, and when do you use it?",
+      "back": "The router's ARP cache: IP-to-MAC mappings on directly-connected subnets, plus age. Use it to verify the router can resolve next-hop IPs. Stale or missing entries can indicate L2 issues. Clear with `clear arp-cache`.",
+      "topic": "show-commands"
+    },
+    {
+      "id": "v1c20-07",
+      "front": "Why might `ping` from a router to its own configured IP fail?",
+      "back": "If the interface is `shutdown` or down, the IP is not active. The router still 'has' the address in config but doesn't respond to ICMP. Verify with `show ip int brief` — the interface must be up/up.",
+      "topic": "ipv4-troubleshooting"
+    }
+  ]
+}

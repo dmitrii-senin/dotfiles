@@ -1,0 +1,49 @@
+{
+  "chapter": "vol1-ch23",
+  "title": "Implementing Optional OSPF Features",
+  "weeks": [13],
+  "cards": [
+    {
+      "id": "v1c23-01",
+      "front": "What is OSPF default-route injection, and what command enables it?",
+      "back": "An ASBR can inject 0.0.0.0/0 into OSPF so all internal routers learn a default route. Command: `default-information originate` under `router ospf X`. Add `always` to advertise even if the ASBR itself doesn't have a default route.",
+      "topic": "ospf-default-route"
+    },
+    {
+      "id": "v1c23-02",
+      "front": "OSPF MD5 (or HMAC-SHA) authentication — basic per-interface config.",
+      "back": "```\ninterface gi0/0\n ip ospf message-digest-key 1 md5 MyKey\n ip ospf authentication message-digest\n```\nOr enable area-wide: under `router ospf`, `area 0 authentication message-digest`. Keys must match on both ends or no adjacency.",
+      "topic": "ospf-auth"
+    },
+    {
+      "id": "v1c23-03",
+      "front": "What are OSPF network types and what's the impact of each?",
+      "back": "Broadcast (default on Ethernet): elects DR/BDR, hello 10s, multicast hellos. Point-to-point (PPP, P2P serial, configurable): no DR/BDR, hello 10s. Non-broadcast (NBMA, default on Frame Relay): manual neighbor config, hello 30s. Point-to-multipoint: no DR/BDR, hello 30s.",
+      "topic": "ospf-network-type"
+    },
+    {
+      "id": "v1c23-04",
+      "front": "What's the OSPF maximum-paths default, and how do you load-balance?",
+      "back": "Default max-paths is 4 (Cisco) — equal-cost routes are automatically load-balanced (ECMP). Bump up to 32: `maximum-paths 32` under `router ospf`. OSPF does NOT do unequal-cost load-balancing (EIGRP does, with `variance`).",
+      "topic": "ospf-load-balancing"
+    },
+    {
+      "id": "v1c23-05",
+      "front": "How do you tweak OSPF DR/BDR election to force a specific router as DR?",
+      "back": "Set `ip ospf priority 255` on the chosen router's interface, and `ip ospf priority 0` on routers that should NEVER become DR. Then trigger re-election: `clear ip ospf process` on each (it's not preemptive). Lower priority value = less likely; 0 = ineligible.",
+      "topic": "ospf-dr-bdr"
+    },
+    {
+      "id": "v1c23-06",
+      "front": "What's the difference between OSPFv2 and OSPFv3?",
+      "back": "OSPFv2 (RFC 2328): IPv4 only. OSPFv3 (RFC 5340): IPv6 native, but can also carry IPv4 with address-families. Same SPF algorithm, similar concepts. OSPFv3 runs over IPv6 link-local addresses; configuration is on per-interface (`ipv6 ospf 1 area 0`) rather than global `network` statements.",
+      "topic": "ospfv3"
+    },
+    {
+      "id": "v1c23-07",
+      "front": "What does `ip ospf mtu-ignore` do and when do you need it?",
+      "back": "Bypasses the OSPF MTU consistency check during the Database Description (DD) exchange. Default behavior: if MTUs differ between neighbors, adjacency stalls in EXSTART/EXCHANGE. Workaround: enable mtu-ignore on both ends. Permanent fix: align MTUs (`ip mtu 1500`).",
+      "topic": "ospf-mtu"
+    }
+  ]
+}

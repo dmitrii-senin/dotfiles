@@ -1,0 +1,49 @@
+{
+  "chapter": "vol2-ch10",
+  "title": "Securing Network Devices",
+  "weeks": [19],
+  "cards": [
+    {
+      "id": "v2c10-01",
+      "front": "What are Cisco IOS password types (0, 5, 7, 8, 9), strongest to weakest?",
+      "back": "Type 0: plaintext (worst). Type 7: reversible weak 'encryption' (Vigenère-like — easily reversed). Type 5: MD5 hash (deprecated, weak vs modern hardware). Type 8: PBKDF2 with SHA-256 (good). Type 9: scrypt (best, GPU-resistant). Use Type 8 or 9; never Type 0/5/7.",
+      "topic": "password-types"
+    },
+    {
+      "id": "v2c10-02",
+      "front": "Configure a Type 9 (scrypt) local user.",
+      "back": "`username admin algorithm-type scrypt secret <strong-password>`. Without `algorithm-type`, defaults to Type 5. Same syntax for `enable secret algorithm-type scrypt …`.",
+      "topic": "user-accounts"
+    },
+    {
+      "id": "v2c10-03",
+      "front": "What does AAA stand for and what does each component do?",
+      "back": "Authentication: WHO are you? (verify identity, e.g., username/password against RADIUS). Authorization: WHAT can you do? (which commands, exec level). Accounting: WHAT did you do? (logs of commands and access).",
+      "topic": "aaa"
+    },
+    {
+      "id": "v2c10-04",
+      "front": "Compare RADIUS and TACACS+.",
+      "back": "RADIUS (UDP 1812/1813, IETF): encrypts only password; combined auth+authz; widely supported by Wi-Fi/802.1X. TACACS+ (TCP 49, Cisco): encrypts entire payload; separates AAA functions (granular command authorization); preferred for device admin AAA.",
+      "topic": "radius-tacacs"
+    },
+    {
+      "id": "v2c10-05",
+      "front": "Basic AAA configuration to use a TACACS+ server for VTY login.",
+      "back": "```\naaa new-model\ntacacs server TACSERV\n address ipv4 10.1.1.5\n key Cisco123\naaa group server tacacs+ TACGRP\n server name TACSERV\naaa authentication login VTY-AUTH group TACGRP local\nline vty 0 15\n login authentication VTY-AUTH\n```\nThe `local` fallback uses local users if TACACS+ unreachable.",
+      "topic": "aaa-config"
+    },
+    {
+      "id": "v2c10-06",
+      "front": "How do you restrict which commands a privilege level can run?",
+      "back": "(1) Set the command's required privilege: `privilege exec level 5 ping`. (2) Configure user with that level: `username opr privilege 5 secret …`. Default levels: 0 (very limited), 1 (user EXEC), 15 (privileged EXEC, full). Modern best practice: use AAA command authorization instead.",
+      "topic": "privilege-levels"
+    },
+    {
+      "id": "v2c10-07",
+      "front": "What does `login block-for` do, and why use it?",
+      "back": "Throttles login attempts to slow down brute-force. Example: `login block-for 60 attempts 4 within 30` — block all logins for 60s after 4 failed attempts within 30s. Apply to console + VTY. Pair with `login on-failure log` for syslog visibility.",
+      "topic": "login-hardening"
+    }
+  ]
+}

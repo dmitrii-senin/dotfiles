@@ -1,0 +1,49 @@
+{
+  "chapter": "vol1-ch19",
+  "title": "IP Addressing on Hosts",
+  "weeks": [10],
+  "cards": [
+    {
+      "id": "v1c19-01",
+      "front": "What 4 pieces of IP information does a host need to function on a network?",
+      "back": "(1) IP address. (2) Subnet mask. (3) Default gateway IP. (4) DNS server IP(s). All can be learned via DHCP or set statically.",
+      "topic": "host-ip-config"
+    },
+    {
+      "id": "v1c19-02",
+      "front": "What are the 4 messages of the DHCP DORA process?",
+      "back": "(D)iscover — client broadcasts looking for any DHCP server. (O)ffer — server unicasts/broadcasts an IP offer. (R)equest — client broadcasts which offer it accepts. (A)ck — server confirms the lease. After Ack the client can use the IP.",
+      "topic": "dhcp-dora"
+    },
+    {
+      "id": "v1c19-03",
+      "front": "Configure a Cisco IOS router as a DHCP server for the 10.0.20.0/24 subnet, excluding the gateway.",
+      "back": "```\nip dhcp excluded-address 10.0.20.1 10.0.20.10\nip dhcp pool LAN20\n network 10.0.20.0 255.255.255.0\n default-router 10.0.20.1\n dns-server 8.8.8.8\n lease 0 12 0      ! 12 hours, default 1 day\n```",
+      "topic": "dhcp-server-config"
+    },
+    {
+      "id": "v1c19-04",
+      "front": "What is `ip helper-address` and where do you configure it?",
+      "back": "Configured on a router/L3-switch interface that receives DHCP broadcasts (the client-facing interface) — converts the broadcast to a unicast forwarded to the listed DHCP server. Example: `ip helper-address 10.1.1.5`. Without it, DHCP requests don't cross subnet boundaries.",
+      "topic": "dhcp-relay"
+    },
+    {
+      "id": "v1c19-05",
+      "front": "Configure a router interface as a DHCP CLIENT.",
+      "back": "```\ninterface gi0/0\n ip address dhcp\n no shutdown\n```\nUseful for SOHO routers and lab scenarios where the router itself receives an IP from upstream (e.g., ISP modem).",
+      "topic": "dhcp-client"
+    },
+    {
+      "id": "v1c19-06",
+      "front": "What command shows DHCP leases handed out by a Cisco DHCP server?",
+      "back": "`show ip dhcp binding` — lists IP-to-MAC mappings, lease expiration, type. `show ip dhcp pool` shows pool stats (utilization, range, leased count). `show ip dhcp conflict` shows duplicates.",
+      "topic": "show-commands"
+    },
+    {
+      "id": "v1c19-07",
+      "front": "Default DHCP lease time on Cisco IOS, and how to change it?",
+      "back": "Default = 1 day. Configurable per pool with `lease <days> <hours> <minutes>` (e.g., `lease 7` = 7 days, `lease 0 12 0` = 12 hours, `lease infinite` = never expires).",
+      "topic": "dhcp-server-config"
+    }
+  ]
+}

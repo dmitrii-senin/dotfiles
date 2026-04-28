@@ -1,0 +1,49 @@
+{
+  "chapter": "vol2-ch12",
+  "title": "DHCP Snooping and ARP Inspection",
+  "weeks": [20],
+  "cards": [
+    {
+      "id": "v2c12-01",
+      "front": "What attack does DHCP snooping prevent?",
+      "back": "Rogue DHCP servers (DHCP spoofing) — an attacker hands out IPs with their own machine as the default gateway, becoming MITM. Also stops some DoS attacks like DHCP starvation (exhausting the legitimate server's pool by spamming Discovers).",
+      "topic": "dhcp-snooping"
+    },
+    {
+      "id": "v2c12-02",
+      "front": "What's the difference between TRUSTED and UNTRUSTED ports in DHCP snooping?",
+      "back": "Trusted: allow DHCP server messages (Offer, Ack). Configure on uplinks toward the legitimate DHCP server. Untrusted: drop DHCP server messages — only client messages (Discover, Request) allowed. Default is untrusted (after enabling). Configure trusted with `ip dhcp snooping trust`.",
+      "topic": "dhcp-snooping"
+    },
+    {
+      "id": "v2c12-03",
+      "front": "Enable DHCP snooping for VLAN 10 with Gi0/24 trusted toward the server.",
+      "back": "```\nip dhcp snooping\nip dhcp snooping vlan 10\ninterface gi0/24\n ip dhcp snooping trust\n```\nDefault rate-limit on untrusted ports protects against DHCP starvation: `ip dhcp snooping limit rate 10` (per second).",
+      "topic": "dhcp-snooping-config"
+    },
+    {
+      "id": "v2c12-04",
+      "front": "What is the DHCP snooping binding table, and how is it built?",
+      "back": "Maps client MAC ↔ leased IP ↔ VLAN ↔ port. Built automatically as DHCP exchanges complete. Used by other features: DAI, IP Source Guard, and to detect lease theft. View with `show ip dhcp snooping binding`.",
+      "topic": "dhcp-snooping-binding"
+    },
+    {
+      "id": "v2c12-05",
+      "front": "What attack does Dynamic ARP Inspection (DAI) prevent?",
+      "back": "ARP spoofing/poisoning — attacker forges ARP replies so victims think attacker is the gateway (or some target). Becomes MITM. DAI inspects ARP packets and validates them against the DHCP snooping binding table; mismatched ARP packets are dropped.",
+      "topic": "dai"
+    },
+    {
+      "id": "v2c12-06",
+      "front": "Enable DAI for VLAN 10, trusting Gi0/24 (uplink to other switches).",
+      "back": "```\nip arp inspection vlan 10\ninterface gi0/24\n ip arp inspection trust\n```\nDAI requires the DHCP snooping binding table to be populated (or use ARP ACLs for static-IP hosts). Untrusted ports rate-limit ARP packets to prevent flood attacks.",
+      "topic": "dai-config"
+    },
+    {
+      "id": "v2c12-07",
+      "front": "What is IP Source Guard, and what does it require?",
+      "back": "Per-port filter that drops IP packets whose source IP+MAC don't match the DHCP snooping binding (or static binding). Stops IP spoofing by clients. Requires DHCP snooping enabled. Configure: `ip verify source` on the access port.",
+      "topic": "ip-source-guard"
+    }
+  ]
+}

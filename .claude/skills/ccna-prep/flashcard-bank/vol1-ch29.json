@@ -1,0 +1,43 @@
+{
+  "chapter": "vol1-ch29",
+  "title": "Implementing IPv6 Routing",
+  "weeks": [14],
+  "cards": [
+    {
+      "id": "v1c29-01",
+      "front": "Configure OSPFv3 for IPv6 on a router with two interfaces in area 0.",
+      "back": "```\nipv6 unicast-routing\nipv6 router ospf 1\n router-id 1.1.1.1\ninterface gi0/0\n ipv6 ospf 1 area 0\ninterface gi0/1\n ipv6 ospf 1 area 0\n```\nNo `network` statements like OSPFv2 — activation is per-interface only. Router-ID is still a 32-bit IPv4-style value.",
+      "topic": "ospfv3-config"
+    },
+    {
+      "id": "v1c29-02",
+      "front": "How does OSPFv3 differ structurally from OSPFv2?",
+      "back": "(1) Runs over IPv6 link-local addresses for control traffic (multicast ff02::5 / ff02::6). (2) Per-interface activation only (no `network` command). (3) Address-family neutral — can carry both IPv4 and IPv6 with `address-family` syntax. (4) Authentication uses IPsec instead of MD5.",
+      "topic": "ospfv3-config"
+    },
+    {
+      "id": "v1c29-03",
+      "front": "What's the IPv6 equivalent of `show ip route` and `show ip ospf neighbor`?",
+      "back": "`show ipv6 route` and `show ipv6 ospf neighbor`. Output is similar: routes show prefix, source (O for OSPF, S for static, C for connected, L for local /128), AD/metric, next-hop link-local, exit interface.",
+      "topic": "show-commands"
+    },
+    {
+      "id": "v1c29-04",
+      "front": "How do you advertise a default route in OSPFv3?",
+      "back": "Same as OSPFv2 syntax, in IPv6 router context: `default-information originate` (under `ipv6 router ospf X`). Add `always` to always advertise even without a local default route.",
+      "topic": "ospfv3-default-route"
+    },
+    {
+      "id": "v1c29-05",
+      "front": "Compare administrative distances of IPv6 vs IPv4 routing protocols.",
+      "back": "Same defaults: connected 0, static 1, OSPFv3 110, RIPng 120, EIGRPv6 internal 90. The protocol-by-protocol AD is identical to IPv4.",
+      "topic": "ipv6-routing"
+    },
+    {
+      "id": "v1c29-06",
+      "front": "What's the recommended deployment pattern for IPv6 in an existing IPv4 network?",
+      "back": "Dual-stack: every device runs both IPv4 and IPv6 simultaneously. Each interface has both an IPv4 address and an IPv6 address. Routing protocols run independently per family. No translation needed; lets you migrate clients/servers gradually.",
+      "topic": "ipv6-deployment"
+    }
+  ]
+}

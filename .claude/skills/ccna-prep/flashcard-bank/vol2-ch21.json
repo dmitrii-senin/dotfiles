@@ -1,0 +1,43 @@
+{
+  "chapter": "vol2-ch21",
+  "title": "Introduction to Controller-Based Networking",
+  "weeks": [23],
+  "cards": [
+    {
+      "id": "v2c21-01",
+      "front": "Compare traditional networking and controller-based networking.",
+      "back": "Traditional: each device runs both control plane (route/STP/etc.) and data plane locally. Configured per-device via CLI. Controller-based (SDN): centralized controller computes/programs the network; devices focus on data forwarding. Programmatic (API-driven) policy and consistency at scale.",
+      "topic": "controller-based-networking"
+    },
+    {
+      "id": "v2c21-02",
+      "front": "Define control plane, data plane, and management plane.",
+      "back": "Control plane: decisions about where packets go (routing protocols, STP, ARP). Data plane (forwarding): actually moves packets per control-plane decisions (FIB lookup, queueing). Management plane: device admin/config (SSH, SNMP, syslog, REST API). SDN typically centralizes the control plane.",
+      "topic": "network-planes"
+    },
+    {
+      "id": "v2c21-03",
+      "front": "What's the southbound interface vs northbound interface in SDN?",
+      "back": "Southbound (controller → devices): how the controller programs the network — OpenFlow, NETCONF, RESTCONF, OpFlex. Northbound (apps → controller): how apps/scripts ask the controller for changes — REST APIs (JSON/HTTP). Controllers translate northbound intent to southbound device config.",
+      "topic": "sdn-interfaces"
+    },
+    {
+      "id": "v2c21-04",
+      "front": "What is Cisco Catalyst Center (formerly DNA Center)?",
+      "back": "Cisco's enterprise SDN/network management appliance. GUI + REST API + automation engine. Designs network intent; pushes to devices via NETCONF/SSH. Provides telemetry/assurance, software image management, automation workflows. Replaces Prime Infrastructure for modern campus.",
+      "topic": "catalyst-center"
+    },
+    {
+      "id": "v2c21-05",
+      "front": "What does 'intent-based networking' mean?",
+      "back": "Define the desired outcome (e.g., 'all marketing PCs in VLAN 50 with internet access only'); the controller figures out HOW to implement it across all devices. Continuous verification and remediation. Cisco Catalyst Center is the IBN platform for enterprise.",
+      "topic": "intent-based"
+    },
+    {
+      "id": "v2c21-06",
+      "front": "What is the imperative vs declarative model in network programming?",
+      "back": "Imperative: tell the device exactly what commands to run, in order ('configure VLAN 10 on this switch port'). Declarative: declare the end state ('this user should be in VLAN 10') — the controller computes the device config. Declarative is more abstract and scalable.",
+      "topic": "imperative-declarative"
+    }
+  ]
+}

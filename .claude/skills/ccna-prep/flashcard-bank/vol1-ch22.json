@@ -1,0 +1,49 @@
+{
+  "chapter": "vol1-ch22",
+  "title": "Implementing Basic OSPF Features",
+  "weeks": [12],
+  "cards": [
+    {
+      "id": "v1c22-01",
+      "front": "Configure OSPF process 1 to advertise 10.1.1.0/24 in area 0.",
+      "back": "```\nrouter ospf 1\n network 10.1.1.0 0.0.0.255 area 0\n router-id 1.1.1.1\n```\nThe `1` after `router ospf` is the local process ID — locally significant, doesn't have to match neighbors.",
+      "topic": "ospf-config"
+    },
+    {
+      "id": "v1c22-02",
+      "front": "Why does the OSPF `network` command use a wildcard mask?",
+      "back": "It selects which router INTERFACES will run OSPF, by IP. Wildcard 0 = exact match, 0.0.0.255 = any 4th-octet value, 0.0.255.255 = any 3rd/4th octet, etc. The wildcard 0.0.0.0 with the interface IP exactly matches just that one interface.",
+      "topic": "ospf-config"
+    },
+    {
+      "id": "v1c22-03",
+      "front": "Alternative to `network`: per-interface OSPF activation. Show syntax.",
+      "back": "```\ninterface gi0/0\n ip ospf 1 area 0\n```\nMore explicit and modern. Used alongside or instead of `network` statements. Each interface gets `ip ospf <process> area <area>`.",
+      "topic": "ospf-config"
+    },
+    {
+      "id": "v1c22-04",
+      "front": "What 3 commands verify basic OSPF operation?",
+      "back": "`show ip ospf neighbor` — neighbor list, state, DR/BDR. `show ip route ospf` — OSPF-learned routes. `show ip ospf interface brief` — which interfaces run OSPF, area, cost, neighbor count. Add `show ip protocols` for process summary.",
+      "topic": "show-commands"
+    },
+    {
+      "id": "v1c22-05",
+      "front": "What is a passive OSPF interface and when do you use it?",
+      "back": "An OSPF-enabled interface that does NOT send/receive hellos, so it forms no adjacencies, but its subnet IS still advertised. Used on LAN interfaces facing end users (no other routers there). Configure: `passive-interface <int>` or `passive-interface default` then `no passive-interface <int>` per active link.",
+      "topic": "passive-interface"
+    },
+    {
+      "id": "v1c22-06",
+      "front": "How is OSPF cost calculated by default, and how do you tune it?",
+      "back": "Cost = reference-bandwidth (default 100 Mbps) ÷ interface bandwidth. Anything ≥ 100 Mbps gets cost 1 — which loses fidelity for gigabit/10Gig links. Best practice: raise reference-bandwidth: `auto-cost reference-bandwidth 100000` (100 Gbps). Per-interface override: `ip ospf cost <1-65535>`.",
+      "topic": "ospf-cost"
+    },
+    {
+      "id": "v1c22-07",
+      "front": "What is the OSPF default hello interval, and how do you change it?",
+      "back": "10 seconds (broadcast/PtP) or 30 seconds (NBMA). Change per interface: `ip ospf hello-interval <seconds>`. Dead interval automatically becomes 4× hello (or set explicitly with `ip ospf dead-interval <seconds>`).",
+      "topic": "ospf-timers"
+    }
+  ]
+}

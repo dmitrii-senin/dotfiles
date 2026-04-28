@@ -1,0 +1,55 @@
+{
+  "chapter": "vol1-ch01",
+  "title": "Introduction to TCP/IP Networking",
+  "weeks": [1],
+  "cards": [
+    {
+      "id": "v1c1-01",
+      "front": "List the 7 OSI layers from layer 7 to layer 1.",
+      "back": "Application, Presentation, Session, Transport, Network, Data Link, Physical. Top-down mnemonic: 'All People Seem To Need Data Processing'. Bottom-up: 'Please Do Not Throw Sausage Pizza Away'.",
+      "topic": "osi-model"
+    },
+    {
+      "id": "v1c1-02",
+      "front": "How does the TCP/IP 4-layer model map to OSI?",
+      "back": "Application (= OSI 5/6/7), Transport (= OSI 4), Internet (= OSI 3), Link / Network Access (= OSI 1/2). The 5-layer hybrid model splits Link into Data Link and Physical and is what most CCNA material uses.",
+      "topic": "tcpip-model"
+    },
+    {
+      "id": "v1c1-03",
+      "front": "What is the PDU name at each TCP/IP layer? (App, Transport, Internet, Link)",
+      "back": "Application: data/message. Transport: segment (TCP) or datagram (UDP). Internet: packet. Data Link: frame. Physical: bits. Mnemonic: 'Some People Fear Birthdays' (segment, packet, frame, bits, bottom-up).",
+      "topic": "encapsulation"
+    },
+    {
+      "id": "v1c1-04",
+      "front": "Define encapsulation and de-encapsulation in TCP/IP.",
+      "back": "Encapsulation = adding a layer's header (and possibly trailer) as data passes down the stack on the sender. De-encapsulation = stripping each header back off as data passes up the stack on the receiver.",
+      "topic": "encapsulation"
+    },
+    {
+      "id": "v1c1-05",
+      "front": "Which OSI/TCP-IP layer adds a TRAILER (in addition to a header)?",
+      "back": "Data Link layer (e.g., Ethernet adds an FCS trailer for error detection — 4 bytes of CRC). Other layers only add a header.",
+      "topic": "encapsulation"
+    },
+    {
+      "id": "v1c1-06",
+      "front": "Same-layer interaction vs. adjacent-layer interaction — what's the difference?",
+      "back": "Same-layer interaction = two hosts' Layer N peers communicate via the layer-N header (e.g., TCP-to-TCP). Adjacent-layer interaction = on a single host, layer N uses services from layer N-1 to send data.",
+      "topic": "osi-model"
+    },
+    {
+      "id": "v1c1-07",
+      "front": "Why are networking models layered?",
+      "back": "Modularity (vendors can innovate at one layer without breaking others), troubleshooting (isolate problems by layer), and standardization (common interfaces). Real protocols don't always perfectly fit one layer.",
+      "topic": "osi-model"
+    },
+    {
+      "id": "v1c1-08",
+      "front": "Which 3 protocols are the canonical TCP/IP application-layer examples on the CCNA?",
+      "back": "HTTP (web), DNS (name resolution), DHCP (address assignment). All run over TCP or UDP at the transport layer.",
+      "topic": "tcpip-protocols"
+    }
+  ]
+}

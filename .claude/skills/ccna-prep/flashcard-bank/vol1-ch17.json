@@ -1,0 +1,55 @@
+{
+  "chapter": "vol1-ch17",
+  "title": "Configuring IPv4 Addresses and Static Routes",
+  "weeks": [10],
+  "cards": [
+    {
+      "id": "v1c17-01",
+      "front": "Static route syntax — show both 'next-hop IP' and 'exit interface' forms.",
+      "back": "Next-hop: `ip route 10.2.0.0 255.255.0.0 192.168.1.2`. Exit interface: `ip route 10.2.0.0 255.255.0.0 gi0/1`. Combined: `ip route 10.2.0.0 255.255.0.0 gi0/1 192.168.1.2`. Combined form is most reliable on multi-access (broadcast) interfaces.",
+      "topic": "static-routes"
+    },
+    {
+      "id": "v1c17-02",
+      "front": "Configure a default route on a router.",
+      "back": "`ip route 0.0.0.0 0.0.0.0 <next-hop-or-interface>`. The 'gateway of last resort'. Used when no more specific route matches the destination.",
+      "topic": "default-route"
+    },
+    {
+      "id": "v1c17-03",
+      "front": "What is a floating static route, and how do you configure one?",
+      "back": "A backup static route with a higher administrative distance than the primary route, so it's preferred only when the primary disappears. Example: primary OSPF route AD=110, floating static `ip route 10.2.0.0 255.255.0.0 1.1.1.1 200` (AD 200 > 110, so it stays out of RIB unless OSPF route is gone).",
+      "topic": "floating-static"
+    },
+    {
+      "id": "v1c17-04",
+      "front": "What is administrative distance and what are the defaults for: connected, static, eBGP, EIGRP internal, OSPF, RIP, EIGRP external, iBGP?",
+      "back": "Connected 0, Static 1, eBGP 20, EIGRP internal 90, OSPF 110, RIP 120, EIGRP external 170, iBGP 200, Unknown 255 (unreachable).",
+      "topic": "admin-distance"
+    },
+    {
+      "id": "v1c17-05",
+      "front": "What does 'directly connected' mean in `show ip route`?",
+      "back": "A route added automatically because the router has an interface in that subnet (interface up/up + IP configured). Marked `C` in the routing table; AD = 0. The local IP itself appears as `L` with /32.",
+      "topic": "routing-table"
+    },
+    {
+      "id": "v1c17-06",
+      "front": "What command displays the IP routing table?",
+      "back": "`show ip route` (full table). Filter: `show ip route ospf` (only OSPF routes), `show ip route 10.1.1.0` (longest match for that destination), `show ip route static`. Use `show ip route summary` for entry counts.",
+      "topic": "show-commands"
+    },
+    {
+      "id": "v1c17-07",
+      "front": "What's the result if you configure a static route with an exit interface that's down?",
+      "back": "The route is removed from the routing table (not installed). Once the interface comes back up, it's reinstalled. This is automatic — you don't need to manually adjust.",
+      "topic": "static-routes"
+    },
+    {
+      "id": "v1c17-08",
+      "front": "What's a recursive route lookup, and what's the risk with next-hop static routes?",
+      "back": "When forwarding to a static-route's next-hop IP, the router looks up that next-hop IP itself in the routing table to find the egress interface. If a static route's next-hop becomes unreachable, the route can stay in the table (Cisco doesn't remove it unless you use a tracked next-hop) — leading to black holes.",
+      "topic": "static-routes"
+    }
+  ]
+}

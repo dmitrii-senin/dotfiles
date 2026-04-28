@@ -1,0 +1,61 @@
+{
+  "chapter": "vol1-ch03",
+  "title": "Fundamentals of WANs and IP Routing",
+  "weeks": [1],
+  "cards": [
+    {
+      "id": "v1c3-01",
+      "front": "What is the fundamental difference between a LAN and a WAN, in terms of who owns the infrastructure?",
+      "back": "LAN: privately owned local-area infrastructure (cables, switches inside one site). WAN: leased from a service provider, spans large geographic areas. CCNA WAN technologies include leased lines, MPLS, Metro Ethernet, internet VPNs.",
+      "topic": "wan-vs-lan"
+    },
+    {
+      "id": "v1c3-02",
+      "front": "How does a router decide where to forward an IP packet?",
+      "back": "It performs a routing-table lookup on the packet's destination IP, finds the longest-prefix match, and forwards out the matching outgoing interface to the next-hop. If no match, the packet is dropped (or sent to a default route if one exists).",
+      "topic": "routing-logic"
+    },
+    {
+      "id": "v1c3-03",
+      "front": "What is a default gateway and when is it used?",
+      "back": "The IP address (on the host's subnet) that the host sends packets to when the destination is OUTSIDE the host's local subnet. Configured in the host's IP settings. The host knows by checking destination IP against its own IP+mask.",
+      "topic": "default-gateway"
+    },
+    {
+      "id": "v1c3-04",
+      "front": "What does ARP do and at what point in IP forwarding is it used?",
+      "back": "Address Resolution Protocol maps a known IPv4 address to its corresponding MAC address on the same subnet. Used by every IP-sending host (and by routers) to learn the next-hop's L2 address before encapsulating the IP packet into an Ethernet frame.",
+      "topic": "arp"
+    },
+    {
+      "id": "v1c3-05",
+      "front": "What ARP message types exist and how are they framed at L2?",
+      "back": "ARP Request — sent as a broadcast (dest MAC ffff.ffff.ffff), asks 'who has IP X?'. ARP Reply — unicast back from the owner with its MAC. ARP cache stores the result for a few minutes (default ~4 hours on Cisco IOS for routers).",
+      "topic": "arp"
+    },
+    {
+      "id": "v1c3-06",
+      "front": "What does DNS do, and what L4 ports does it use?",
+      "back": "Maps human-readable hostnames (www.example.com) to IP addresses. Uses UDP/53 for normal queries and TCP/53 for zone transfers and large responses. Hosts query a configured DNS server; if it doesn't have the answer it recursively asks others.",
+      "topic": "dns"
+    },
+    {
+      "id": "v1c3-07",
+      "front": "Compare TCP and UDP at the transport layer.",
+      "back": "TCP: connection-oriented (3-way handshake), reliable (acks, retransmissions), ordered, flow control, slower. UDP: connectionless, best-effort, unordered, no flow control, fast and lightweight. TCP for HTTP/SSH/SMTP; UDP for DNS queries, DHCP, VoIP RTP, NTP.",
+      "topic": "transport-layer"
+    },
+    {
+      "id": "v1c3-08",
+      "front": "Memorize: well-known port numbers for FTP, SSH, Telnet, SMTP, DNS, HTTP, HTTPS, DHCP server/client, TFTP, NTP, SNMP, syslog.",
+      "back": "FTP 20/21 (TCP), SSH 22 (TCP), Telnet 23 (TCP), SMTP 25 (TCP), DNS 53 (UDP, TCP for transfers), DHCP 67 server / 68 client (UDP), HTTP 80 (TCP), HTTPS 443 (TCP), TFTP 69 (UDP), NTP 123 (UDP), SNMP 161 (UDP), syslog 514 (UDP).",
+      "topic": "tcpudp-ports"
+    },
+    {
+      "id": "v1c3-09",
+      "front": "What's the difference between a routed protocol and a routing protocol?",
+      "back": "Routed protocol = the protocol whose packets are being forwarded (IP, IPv6, IPX). Routing protocol = the protocol routers use to share reachability information and build routing tables (OSPF, EIGRP, BGP, RIP).",
+      "topic": "routing-fundamentals"
+    }
+  ]
+}

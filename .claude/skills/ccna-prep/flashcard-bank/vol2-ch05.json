@@ -1,0 +1,43 @@
+{
+  "chapter": "vol2-ch05",
+  "title": "Introduction to TCP/IP Transport and Applications",
+  "weeks": [18],
+  "cards": [
+    {
+      "id": "v2c5-01",
+      "front": "TCP segment header — name the key fields used by ACLs/NAT and what they do.",
+      "back": "Source port (16 bits), Destination port (16 bits), Sequence #, Ack #, Window size, Checksum, Flags (SYN, ACK, FIN, RST, PSH, URG). ACLs match on source/dest port + flags (e.g., `eq 443`, `established`). NAT translates source IP+port for PAT.",
+      "topic": "tcp-header"
+    },
+    {
+      "id": "v2c5-02",
+      "front": "What's the TCP 3-way handshake?",
+      "back": "(1) Client → Server: SYN (seq=X). (2) Server → Client: SYN+ACK (seq=Y, ack=X+1). (3) Client → Server: ACK (seq=X+1, ack=Y+1). After this, the connection is ESTABLISHED. ACLs use the `established` keyword to allow only return traffic for already-established TCP sessions.",
+      "topic": "tcp-handshake"
+    },
+    {
+      "id": "v2c5-03",
+      "front": "TCP graceful close — how many segments and what flags?",
+      "back": "4-way close. Either side can initiate: send FIN. Other side ACKs the FIN. Other side then sends its own FIN. Original sender ACKs. Connection is fully closed. Abrupt close uses RST (single segment, no reply expected).",
+      "topic": "tcp-close"
+    },
+    {
+      "id": "v2c5-04",
+      "front": "What does TCP windowing accomplish?",
+      "back": "Flow control. Window field tells the sender how much data the receiver can buffer without acking. Sender can send up to that amount before waiting. Sliding window allows pipelining. If receiver overwhelmed, window shrinks; if recovering, grows.",
+      "topic": "tcp-flow-control"
+    },
+    {
+      "id": "v2c5-05",
+      "front": "Compare TCP and UDP for typical use cases on the CCNA.",
+      "back": "TCP: HTTP/HTTPS, SSH, SMTP, FTP — anywhere reliability matters more than latency. UDP: DNS, DHCP, NTP, SNMP, syslog, RTP voice/video — short query/response or real-time streams where retransmission would hurt. Both share the 16-bit port number space (1-65535).",
+      "topic": "transport-layer"
+    },
+    {
+      "id": "v2c5-06",
+      "front": "What are well-known, registered, and dynamic/private port ranges?",
+      "back": "0-1023: well-known (HTTP 80, SSH 22, etc.). 1024-49151: registered (assigned by IANA, e.g., MS-SQL 1433). 49152-65535: dynamic/ephemeral (used as source port for outgoing client connections). Cisco PAT typically uses ports 1024-65535 for translations.",
+      "topic": "port-ranges"
+    }
+  ]
+}

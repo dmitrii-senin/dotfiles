@@ -1,0 +1,49 @@
+{
+  "chapter": "vol1-ch24",
+  "title": "OSPF Neighbors and Route Selection",
+  "weeks": [13],
+  "cards": [
+    {
+      "id": "v1c24-01",
+      "front": "Adjacency stuck in EXSTART/EXCHANGE — most common cause and fix?",
+      "back": "MTU mismatch on the OSPF interfaces. Verify with `show ip ospf interface <int>` (compare MTU values). Fix: align MTUs (`ip mtu 1500`) on both ends; or enable `ip ospf mtu-ignore` as a workaround.",
+      "topic": "ospf-troubleshooting"
+    },
+    {
+      "id": "v1c24-02",
+      "front": "Adjacency stuck in INIT state — what does it mean?",
+      "back": "A router has received a Hello from a neighbor that does NOT list itself in the Hello's neighbor field. Usually a one-way communication problem (ACL blocking inbound, broken multicast). Check both directions.",
+      "topic": "ospf-troubleshooting"
+    },
+    {
+      "id": "v1c24-03",
+      "front": "Adjacency stays in 2-WAY state — is this a problem?",
+      "back": "Not necessarily. On multi-access (broadcast Ethernet) networks, DR and BDR form FULL with everyone, but non-DR/BDR pairs (DROther-DROther) stay at 2-WAY. That's normal and expected.",
+      "topic": "ospf-neighbor-states"
+    },
+    {
+      "id": "v1c24-04",
+      "front": "What's the OSPF metric calculation rule for end-to-end path cost?",
+      "back": "Sum of OUTBOUND interface costs along the path. Cost = ref-bw / interface-bw. Inbound interface cost is NOT counted. Lowest total cost wins. Equal-cost paths → ECMP.",
+      "topic": "ospf-metric"
+    },
+    {
+      "id": "v1c24-05",
+      "front": "How does OSPF rank routes when there are multiple paths to the same destination?",
+      "back": "(1) Intra-area (O) — within same area. (2) Inter-area (O IA) — through another area via ABR. (3) External Type 1 (E1) — redistributed, internal cost added to external cost. (4) External Type 2 (E2, default external) — only external cost considered. Order: O > O IA > E1 > E2 — regardless of total cost.",
+      "topic": "ospf-route-types"
+    },
+    {
+      "id": "v1c24-06",
+      "front": "What's the difference between OSPF E1 and E2 external routes?",
+      "back": "E1 (External Type 1): metric = external cost + internal OSPF cost to the ASBR. E2 (default): metric = external cost only (internal cost ignored). E1 reflects the true full-path cost; E2 makes the cost equal regardless of where in the OSPF domain you are.",
+      "topic": "ospf-route-types"
+    },
+    {
+      "id": "v1c24-07",
+      "front": "What command displays the OSPF database (LSDB)?",
+      "back": "`show ip ospf database` — lists all LSAs by type (router, network, summary, external). Useful for understanding what an area knows. `show ip ospf database router <RID>` drills into a specific router's LSA.",
+      "topic": "show-commands"
+    }
+  ]
+}

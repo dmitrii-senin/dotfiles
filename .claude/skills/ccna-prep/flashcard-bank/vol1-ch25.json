@@ -1,0 +1,43 @@
+{
+  "chapter": "vol1-ch25",
+  "title": "Fundamentals of IP Version 6",
+  "weeks": [14],
+  "cards": [
+    {
+      "id": "v1c25-01",
+      "front": "How long is an IPv6 address, and how is it written?",
+      "back": "128 bits, written as 8 groups of 4 hex digits separated by colons. Example: 2001:0db8:0000:0000:0000:ff00:0042:8329. Compression rules let you shrink it to 2001:db8::ff00:42:8329.",
+      "topic": "ipv6-format"
+    },
+    {
+      "id": "v1c25-02",
+      "front": "Two IPv6 address compression rules?",
+      "back": "(1) Drop leading zeros in each hextet (0042 → 42, 0000 → 0). (2) Replace ONE contiguous run of all-zero hextets with `::` (used at most once per address). Example: 2001:0db8:0000:0000:0000:0000:0000:0001 → 2001:db8::1.",
+      "topic": "ipv6-compression"
+    },
+    {
+      "id": "v1c25-03",
+      "front": "Why was IPv6 designed?",
+      "back": "Primary: IPv4 address exhaustion (4.3 billion addresses, mostly already allocated). Secondary: simplified header (fixed 40 bytes), built-in security (IPsec native), no fragmentation by routers, no broadcasts, multicast/anycast first-class, SLAAC for stateless addressing.",
+      "topic": "ipv6-rationale"
+    },
+    {
+      "id": "v1c25-04",
+      "front": "What's IPv6's equivalent of ARP, and what protocol family does it use?",
+      "back": "Neighbor Discovery Protocol (NDP), part of ICMPv6. Uses NS (Neighbor Solicitation) and NA (Neighbor Advertisement) messages — sent to multicast addresses, NOT broadcast (IPv6 has no broadcast). Also handles Router Solicitation/Advertisement (RS/RA), redirect, and DAD.",
+      "topic": "ipv6-ndp"
+    },
+    {
+      "id": "v1c25-05",
+      "front": "What is DAD in IPv6?",
+      "back": "Duplicate Address Detection. Before using a new IPv6 address, the host sends an NS for that address. If anyone responds with an NA, the address is in use → don't claim it. Default behavior, runs automatically on IPv6 stack startup.",
+      "topic": "ipv6-ndp"
+    },
+    {
+      "id": "v1c25-06",
+      "front": "How do you enable IPv6 routing globally on a Cisco router?",
+      "back": "`ipv6 unicast-routing`. Without this command, IPv6 packets are dropped (not forwarded) even if interfaces have IPv6 addresses.",
+      "topic": "ipv6-config"
+    }
+  ]
+}

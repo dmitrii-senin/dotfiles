@@ -65,10 +65,36 @@ For `mock` and `weak-areas` quiz modes, read all 6 domain files (or the subset m
 Three state files in `data/` (gitignored — exist locally, not in version control):
 
 - `data/weak-areas.json` — `{topic_key: {misses, attempts, last_seen, last_score}}`. Updated at end of every quiz.
-- `data/flashcards.json` — `{"deck": [{"id", "front", "back", "box", "due_date", "created"}], "version": 1}`. Leitner-box scheduling.
+- `data/flashcards.json` — `{"deck": [{"id", "front", "back", "chapter", "week", "topic", "box", "due_date", "created"}], "version": 2}`. Leitner-box scheduling.
 - `data/command-journal.md` — append-only markdown log: `## YYYY-MM-DD — topic` headers + command/note bodies.
 
-**Always create these files if missing** when entering a mode that needs them. Use empty defaults: `{}`, `{"deck": [], "version": 1}`, and a `# CCNA Command Journal\n\n` header respectively.
+**Always create these files if missing** when entering a mode that needs them. Use empty defaults: `{}`, `{"deck": [], "version": 2}`, and a `# CCNA Command Journal\n\n` header respectively.
+
+## Flashcard Bank
+
+Read-only card bank in `flashcard-bank/` (tracked in git — derived from OCG Vol 1+2 chapter content). One JSON per chapter:
+
+```
+flashcard-bank/
+  vol1-ch01.json    Introduction to TCP/IP Networking → Week 1
+  vol1-ch02.json    ...
+  vol2-ch24.json    Understanding Ansible and Terraform → Week 23
+```
+
+Each chapter file:
+
+```json
+{
+  "chapter": "vol1-ch08",
+  "title": "Implementing Ethernet Virtual LANs",
+  "weeks": [6, 7],
+  "cards": [
+    {"id": "v1c8-01", "front": "...", "back": "...", "topic": "vlan-basics"}
+  ]
+}
+```
+
+When `flash review` injects bank cards into the active deck, it copies the card and adds: `box: 1`, `due_date: today`, `created: today`, plus the bank's `chapter` and `week` (first entry from `weeks`) fields.
 
 ---
 
@@ -246,6 +272,19 @@ Append to `data/flashcards.json`:
 
 ### `flash review`
 
+**Step 1 — Inject this week's bank cards into the active deck.**
+
+1. Compute the current plan week (same logic as `schedule` mode — read the start date from `ccna-prep.md`, compute weeks elapsed).
+2. Read `ccna-prep.md` to find which OCG chapters are listed for the current week (look for `OCG Vol N: Ch X *Title*` patterns under the current week's heading).
+3. For each matched chapter, read `flashcard-bank/vol{N}-ch{NN}.json`.
+4. For each card in the bank file, check if its `id` is already in `data/flashcards.json` deck. If not, **append it** with:
+   - `chapter` and `week` fields copied from the bank file (use first entry of `weeks` array as the week)
+   - `box: 1`, `due_date: today`, `created: today`
+5. Save the updated deck.
+6. Print: *"Injected N new cards from <chapter list> for week <W>."* (or skip the message if N=0).
+
+**Step 2 — Review due cards.**
+
 1. Load `data/flashcards.json`. Filter cards where `due_date <= today`. If none: *"No cards due. Next due: <date>."* and exit.
 2. For each due card:
    - Show `front`. Wait for the user's answer.
@@ -254,6 +293,11 @@ Append to `data/flashcards.json`:
    - On `n`: `box = 1`, `due_date` = tomorrow.
 3. After all cards: *"Reviewed N cards. Promoted X, demoted Y. Next session: M cards due in D days."*
 4. Save updated `flashcards.json`.
+
+**Edge cases:**
+- If today is in a consolidation/light/exam week (current_week ≥ 27) or pre-prep (today < start_date): skip Step 1, run Step 2 only.
+- If a bank chapter file is missing: warn but don't error — *"Chapter <X> bank not yet generated."*
+- Bank cards are read-only reference. Once injected into the active deck they live there independently — promoting/demoting a card never touches the bank file.
 
 ---
 

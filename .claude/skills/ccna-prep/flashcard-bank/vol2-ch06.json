@@ -1,0 +1,49 @@
+{
+  "chapter": "vol2-ch06",
+  "title": "Basic IPv4 Access Control Lists",
+  "weeks": [18],
+  "cards": [
+    {
+      "id": "v2c6-01",
+      "front": "Standard ACL number ranges and what they match on.",
+      "back": "1-99 (and extended 1300-1999). Match on SOURCE IP only — that's it. Used when you don't care about destination/port. Best practice: place close to the destination (otherwise you over-block on the way).",
+      "topic": "standard-acl"
+    },
+    {
+      "id": "v2c6-02",
+      "front": "Standard numbered ACL syntax — show 'permit anything from 10.1.1.0/24'.",
+      "back": "```\naccess-list 10 permit 10.1.1.0 0.0.0.255\n```\nApply to interface: `interface gi0/0` then `ip access-group 10 in` (or `out`). Implicit `deny any` at end.",
+      "topic": "standard-acl"
+    },
+    {
+      "id": "v2c6-03",
+      "front": "Wildcard mask vs subnet mask — what's the difference and how to convert?",
+      "back": "Wildcard: 0=match exactly, 1=ignore. Subnet mask is the OPPOSITE bitwise. Convert: 255 − each octet of subnet mask. Example: subnet 255.255.255.0 (/24) → wildcard 0.0.0.255. Subnet 255.255.255.240 (/28) → wildcard 0.0.0.15.",
+      "topic": "wildcard-mask"
+    },
+    {
+      "id": "v2c6-04",
+      "front": "What do `host` and `any` keywords mean in ACL syntax?",
+      "back": "`host X.X.X.X` is shorthand for `X.X.X.X 0.0.0.0` (wildcard 0 = exact match). `any` is shorthand for `0.0.0.0 255.255.255.255` (match anything). Example: `permit ip host 10.1.1.5 any`.",
+      "topic": "acl-keywords"
+    },
+    {
+      "id": "v2c6-05",
+      "front": "What's the implicit deny in an ACL, and when does it bite you?",
+      "back": "Every ACL ends with implicit `deny ip any any` (or `deny any` for standard). If your ACL has only permit statements and the matched traffic isn't permitted, it's silently dropped. Always add explicit permits for legitimate traffic before applying — easy to lock yourself out of a router.",
+      "topic": "acl-rules"
+    },
+    {
+      "id": "v2c6-06",
+      "front": "How does an ACL process a packet — top-down or some other order?",
+      "back": "Strictly top-down, first match wins. Once matched, no further entries are evaluated for that packet. Ordering matters: put more specific entries before more general ones, otherwise the general entry catches everything.",
+      "topic": "acl-rules"
+    },
+    {
+      "id": "v2c6-07",
+      "front": "What command shows ACL hits per line and ACL contents?",
+      "back": "`show access-lists` (or `show access-lists 10`). Lists each entry with hit counter. Useful for verifying the ACL is matching the expected traffic. Reset counters: `clear access-list counters`.",
+      "topic": "show-commands"
+    }
+  ]
+}
