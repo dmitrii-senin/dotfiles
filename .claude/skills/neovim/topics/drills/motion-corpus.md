@@ -1,6 +1,6 @@
 # Motion Drill Corpus
 
-Drills the `/neovim-mastery drill` and `warmup` modes pick from. Each entry is a short, self-contained exercise the coach reads aloud while the user practices in their own buffer. Acceptance is **self-reported** (`done <id>` / `stuck <id> <details>`) — the coach cannot verify cursor state directly.
+Drills the `/neovim drill` and `warmup` modes pick from. Each entry is a short, self-contained exercise the coach reads aloud while the user practices in their own buffer. Acceptance is **self-reported** (`done <id>` / `stuck <id> <details>`) — the coach cannot verify cursor state directly.
 
 ## Conventions
 

@@ -39,9 +39,9 @@ A staged, 16-session ladder. Each session is a single topic file under `topics/`
 
 In addition to the numbered curriculum, the skill exposes three practice modes. State for all three lives in [`references/drill-state.md`](references/drill-state.md):
 
-- `/neovim-mastery drill [domain]` — Leitner-box-aware spaced repetition over 70+ motion drills (buffer-based; you practice in your own Neovim and self-report). Source: [`topics/drills/motion-corpus.md`](topics/drills/motion-corpus.md).
-- `/neovim-mastery warmup` — 5 random level:1 drills, ≤ 5 min, ideal as a daily start. Buffer-based; draws from `motion-corpus.md` only.
-- `/neovim-mastery text-drill [domain]` — in-prompt simulated drills. Coach shows before/after buffers with cursor markers; you reply with keystrokes; coach simulates and grades automatically. Deterministic ops only (motions, text-objects, operators, basic search/substitute). Source: [`topics/drills/text-drill-corpus.md`](topics/drills/text-drill-corpus.md).
+- `/neovim drill [domain]` — Leitner-box-aware spaced repetition over 70+ motion drills (buffer-based; you practice in your own Neovim and self-report). Source: [`topics/drills/motion-corpus.md`](topics/drills/motion-corpus.md).
+- `/neovim warmup` — 5 random level:1 drills, ≤ 5 min, ideal as a daily start. Buffer-based; draws from `motion-corpus.md` only.
+- `/neovim text-drill [domain]` — in-prompt simulated drills. Coach shows before/after buffers with cursor markers; you reply with keystrokes; coach simulates and grades automatically. Deterministic ops only (motions, text-objects, operators, basic search/substitute). Source: [`topics/drills/text-drill-corpus.md`](topics/drills/text-drill-corpus.md).
 
 ---
 
@@ -70,12 +70,12 @@ When `$ARGUMENTS` is a keyword (not a number, not `list`/`audit`/`review`/`free`
 | `help`, `:help`, `tutor`, `vimtutor`, `api`, `vim.api`, `vim.fn`, `discover`, `discovery`, `messages`, `scriptnames` | 17 |
 | `custom-textobject`, `custom-textobjects`, `opfunc`, `g@`, `custom-operator`, `custom-operators`, `mini.ai` | 18 |
 | `query`, `queries`, `scm`, `:EditQuery`, `:InspectTree`, `plugin-dev`, `plugin-development`, `local-plugin`, `dir=` | 19 |
-| `drill`, `drills`, `practice` | → drill mode (not a session — invoke as `/neovim-mastery drill [domain]`) |
-| `warmup`, `warm-up`, `warm`  | → warmup mode (`/neovim-mastery warmup`) |
+| `drill`, `drills`, `practice` | → drill mode (not a session — invoke as `/neovim drill [domain]`) |
+| `warmup`, `warm-up`, `warm`  | → warmup mode (`/neovim warmup`) |
 
 If a keyword is ambiguous (e.g., the user types `lsp clangd`), pick the more specific session (12 over 8). If it's unresolvable, list 2–3 candidate sessions and ask.
 
-Note: keywords `motion`/`motions`/`textobject`/`textobjects` resolve to **session 02** (the foundational topic). The keywords above for *custom* textobjects resolve to **18**. If the user types just `motion`, ASK whether they mean session 02 or want to drill: `/neovim-mastery drill word-motions`.
+Note: keywords `motion`/`motions`/`textobject`/`textobjects` resolve to **session 02** (the foundational topic). The keywords above for *custom* textobjects resolve to **18**. If the user types just `motion`, ASK whether they mean session 02 or want to drill: `/neovim drill word-motions`.
 
 ---
 
@@ -83,8 +83,8 @@ Note: keywords `motion`/`motions`/`textobject`/`textobjects` resolve to **sessio
 
 - **From scratch (rare for this user):** Session 1.
 - **The user's actual baseline (mature config, modern LSP API already wired):** Session 8 first, then 9 → 10 → 11 → 12/13/14 in any order, then 15 → 16.
-- **Before any deep dive:** consider running `/neovim-mastery audit` once to surface the highest-leverage upgrades on the current config.
-- **For a one-off question:** `/neovim-mastery free <question>` skips the curriculum entirely.
+- **Before any deep dive:** consider running `/neovim audit` once to surface the highest-leverage upgrades on the current config.
+- **For a one-off question:** `/neovim free <question>` skips the curriculum entirely.
 
 ---
 

@@ -201,5 +201,5 @@ Three changes (each can be ASKed independently):
 ## 11. Connects to
 
 This is the last topic in Phase F. From here, the curriculum loops: alternate between `drill`/`warmup` for motion mastery and `audit` for periodic config hygiene. Optional next destinations:
-- `/neovim-mastery audit` — see what HIGH/MED items have accumulated since the bundle.
-- `/neovim-mastery 16` — long-term config evolution and the `:checkhealth custom` provider (Bucket 4 of the audit plan).
+- `/neovim audit` — see what HIGH/MED items have accumulated since the bundle.
+- `/neovim 16` — long-term config evolution and the `:checkhealth custom` provider (Bucket 4 of the audit plan).

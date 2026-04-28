@@ -4,7 +4,7 @@
 > **Neovim target:** ≥ 0.12.x
 > **Path:** `~/x/dotfiles/.config/nvim/` (symlinked from `~/.config/nvim/`)
 >
-> This is a **cached inventory** of what the user's config contains. It exists so the coach doesn't have to re-glob and re-read every session. **Refresh it whenever you run `/neovim-mastery audit`** or detect a drift between this snapshot and the actual files.
+> This is a **cached inventory** of what the user's config contains. It exists so the coach doesn't have to re-glob and re-read every session. **Refresh it whenever you run `/neovim audit`** or detect a drift between this snapshot and the actual files.
 
 ## Bootstrap
 
@@ -119,4 +119,4 @@ last_session_date: (n/a)
 notes_for_next_session: (none)
 ```
 
-The coach updates this section after every full session. Use it to drive the no-args mode of `/neovim-mastery`.
+The coach updates this section after every full session. Use it to drive the no-args mode of `/neovim`.

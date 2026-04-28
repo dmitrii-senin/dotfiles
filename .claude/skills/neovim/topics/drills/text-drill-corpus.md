@@ -1,6 +1,6 @@
 # Text-Drill Corpus
 
-Drills for `/neovim-mastery text-drill` mode. Each drill specifies a `before` buffer (with cursor `█`), an `after` target buffer (with final cursor `█`), and the gold-standard `target` keystrokes. The coach reads each drill, presents `before`/`after` to the user, the user replies with keystrokes, and the coach **simulates** the keystrokes against `before`, prints the resulting buffer, and grades against `after`.
+Drills for `/neovim text-drill` mode. Each drill specifies a `before` buffer (with cursor `█`), an `after` target buffer (with final cursor `█`), and the gold-standard `target` keystrokes. The coach reads each drill, presents `before`/`after` to the user, the user replies with keystrokes, and the coach **simulates** the keystrokes against `before`, prints the resulting buffer, and grades against `after`.
 
 ## Conventions
 

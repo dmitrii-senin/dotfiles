@@ -2,7 +2,7 @@
 
 Two purposes:
 1. **Customization rules** — how the coach should adapt recommendations along language / build-system / debugger axes.
-2. **Audit upgrade candidates** — the concrete improvement list `/neovim-mastery audit` should produce against the user's current config, ranked by impact.
+2. **Audit upgrade candidates** — the concrete improvement list `/neovim audit` should produce against the user's current config, ranked by impact.
 
 ---
 
@@ -69,7 +69,7 @@ Two purposes:
 
 ## Audit-mode upgrade candidates
 
-When `/neovim-mastery audit` runs, evaluate each candidate below against the user's current config. Rank by impact (HIGH / MED / LOW). Present a unified diff for any candidate the user wants to apply. **Never apply without confirmation.**
+When `/neovim audit` runs, evaluate each candidate below against the user's current config. Rank by impact (HIGH / MED / LOW). Present a unified diff for any candidate the user wants to apply. **Never apply without confirmation.**
 
 ### HIGH
 

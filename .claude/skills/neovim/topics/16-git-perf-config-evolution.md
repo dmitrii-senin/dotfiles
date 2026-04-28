@@ -80,7 +80,7 @@ print(string.format("took %.2f ms", (vim.uv.hrtime() - t) / 1e6))
 2. **One commit per change.** Even small ones. Future-you will run `git log -p init.lua` and want clean diffs.
 3. **Per-plugin file commits.** Adding a plugin = one commit touching one file. Avoid grab-bag "config tweaks" commits.
 4. **Annotate per-plugin files** with a top-of-file comment: `-- Purpose: <X>. Without it: <Y>. Alternative: <Z>.` This is cheap insurance against "why did I add this?" amnesia.
-5. **Audit quarterly.** Run `/neovim-mastery audit` (this skill). Identify plugins you no longer use; remove them.
+5. **Audit quarterly.** Run `/neovim audit` (this skill). Identify plugins you no longer use; remove them.
 6. **Resist churn.** "There's a new completion plugin" is not a reason to swap. The cost of swapping is days; the benefit is usually marginal. Swap when you have a *named* pain.
 7. **Track Neovim major versions.** When 0.13 lands, read the breaking changes; don't blindly upgrade.
 8. **Prune `lazy-lock.json` after big upgrades.** `:Lazy update` followed by smoke-test, then commit the new lockfile.
@@ -240,16 +240,16 @@ ASK before doing this in bulk; it's optional but pays dividends in 6 months.
 - **`diffview.nvim`** for in-buffer three-way diff (merge conflicts).
 - **`vim-fugitive`** if you want `:G` status integration (some swear by it; lazygit covers most cases).
 - **Per-machine config overrides** via `lua/custom/local.lua` (gitignored).
-- **Run `/neovim-mastery audit`** quarterly. The skill is designed for this rhythm.
+- **Run `/neovim audit`** quarterly. The skill is designed for this rhythm.
 - **Read the Neovim release notes** for each major version (`0.12 → 0.13`). Often there are features that obsolete plugins you have.
 
 ## 11. Connects to
 
 You've completed the curriculum. From here:
 
-- Re-run `/neovim-mastery audit` — apply the highest-impact items first.
-- Use `/neovim-mastery review <topic>` as a refresher.
-- Use `/neovim-mastery free <question>` for ad-hoc help.
+- Re-run `/neovim audit` — apply the highest-impact items first.
+- Use `/neovim review <topic>` as a refresher.
+- Use `/neovim free <question>` for ad-hoc help.
 - Re-run any session by number when you want a deep refresh.
 
 The skill stays useful indefinitely because your config evolves. The next session is whatever you pick.

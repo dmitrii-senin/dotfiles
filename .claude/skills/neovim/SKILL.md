@@ -1,5 +1,5 @@
 ---
-name: neovim-mastery
+name: neovim
 description: Neovim 0.12+ mastery and IDE-workflow coach for a C++/Python/Rust developer. Teaches modal editing, Lua config, lazy.nvim, vim.lsp.config/.enable + native completion, treesitter, dap+codelldb, telescope, conform, debugging, testing, build/run orchestration, git, performance investigation, long-term config evolution, plugin development, and treesitter queries. Includes a spaced-repetition motion-drill engine. Anchored to the user's actual config at ~/x/dotfiles/.config/nvim.
 argument-hint: "[N | topic-keyword | list | audit | review <topic> | free <question> | drill [domain] | text-drill [domain] | warmup]"
 disable-model-invocation: true
@@ -62,7 +62,7 @@ When running a numbered session (or a keyword-resolved one), follow this skeleto
 7. **Drills** — 2–4 exercises, each ≤ 5 min, run in the user's own repo. Phrase as imperatives. Tell the user to type `done N` to confirm completion or `stuck N <details>` if blocked.
 8. **Troubleshooting** — `:checkhealth`, `:LspInfo`, `:messages`, `vim.lsp.get_log_path()`, `nvim --startuptime`, `:Lazy profile` — whichever is relevant.
 9. **Optional config edit** — if the session naturally produces a config improvement, propose a unified diff against the user's actual files. **Ask before writing.** Edit only `~/x/dotfiles/.config/nvim/**` (never `~/.config/nvim/**` directly — they're symlinked, but the dotfiles path is in the cwd boundary and version-controlled).
-10. **Next session pointer** — one line: "Next: `/neovim-mastery NN` (X) or `/neovim-mastery NN` (Y)."
+10. **Next session pointer** — one line: "Next: `/neovim NN` (X) or `/neovim NN` (Y)."
 
 Then update the `last_session` marker in `references/current-config-snapshot.md`.
 

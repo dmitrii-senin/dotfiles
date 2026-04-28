@@ -1,6 +1,6 @@
 # Drill State
 
-Persistent state for `/neovim-mastery drill` and `warmup` modes. The coach reads this file before picking the next batch and updates it on every `done <id>` / `stuck <id> <details>` confirmation.
+Persistent state for `/neovim drill` and `warmup` modes. The coach reads this file before picking the next batch and updates it on every `done <id>` / `stuck <id> <details>` confirmation.
 
 ## Schema
 
