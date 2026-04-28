@@ -10,3 +10,4 @@ zsh-meta/
 .claude/skills/ccna-prep/data/weak-areas.json
 .claude/skills/ccna-prep/data/flashcards.json
 .claude/skills/ccna-prep/data/command-journal.md
+.claude/skills/ccna-prep/*.epub

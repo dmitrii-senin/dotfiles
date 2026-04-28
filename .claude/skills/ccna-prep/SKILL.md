@@ -93,8 +93,8 @@ Default mode when no arguments are given. Reads [ccna-prep.md](ccna-prep.md) and
 **Output format for current/specific week:**
 
 ```
-Week N of 24 — Phase X (Phase Name) — D days into the week
-Date: YYYY-MM-DD · Exam in W weeks (target: 2026-11-09)
+Week N of 26 — Phase X (Phase Name) — D days into the week
+Date: YYYY-MM-DD · Exam in W weeks (target: 2026-11-23)
 
 This week's targets:
   Theory:
@@ -117,8 +117,8 @@ Upcoming:
 
 **Edge cases:**
 - If today < start_date: print `Pre-prep — week 1 starts YYYY-MM-DD (X days from now). Use this time to scaffold the skill, install Packet Tracer, sign up for NetAcad.`
-- If current_week > 28: print `Past exam target. Did you take the exam? Update the plan or reset the start date.`
-- If current_week between 25-28: show the consolidation/light-review/exam-week sections from the plan instead of weekly content.
+- If current_week > 30: print `Past exam target. Did you take the exam? Update the plan or reset the start date.`
+- If current_week between 27-30: show the consolidation/light-review/exam-week sections from the plan instead of weekly content.
 
 **Habit checks** (best-effort — don't error if data files missing):
 - Subnetting last drill: parse `data/command-journal.md` for entries tagged `subnet` (or treat empty as "never").
@@ -131,11 +131,11 @@ Upcoming:
 Phase 1 (W1-5)   — Foundations              ✓ done / ▶ current / ☐ pending
 Phase 2 (W6-9)   — Switching                ...
 Phase 3 (W10-15) — Routing                  ...
-Phase 4 (W16-20) — Services + Security      ...
-Phase 5 (W21-24) — Automation + Review      ...
-W25-26 — Consolidation
-W27 — Light review
-W28 — Exam week (~2026-11-09)
+Phase 4 (W16-21) — Services + Security      ...
+Phase 5 (W22-26) — Automation + Review      ...
+W27-28 — Consolidation
+W29 — Light review
+W30 — Exam week (~2026-11-23)
 ```
 
 ---

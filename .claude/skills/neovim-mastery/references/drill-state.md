@@ -58,9 +58,9 @@ After each `skip <id>`:
 ## Initial state
 
 ```
-last_practiced: 2026-04-26
-total_attempts: 5
-total_solved: 2
+last_practiced: 2026-04-27
+total_attempts: 10
+total_solved: 6
 
 ## Drills
 | id    | attempts | solved | stuck | last_seen   | box | weak_keys | notes |
@@ -151,11 +151,11 @@ total_solved: 2
 | ts-03 | 0        | 0      | 0     | -           | 1   |           |       |
 | ts-04 | 0        | 0      | 0     | -           | 1   |           |       |
 | ts-05 | 0        | 0      | 0     | -           | 1   |           |       |
-| td-01 | 0        | 0      | 0     | -           | 1   |           |       |
-| td-02 | 0        | 0      | 0     | -           | 1   |           |       |
-| td-03 | 0        | 0      | 0     | -           | 1   |           |       |
-| td-04 | 0        | 0      | 0     | -           | 1   |           |       |
-| td-05 | 0        | 0      | 0     | -           | 1   |           |       |
+| td-01 | 1        | 0      | 1     | 2026-04-27  | 1   | hl, count | count after find, not embedded |
+| td-02 | 1        | 1      | 0     | 2026-04-27  | 2   |           |       |
+| td-03 | 1        | 1      | 0     | 2026-04-27  | 2   |           |       |
+| td-04 | 1        | 1      | 0     | 2026-04-27  | 2   |           |       |
+| td-05 | 1        | 1      | 0     | 2026-04-27  | 2   |           |       |
 | td-06 | 0        | 0      | 0     | -           | 1   |           |       |
 | td-07 | 0        | 0      | 0     | -           | 1   |           |       |
 | td-08 | 0        | 0      | 0     | -           | 1   |           |       |
@@ -189,6 +189,8 @@ total_solved: 2
 - `t`: 1
 - `last-edit`: 1
 - `definition`: 1
+- `hl`: 1
+- `count`: 1
 ```
 
 ## Coach notes
