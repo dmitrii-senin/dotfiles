@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch06",
   "title": "Basic IPv4 Access Control Lists",
-  "weeks": [18],
+  "weeks": [
+    18
+  ],
   "cards": [
     {
       "id": "v2c6-01",
@@ -44,6 +46,30 @@
       "front": "What command shows ACL hits per line and ACL contents?",
       "back": "`show access-lists` (or `show access-lists 10`). Lists each entry with hit counter. Useful for verifying the ACL is matching the expected traffic. Reset counters: `clear access-list counters`.",
       "topic": "show-commands"
+    },
+    {
+      "id": "v2c6-j01",
+      "front": "How many ACLs can be applied to a single interface?",
+      "back": "Up to TWO per interface per protocol — one inbound (`ip access-group X in`) and one outbound (`ip access-group X out`). Each direction can also have a separate IPv4 vs IPv6 ACL. Inbound is evaluated BEFORE the routing decision; outbound is evaluated AFTER routing.",
+      "topic": "acl-direction"
+    },
+    {
+      "id": "v2c6-j02",
+      "front": "Standard NAMED ACL configuration syntax (vs numbered)?",
+      "back": "`ip access-list standard NAME` enters named-ACL config mode. Then add entries: `[seq] {permit|deny} <source> <wildcard>`. Sequence numbers can be inserted between existing entries (insert one at line 15 between 10 and 20) — easier to maintain than numbered ACLs. Same for extended: `ip access-list extended NAME`.",
+      "topic": "named-acl"
+    },
+    {
+      "id": "v2c6-j03",
+      "front": "Standard vs Extended ACL placement best practice?",
+      "back": "Standard: place CLOSE to the DESTINATION (matches only on source IP, so placing too early can over-block traffic to other destinations). Extended: place CLOSE to the SOURCE (matches on src+dst+port, so blocking early avoids wasting bandwidth carrying soon-to-be-dropped packets).",
+      "topic": "acl-placement"
+    },
+    {
+      "id": "v2c6-j04",
+      "front": "What is an ACE, and how do you add a comment to an ACL?",
+      "back": "ACE = Access Control Entry — a single line in an ACL (one permit or deny rule). To document an ACL: `access-list 10 remark Block guest VLAN` (numbered) or `remark <text>` inside named-ACL config mode. Remarks don't process traffic — they're for humans.",
+      "topic": "acl-terms"
     }
   ]
 }

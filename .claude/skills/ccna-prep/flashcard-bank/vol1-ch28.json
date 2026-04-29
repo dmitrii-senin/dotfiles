@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch28",
   "title": "Implementing IPv6 Addressing on Hosts",
-  "weeks": [14],
+  "weeks": [
+    14
+  ],
   "cards": [
     {
       "id": "v1c28-01",
@@ -38,6 +40,36 @@
       "front": "What happens when a host generates an IPv6 address with SLAAC but the address is already taken?",
       "back": "DAD detects the duplicate (NS goes out; if NA returns, the address is in use). The host's IPv6 stack marks the address as 'duplicate' and won't use it. Operator needs to investigate (rare in practice with EUI-64, more common with random/manual).",
       "topic": "ipv6-ndp"
+    },
+    {
+      "id": "v1c28-j01",
+      "front": "List the IPv6 header fields and the size of the header.",
+      "back": "40 bytes total (vs IPv4's variable 20-60). Fields: Version (4 bits, =6) | Traffic Class (8, ~ DSCP/ECN, QoS) | Flow Label (20, identifies flows) | Payload Length (16, length of L4 segment) | Next Header (8, like IPv4 Protocol — TCP=6, UDP=17, ICMPv6=58) | Hop Limit (8, like IPv4 TTL) | Source IP (128) | Destination IP (128). NO header checksum, NO fragmentation fields.",
+      "topic": "ipv6-header"
+    },
+    {
+      "id": "v1c28-j02",
+      "front": "How is an IPv6 solicited-node multicast address calculated from a unicast address?",
+      "back": "ff02::1:ff + last 24 bits (last 6 hex digits) of the unicast address. Example: 2001:db8::1234:5678:abcd:1234 → solicited-node = ff02::1:ffcd:1234. Used by NDP NS for L2 address resolution: instead of ARP broadcast, IPv6 multicasts to a small group of hosts whose addresses end in those bits.",
+      "topic": "ipv6-solicited-node"
+    },
+    {
+      "id": "v1c28-j03",
+      "front": "Map NDP message names to ICMPv6 type numbers: NS, NA, RS, RA.",
+      "back": "RS (Router Solicitation) = ICMPv6 Type 133. RA (Router Advertisement) = Type 134. NS (Neighbor Solicitation) = Type 135. NA (Neighbor Advertisement) = Type 136. RS sent to FF02::2 (all routers); RA sent to FF02::1 (all nodes); NS sent to the target's solicited-node multicast.",
+      "topic": "ndp-types"
+    },
+    {
+      "id": "v1c28-j04",
+      "front": "IPv6 static-route variants: directly attached, recursive, fully specified — definition and gotcha?",
+      "back": "Directly attached: only exit-interface specified (`ipv6 route 2001:db8:2::/64 gi0/1`). Recursive: only next-hop specified (`ipv6 route ... 2001:db8::2`). Fully specified: both (`ipv6 route ... gi0/1 2001:db8::2`). GOTCHA: directly-attached IPv6 static routes don't work on Ethernet (router has no L2 mapping for arbitrary destinations). To use a LINK-LOCAL next-hop (fe80::), you MUST use a fully specified route.",
+      "topic": "ipv6-static-routes"
+    },
+    {
+      "id": "v1c28-j05",
+      "front": "What does `show ipv6 neighbor` display?",
+      "back": "The IPv6 equivalent of the ARP table — the NDP neighbor cache: IPv6 address → MAC address mapping, age, state (REACH/STALE/INCMP), and interface. Built from NS/NA exchanges. Same idea as `show arp` for IPv4.",
+      "topic": "ipv6-neighbor"
     }
   ]
 }

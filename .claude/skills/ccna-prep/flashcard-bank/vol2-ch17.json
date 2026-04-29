@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch17",
   "title": "SNMP, FTP, and TFTP",
-  "weeks": [20],
+  "weeks": [
+    20
+  ],
   "cards": [
     {
       "id": "v2c17-01",
@@ -44,6 +46,30 @@
       "front": "Copy startup-config to a TFTP server at 10.1.1.5.",
       "back": "`copy startup-config tftp:` (interactive — prompts for server and filename). Or in one line: `copy startup-config tftp://10.1.1.5/r1-startup`. Backup IOS image: `copy flash:c2900-... tftp:`. Reverse: `copy tftp: flash:` to restore.",
       "topic": "config-management"
+    },
+    {
+      "id": "v2c17-j01",
+      "front": "Six SNMP message types and which class each belongs to (Read / Write / Notification / Response).",
+      "back": "Read class: Get (one variable), GetNext (next OID — used for MIB walks), GetBulk (many at once, more efficient, v2c+). Write class: Set (modify a variable). Notification class: Trap (unacknowledged push, agent→manager), Inform (acknowledged push). Response class: Response (replies to Get/Set). Manager polls UDP/161; agent traps to manager UDP/162.",
+      "topic": "snmp-messages"
+    },
+    {
+      "id": "v2c17-j02",
+      "front": "What is an SNMP MIB and OID?",
+      "back": "MIB (Management Information Base): hierarchical tree of variables that can be queried/set on a managed device. OID (Object Identifier): unique dotted-number path identifying one variable in the MIB (e.g., 1.3.6.1.2.1.2.2.1.10 = ifInOctets). Vendors publish MIBs (often in IETF-standard form plus enterprise-specific extensions).",
+      "topic": "snmp-mib"
+    },
+    {
+      "id": "v2c17-j03",
+      "front": "FTP active vs passive mode — who initiates the data connection?",
+      "back": "Active mode: client sends PORT command telling server which client-side port to connect to. SERVER initiates the data connection back to the client (TCP/20 → client port). Often blocked by client firewalls/NAT. Passive mode: client sends PASV; server returns its own listening port. CLIENT initiates the data connection to that server-side port. Modern default — works through NAT/firewalls.",
+      "topic": "ftp-modes"
+    },
+    {
+      "id": "v2c17-j04",
+      "front": "Why is TFTP described as 'lock-step', and what are TIDs?",
+      "back": "TFTP sends one data block (512 bytes default), waits for an ACK, then sends the next — strict alternation, no windowing. TID (Transfer ID) = the random source/destination UDP port pair used for the transfer (after the initial UDP/69 request, both sides switch to ephemeral ports for the rest of the session). 3 phases: Connection, Data Transfer, Termination.",
+      "topic": "tftp-mechanics"
     }
   ]
 }

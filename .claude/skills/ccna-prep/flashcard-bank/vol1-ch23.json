@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch23",
   "title": "Implementing Optional OSPF Features",
-  "weeks": [13],
+  "weeks": [
+    13
+  ],
   "cards": [
     {
       "id": "v1c23-01",
@@ -44,6 +46,30 @@
       "front": "What does `ip ospf mtu-ignore` do and when do you need it?",
       "back": "Bypasses the OSPF MTU consistency check during the Database Description (DD) exchange. Default behavior: if MTUs differ between neighbors, adjacency stalls in EXSTART/EXCHANGE. Workaround: enable mtu-ignore on both ends. Permanent fix: align MTUs (`ip mtu 1500`).",
       "topic": "ospf-mtu"
+    },
+    {
+      "id": "v1c23-j01",
+      "front": "What triggers each OSPF neighbor state transition: Down → Init → 2-Way → ExStart → Exchange → Loading → Full?",
+      "back": "Down: no hello received. Init: hello received but my router-id is NOT in the neighbor's hello list yet. 2-Way: I see myself in the neighbor's hello list (bidirectional comm confirmed; DR/BDR election happens here). ExStart: pre-DBD; Master/Slave is decided — the router with the HIGHER router-id becomes Master. Exchange: routers exchange DBD packets summarizing their LSDBs. Loading: missing LSAs are requested via LSR / received via LSU / acked via LSAck. Full: LSDBs synchronized, full adjacency.",
+      "topic": "ospf-states"
+    },
+    {
+      "id": "v1c23-j02",
+      "front": "OSPF message types 1-5 — what is each?",
+      "back": "Type 1: Hello (neighbor discovery, keepalive). Type 2: DBD / DD (Database Description, summary of LSDB). Type 3: LSR (Link-State Request — ask for missing LSAs). Type 4: LSU (Link-State Update — carries one or more LSAs). Type 5: LSAck (Link-State Acknowledgement). LSAs themselves are carried inside LSU messages, not as a separate type.",
+      "topic": "ospf-messages"
+    },
+    {
+      "id": "v1c23-j03",
+      "front": "Difference between `passive-interface <name>` and `passive-interface default` under `router ospf`?",
+      "back": "`passive-interface gi0/0` — makes that one interface passive (does not send hellos / form adjacencies but still advertises its subnet). `passive-interface default` — makes ALL interfaces passive, then you opt-in active ones with `no passive-interface gi0/1`. Best practice for security: passive default + opt-in.",
+      "topic": "ospf-passive"
+    },
+    {
+      "id": "v1c23-j04",
+      "front": "Does the `bandwidth` interface command change the actual link speed, and what does it affect?",
+      "back": "NO — it does not change the physical bit-rate (the `speed` command does that). `bandwidth` is purely a parameter used by routing protocols to compute metric (OSPF cost = ref-bw / bandwidth, EIGRP uses it too) and reported by SNMP / NetFlow. Set it to match the real provisioned bandwidth on subinterfaces / VPN tunnels where the OS can't autodetect.",
+      "topic": "interface-bandwidth"
     }
   ]
 }

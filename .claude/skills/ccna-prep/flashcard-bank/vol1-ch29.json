@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch29",
   "title": "Implementing IPv6 Routing",
-  "weeks": [14],
+  "weeks": [
+    14
+  ],
   "cards": [
     {
       "id": "v1c29-01",

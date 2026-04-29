@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch03",
   "title": "Securing Wireless Networks",
-  "weeks": [21],
+  "weeks": [
+    21
+  ],
   "cards": [
     {
       "id": "v2c3-01",
@@ -38,6 +40,36 @@
       "front": "What are EAP-TLS, PEAP, and EAP-FAST?",
       "back": "All are 802.1X EAP methods used in WPA2/3-Enterprise. EAP-TLS: mutual cert auth (most secure, requires PKI). PEAP: server cert + inner method (often MSCHAPv2 with username/password) — most common. EAP-FAST: Cisco proprietary, uses PAC instead of certs.",
       "topic": "eap-methods"
+    },
+    {
+      "id": "v2c3-j01",
+      "front": "Three 802.1X entities and their roles?",
+      "back": "Supplicant: the device wanting to connect (laptop, phone). Authenticator: device providing access (switch port or AP/WLC) — relays creds. Authentication Server (AS): typically RADIUS — receives credentials and decides accept/deny. EAP runs between supplicant and AS, tunneled through the authenticator.",
+      "topic": "8021x-roles"
+    },
+    {
+      "id": "v2c3-j02",
+      "front": "WPA, WPA2, WPA3 — which encryption/MIC protocol does each use?",
+      "back": "WPA: TKIP (transitional, also RC4-based). WPA2: CCMP (AES counter mode + CBC-MAC). WPA3: GCMP (AES Galois/Counter Mode + GMAC) — faster, more secure. WPA3 also REQUIRES PMF (Protected Management Frames).",
+      "topic": "wpa-encryption"
+    },
+    {
+      "id": "v2c3-j03",
+      "front": "What does WPA3 add beyond WPA2: SAE, forward secrecy, PMF?",
+      "back": "SAE (Simultaneous Authentication of Equals / Dragonfly handshake) replaces the WPA2 PSK 4-way handshake — resistant to offline dictionary attacks. Forward secrecy: even if the password is compromised later, previously captured traffic can't be decrypted (each session uses fresh keys). PMF (Protected Management Frames): mandatory in WPA3 — encrypts/authenticates 802.11 management frames, blocks deauth attacks.",
+      "topic": "wpa3"
+    },
+    {
+      "id": "v2c3-j04",
+      "front": "EAP-FAST three phases?",
+      "back": "1) PAC (Protected Access Credential) is provisioned from the server to the client. 2) A secure TLS tunnel is established between client and server using the PAC. 3) Client is authenticated inside that tunnel (often with MS-CHAPv2). Cisco-developed alternative to PEAP that doesn't require a server certificate.",
+      "topic": "eap-fast"
+    },
+    {
+      "id": "v2c3-j05",
+      "front": "Certificate requirements for PEAP vs EAP-TLS?",
+      "back": "PEAP: only the AUTHENTICATION SERVER needs a certificate. Client uses inner method (usually MS-CHAPv2 with username/password) inside the TLS tunnel. EAP-TLS: BOTH server AND client need certificates — true mutual cert-based authentication. Most secure but requires PKI to issue/manage client certs.",
+      "topic": "eap-certificates"
     }
   ]
 }

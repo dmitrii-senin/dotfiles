@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch07",
   "title": "Named and Extended IP ACLs",
-  "weeks": [18],
+  "weeks": [
+    18
+  ],
   "cards": [
     {
       "id": "v2c7-01",
@@ -44,6 +46,24 @@
       "front": "Where should you APPLY a standard vs extended ACL, and why?",
       "back": "Standard: close to DESTINATION (matches only on source — placing too far from destination would block legitimate traffic to other destinations from that source). Extended: close to SOURCE (matches on full 5-tuple — drop unwanted packets early to save bandwidth).",
       "topic": "acl-placement"
+    },
+    {
+      "id": "v2c7-j01",
+      "front": "How do you delete or resequence ACL entries?",
+      "back": "DELETE: in named-ACL config mode (`ip access-list extended NAME`), use `no <seq>` (e.g., `no 30`) — you cannot delete individual entries from global config. RESEQUENCE: `ip access-list resequence <acl-id> <starting-seq> <increment>` (e.g., `... resequence 100 10 10` renumbers entries 10, 20, 30...).",
+      "topic": "acl-edit"
+    },
+    {
+      "id": "v2c7-j02",
+      "front": "View which ACLs are applied to which interfaces?",
+      "back": "`show ip interface <name>` — shows inbound + outbound IPv4 ACLs and direction. `show running-config | section interface` also reveals it. `show access-lists` shows the ACL bodies + per-line hit counts but NOT placement.",
+      "topic": "acl-verify"
+    },
+    {
+      "id": "v2c7-j03",
+      "front": "Common IP Protocol numbers (used in ACLs and IP header): ICMP, TCP, UDP, EIGRP, OSPF.",
+      "back": "ICMP = 1. TCP = 6. UDP = 17. GRE = 47. ESP = 50. AH = 51. EIGRP = 88. OSPF = 89. VRRP = 112. (Same numbers used in IPv4 'Protocol' field and in extended ACL `protocol` field.)",
+      "topic": "ip-protocols"
     }
   ]
 }

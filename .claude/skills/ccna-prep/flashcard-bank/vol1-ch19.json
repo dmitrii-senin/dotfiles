@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch19",
   "title": "IP Addressing on Hosts",
-  "weeks": [10],
+  "weeks": [
+    10
+  ],
   "cards": [
     {
       "id": "v1c19-01",
@@ -44,6 +46,36 @@
       "front": "Default DHCP lease time on Cisco IOS, and how to change it?",
       "back": "Default = 1 day. Configurable per pool with `lease <days> <hours> <minutes>` (e.g., `lease 7` = 7 days, `lease 0 12 0` = 12 hours, `lease infinite` = never expires).",
       "topic": "dhcp-server-config"
+    },
+    {
+      "id": "v1c19-j01",
+      "front": "DNS record types: A, AAAA, CNAME, MX, NS, PTR, TXT — what does each map?",
+      "back": "A: hostname → IPv4 address. AAAA: hostname → IPv6 address. CNAME: alias to another hostname. MX: mail exchanger for a domain. NS: name server for a zone. PTR: reverse DNS (IP → hostname). TXT: free-form text (SPF, DKIM, verification).",
+      "topic": "dns-records"
+    },
+    {
+      "id": "v1c19-j02",
+      "front": "What L4 transport and port does DNS use, and when does it switch?",
+      "back": "Standard queries/responses use UDP/53. TCP/53 is used when responses exceed 512 bytes (large RRsets, DNSSEC) or for zone transfers (AXFR/IXFR between authoritative servers).",
+      "topic": "dns-transport"
+    },
+    {
+      "id": "v1c19-j03",
+      "front": "Configure a Cisco router as a DNS resolver/server, and the related commands.",
+      "back": "`ip dns server` — turns the router itself into a tiny DNS responder. `ip name-server <ip>` — sets upstream resolvers the router queries. `ip domain lookup` (default on) — enables router DNS lookups. `ip domain name <name>` — sets default domain. `ip host <name> <ip>` — static host entry. View: `show hosts`.",
+      "topic": "ios-dns"
+    },
+    {
+      "id": "v1c19-j04",
+      "front": "Useful Windows command-prompt IP / DNS / DHCP commands?",
+      "back": "`ipconfig` — basic IP info. `ipconfig /all` — detailed (MAC, DHCP, DNS). `ipconfig /release` — send DHCP Release. `ipconfig /renew` — send DHCP Discover. `ipconfig /displaydns` — show local DNS cache. `ipconfig /flushdns` — clear cache. `ping ip -n N` — N packets.",
+      "topic": "windows-net-commands"
+    },
+    {
+      "id": "v1c19-j05",
+      "front": "Which DHCP DORA messages are broadcast vs. unicast, and which direction?",
+      "back": "Discover (client→server): always broadcast (client doesn't know server). Offer (server→client): can be either. Request (client→server): always broadcast (so other servers know which offer was chosen). Ack (server→client): can be either. Release (client→server): unicast. A DHCP relay agent (`ip helper-address`) converts broadcast Discover/Request to unicast toward the configured server.",
+      "topic": "dhcp-messages"
     }
   ]
 }

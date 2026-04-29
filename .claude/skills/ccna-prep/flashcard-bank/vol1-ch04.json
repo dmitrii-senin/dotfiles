@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch04",
   "title": "Using the Command-Line Interface",
-  "weeks": [2],
+  "weeks": [
+    2
+  ],
   "cards": [
     {
       "id": "v1c4-01",
@@ -62,6 +64,36 @@
       "front": "How do you erase the saved configuration and reboot to factory-like state?",
       "back": "`erase startup-config` (or `erase nvram:`, or `write erase`), then `reload`. The router boots with no startup-config and prompts the setup-mode dialog. Running-config in RAM is unchanged until reload.",
       "topic": "config-management"
+    },
+    {
+      "id": "v1c4-j01",
+      "front": "What console port types and cabling are used on Cisco devices, and what are the default terminal settings?",
+      "back": "Two console port types: legacy RJ45 (uses a rollover cable to DB-9/USB-serial adapter) and modern USB (mini-B or type A). Default terminal settings: 9600 baud, 8 data bits, no parity, 1 stop bit, no flow control (often shown as '9600 8N1').",
+      "topic": "console-access"
+    },
+    {
+      "id": "v1c4-j02",
+      "front": "Compare `enable password` vs `enable secret` on Cisco IOS.",
+      "back": "`enable password X` — stores the password in clear text in running-config (unless `service password-encryption` is on, which only adds weak Type-7 reversible encryption). `enable secret X` — stores an MD5 (Type-5) or SHA-256 (Type-8/9) hash; cannot be reversed. If both are set, `enable secret` wins. Always use `enable secret` in practice.",
+      "topic": "device-passwords"
+    },
+    {
+      "id": "v1c4-j03",
+      "front": "What does `service password-encryption` do, and what's its limitation?",
+      "back": "Encrypts plaintext passwords currently in running-config and any future ones using weak Type-7 (Vigenère cipher) — easily reversible with online tools. If you later issue `no service password-encryption`, already-encrypted passwords stay encrypted (it doesn't decrypt them); only newly-set passwords would be plaintext.",
+      "topic": "device-passwords"
+    },
+    {
+      "id": "v1c4-j04",
+      "front": "Three Cisco commands that save running-config to startup-config?",
+      "back": "`copy running-config startup-config` (canonical), `write memory` (or just `write`), and the legacy `wr`. All do the same thing — overwrite NVRAM startup-config with the current RAM running-config.",
+      "topic": "config-management"
+    },
+    {
+      "id": "v1c4-j05",
+      "front": "What does the `no` keyword do in Cisco IOS configuration?",
+      "back": "Negates / removes a previously configured command. Example: `no service password-encryption` disables encryption going forward. `no shutdown` brings up an interface. `no ip address` removes an IP. Most configuration commands have a `no` form that undoes them.",
+      "topic": "ios-cli"
     }
   ]
 }

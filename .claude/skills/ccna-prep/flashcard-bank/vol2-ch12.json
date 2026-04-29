@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch12",
   "title": "DHCP Snooping and ARP Inspection",
-  "weeks": [20],
+  "weeks": [
+    20
+  ],
   "cards": [
     {
       "id": "v2c12-01",
@@ -44,6 +46,30 @@
       "front": "What is IP Source Guard, and what does it require?",
       "back": "Per-port filter that drops IP packets whose source IP+MAC don't match the DHCP snooping binding (or static binding). Stops IP spoofing by clients. Requires DHCP snooping enabled. Configure: `ip verify source` on the access port.",
       "topic": "ip-source-guard"
+    },
+    {
+      "id": "v2c12-j01",
+      "front": "Which DHCP message types come from the SERVER vs the CLIENT?",
+      "back": "Server: OFFER, ACK, NAK. Client: DISCOVER, REQUEST, RELEASE, DECLINE, INFORM. DHCP snooping uses this to drop server messages received on untrusted ports (rogue DHCP server protection).",
+      "topic": "dhcp-message-direction"
+    },
+    {
+      "id": "v2c12-j02",
+      "front": "What is DHCP Option 82, and how does DHCP snooping interact with it?",
+      "back": "Option 82 = DHCP Relay Agent Information Option — added by a relay agent (or DHCP-snooping-enabled switch) to identify the originating switchport. Cisco switches with DHCP snooping enabled, by default, ADD Option 82 to forwarded DHCP messages and DROP messages with Option 82 received on untrusted ports. Disable adding it with `no ip dhcp snooping information option`.",
+      "topic": "dhcp-option-82"
+    },
+    {
+      "id": "v2c12-j03",
+      "front": "What does DAI rate-limiting default to, and what triggers err-disable?",
+      "back": "By default, untrusted ports are rate-limited to 15 ARP packets per second. If exceeded, the port is err-disabled. Trusted ports have no rate-limit by default. Configure: `ip arp inspection limit rate <pps> [burst interval <s>]`. Recover with `errdisable recovery cause arp-inspection`.",
+      "topic": "dai-rate-limit"
+    },
+    {
+      "id": "v2c12-j04",
+      "front": "DAI: what fields does it inspect, and what does it check them against?",
+      "back": "Inspects the SENDER MAC and SENDER IP fields of ARP messages. Checks them against the DHCP snooping binding table AND any configured ARP ACLs (`arp access-list NAME` → `permit ip host <ip> mac host <mac>`, applied with `ip arp inspection filter NAME vlan N`). Optional extra checks: `ip arp inspection validate {src-mac | dst-mac | ip}`. Only inspects packets on UNTRUSTED ports.",
+      "topic": "dai-inspection"
     }
   ]
 }

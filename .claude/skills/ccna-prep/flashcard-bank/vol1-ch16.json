@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch16",
   "title": "Operating Cisco Routers",
-  "weeks": [10],
+  "weeks": [
+    10
+  ],
   "cards": [
     {
       "id": "v1c16-01",
@@ -50,6 +52,18 @@
       "front": "Memory types in a Cisco router and what each holds.",
       "back": "RAM: running-config, IOS in execution, routing tables, ARP cache (volatile). Flash: IOS image (non-volatile). NVRAM: startup-config (non-volatile, small). ROM: bootstrap, ROMmon, mini-IOS — for boot-time and recovery (non-volatile).",
       "topic": "router-memory"
+    },
+    {
+      "id": "v1c16-j01",
+      "front": "What two routes are auto-installed when you give a router interface an IP address, and what codes appear in `show ip route`?",
+      "back": "(1) Connected route (code C) — covers the entire subnet (uses the configured prefix length). (2) Local route (code L) — covers the router's own IP address as a /32 host route, so packets destined to the router itself match. Both auto-appear when the interface is up/up.",
+      "topic": "routing-table"
+    },
+    {
+      "id": "v1c16-j02",
+      "front": "When a packet matches multiple routes, which is selected?",
+      "back": "Longest-prefix match wins — the most specific route (highest prefix length) is preferred regardless of administrative distance or metric. If no route matches AND no default route exists, the packet is dropped (and ICMP 'Destination Unreachable' may be sent back).",
+      "topic": "longest-prefix-match"
     }
   ]
 }

@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch21",
   "title": "Understanding OSPF Concepts",
-  "weeks": [12],
+  "weeks": [
+    12
+  ],
   "cards": [
     {
       "id": "v1c21-01",
@@ -56,6 +58,48 @@
       "front": "What is the purpose of OSPF AREAS?",
       "back": "Limit LSA flooding scope, reduce LSDB size, and contain SPF recalculations. Each area has its own LSDB. Area 0 (backbone) must connect to all other areas. Routers connecting two areas are ABRs (Area Border Routers).",
       "topic": "ospf-areas"
+    },
+    {
+      "id": "v1c21-j01",
+      "front": "Classify dynamic routing protocols: IGP vs EGP, and Distance-Vector / Link-State / Path-Vector — name examples.",
+      "back": "IGP (Interior Gateway Protocol — within one AS): Distance-Vector — RIP, EIGRP. Link-State — OSPF, IS-IS. EGP (between ASes): Path-Vector — BGP. (EIGRP is sometimes called 'advanced distance-vector' / hybrid.) Distance-vector = 'routing by rumor', sends route + metric to neighbors. Link-state = floods topology info, every router builds full map (more CPU but faster convergence).",
+      "topic": "routing-protocol-types"
+    },
+    {
+      "id": "v1c21-j02",
+      "front": "Memorize Cisco default Administrative Distances for: Connected, Static, eBGP, EIGRP, IGRP, OSPF, IS-IS, RIP, EIGRP-external, iBGP, Unknown.",
+      "back": "Connected = 0. Static = 1. eBGP = 20. EIGRP (internal) = 90. IGRP = 100. OSPF = 110. IS-IS = 115. RIP = 120. EIGRP (external) = 170. iBGP = 200. Unusable/Unknown = 255 (route is not installed). Lower AD wins between protocols.",
+      "topic": "administrative-distance"
+    },
+    {
+      "id": "v1c21-j03",
+      "front": "What is ECMP, and which CCNA routing protocols support equal vs unequal cost load balancing?",
+      "back": "ECMP (Equal-Cost Multi-Path) load balances across multiple routes with identical metric. RIP, OSPF, EIGRP, BGP all do ECMP (default 4 paths, configurable with `maximum-paths`). Unequal-cost: only EIGRP supports it (via the `variance` multiplier — only over feasible-successor routes). RIP and OSPF do NOT do unequal-cost.",
+      "topic": "ecmp"
+    },
+    {
+      "id": "v1c21-j04",
+      "front": "Which IPv4 multicast addresses do RIPv2, EIGRP, OSPF, and OSPF DR/BDR use?",
+      "back": "RIPv2 → 224.0.0.9 (RIPv1 = broadcast). EIGRP → 224.0.0.10. OSPF (all OSPF routers) → 224.0.0.5. OSPF DR/BDR (all DRouters) → 224.0.0.6. All four are link-local multicast (TTL=1, never forwarded by routers).",
+      "topic": "routing-multicast"
+    },
+    {
+      "id": "v1c21-j05",
+      "front": "RIP key facts: max hop count, message types, version transport, configuration mode?",
+      "back": "Metric = hop count, max 15 (16 = unreachable, prevents loops). Two message types: Request, Response. RIPv1 broadcasts and is classful (no mask in updates). RIPv2 multicasts to 224.0.0.9 and is classless (carries mask). Configure: `router rip` → `version 2` → `no auto-summary` → `network <classful-net>`. Per-interface: `passive-interface gi0/0` to suppress sending updates.",
+      "topic": "rip"
+    },
+    {
+      "id": "v1c21-j06",
+      "front": "EIGRP key terms: Feasible Distance, Reported (Advertised) Distance, Successor, Feasible Successor, Feasibility Condition.",
+      "back": "FD (Feasible Distance) = THIS router's metric to the destination. RD/AD (Reported Distance) = NEIGHBOR's metric to the destination. Successor = best route (lowest FD). Feasible Successor = backup route where neighbor's RD < successor's FD (guarantees loop-free). Feasibility Condition: RD < FD of current successor. EIGRP uses unequal-cost LB ONLY across feasible successors (with `variance N`).",
+      "topic": "eigrp-terms"
+    },
+    {
+      "id": "v1c21-j07",
+      "front": "EIGRP default K-values and metric formula?",
+      "back": "K1=1, K2=0, K3=1, K4=0, K5=0. By default the metric uses bandwidth (K1) and delay (K3): metric = (10^7 / min-bandwidth-in-kbps + cumulative-delay/10) × 256. Uses bandwidth of the SLOWEST link plus delay of ALL links. K-values must match between EIGRP neighbors for adjacency.",
+      "topic": "eigrp-metric"
     }
   ]
 }

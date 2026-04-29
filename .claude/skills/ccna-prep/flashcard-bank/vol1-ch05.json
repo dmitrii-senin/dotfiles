@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch05",
   "title": "Analyzing Ethernet LAN Switching",
-  "weeks": [3],
+  "weeks": [
+    3
+  ],
   "cards": [
     {
       "id": "v1c5-01",
@@ -24,8 +26,9 @@
     {
       "id": "v1c5-04",
       "front": "What's the default MAC address-table aging time on a Cisco switch?",
-      "back": "300 seconds (5 minutes). Configurable per-VLAN with `mac address-table aging-time <seconds> vlan <id>`. Setting it to 0 disables aging.",
-      "topic": "switch-forwarding"
+      "back": "300 seconds (5 minutes), often called the 'aging time'. Configurable per-VLAN with `mac address-table aging-time <seconds> vlan <id>`. Setting it to 0 disables aging. Inactive entries (no frames seen with that source MAC) are removed when the timer expires.",
+      "topic": "switch-forwarding",
+      "merged_from": "jeremy-day-06"
     },
     {
       "id": "v1c5-05",
@@ -50,6 +53,30 @@
       "front": "What does CSMA/CD do, and where is it still relevant?",
       "back": "Carrier Sense Multiple Access with Collision Detection: listen before transmitting; if collision detected, send a jam signal, back off a random time, retransmit. Relevant only in half-duplex Ethernet (rare today — hubs and a few legacy access ports).",
       "topic": "switching-fundamentals"
+    },
+    {
+      "id": "v1c5-j01",
+      "front": "What is the EtherType value (Type field) for ARP and IPv4 in an Ethernet frame?",
+      "back": "ARP = 0x0806. IPv4 = 0x0800. IPv6 = 0x86DD. 802.1Q VLAN tag = 0x8100. The receiving stack uses this to demultiplex to the right L3 protocol.",
+      "topic": "ethernet-frame"
+    },
+    {
+      "id": "v1c5-j02",
+      "front": "How do you view the ARP cache on (a) Cisco IOS, (b) Windows/Linux/macOS?",
+      "back": "Cisco: `show arp` (or `show ip arp`). Windows/Linux/macOS: `arp -a`. Both show IP-to-MAC bindings the device has learned. Cisco entries time out after 4 hours by default; host OS values vary.",
+      "topic": "arp"
+    },
+    {
+      "id": "v1c5-j03",
+      "front": "How do you clear MAC address-table entries on a Cisco switch?",
+      "back": "All dynamic: `clear mac address-table dynamic`. Single MAC: `clear mac address-table dynamic address H.H.H`. Per interface: `clear mac address-table dynamic interface gi0/1`. Per VLAN: `... vlan N`. Static entries are not affected.",
+      "topic": "mac-table"
+    },
+    {
+      "id": "v1c5-j04",
+      "front": "How does ping work at the protocol level?",
+      "back": "Ping sends an ICMP Echo Request (Type 8) and expects an ICMP Echo Reply (Type 0). ICMP runs directly over IP (Protocol 1, no TCP/UDP). No port numbers. Cisco IOS `ping x.x.x.x` defaults to 5 packets, 100-byte size, 2-second timeout — output `!!!!!` = success, `.` = timeout, `U` = destination unreachable.",
+      "topic": "icmp-ping"
     }
   ]
 }

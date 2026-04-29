@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch13",
   "title": "Analyzing Subnet Masks",
-  "weeks": [4],
+  "weeks": [
+    4
+  ],
   "cards": [
     {
       "id": "v1c13-01",
@@ -50,6 +52,12 @@
       "front": "What does /32 represent?",
       "back": "Single host route. Used for loopback interfaces, host-specific ACL entries (`host` keyword in ACLs is equivalent to wildcard 0.0.0.0 = /32), and BGP next-hop tracking. No network or broadcast — exactly one address.",
       "topic": "special-masks"
+    },
+    {
+      "id": "v1c13-j01",
+      "front": "How many networks and hosts/network exist in classful Class A, B, C?",
+      "back": "Class A: 128 networks (1-127, 0 reserved, 127 loopback) × 16,777,214 hosts each (2^24 - 2). Class B: 16,384 networks × 65,534 hosts each (2^16 - 2). Class C: 2,097,152 networks × 254 hosts each (2^8 - 2).",
+      "topic": "ipv4-classes"
     }
   ]
 }

@@ -1,18 +1,21 @@
 {
   "chapter": "vol1-ch08",
   "title": "Implementing Ethernet Virtual LANs",
-  "weeks": [6, 7],
+  "weeks": [
+    6,
+    7
+  ],
   "cards": [
     {
       "id": "v1c8-01",
       "front": "What is a VLAN and why use one?",
-      "back": "Virtual LAN — a logical L2 broadcast domain on a switched network, identified by a VLAN ID (1-4094). Lets you segment a single physical switch into multiple isolated broadcast domains for security, traffic isolation, and reducing broadcast scope.",
+      "back": "Virtual LAN \u2014 a logical L2 broadcast domain on a switched network, identified by a VLAN ID (1-4094). Lets you segment a single physical switch into multiple isolated broadcast domains for security, traffic isolation, and reducing broadcast scope.",
       "topic": "vlan-basics"
     },
     {
       "id": "v1c8-02",
       "front": "What are the valid VLAN ID ranges, and which are 'normal' vs 'extended'?",
-      "back": "1-4094 total. Normal range: 1-1005 (1, 1002-1005 reserved; 1002-1005 are for legacy Token Ring/FDDI). Extended range: 1006-4094 — must use VTP transparent mode (or VTPv3) on older switches. VLAN 0 and 4095 are reserved.",
+      "back": "1-4094 total. Normal range: 1-1005 (1, 1002-1005 reserved; 1002-1005 are for legacy Token Ring/FDDI). Extended range: 1006-4094 \u2014 must use VTP transparent mode (or VTPv3) on older switches. VLAN 0 and 4095 are reserved.",
       "topic": "vlan-basics"
     },
     {
@@ -48,32 +51,87 @@
     {
       "id": "v1c8-08",
       "front": "What does DTP do, and what are its modes?",
-      "back": "Dynamic Trunking Protocol — Cisco-proprietary, autonegotiates trunking between switches. Modes: `dynamic auto` (passively waits — won't initiate), `dynamic desirable` (actively initiates), `trunk` (forced on), `access` (forced off, no DTP). Disable DTP for security with `switchport nonegotiate`.",
+      "back": "Dynamic Trunking Protocol \u2014 Cisco-proprietary, autonegotiates trunking between switches. Modes: `dynamic auto` (passively waits \u2014 won't initiate), `dynamic desirable` (actively initiates), `trunk` (forced on), `access` (forced off, no DTP). Disable DTP for security with `switchport nonegotiate`.",
       "topic": "dtp"
     },
     {
       "id": "v1c8-09",
       "front": "DTP outcome matrix: which combinations form a trunk?",
-      "back": "trunk + trunk → trunk. trunk + dynamic anything → trunk. desirable + desirable → trunk. desirable + auto → trunk. auto + auto → ACCESS (no trunk!). access + anything → access.",
-      "topic": "dtp"
+      "back": "trunk + trunk \u2192 trunk. trunk + dynamic anything \u2192 trunk. desirable + desirable \u2192 trunk. desirable + auto \u2192 trunk. AUTO + AUTO \u2192 access (both passive, no trunk forms). access + anything \u2192 access. Newer Cisco switches default to `dynamic auto`; older ones to `dynamic desirable`. Hard-code production ports and add `switchport nonegotiate` to disable DTP entirely.",
+      "topic": "dtp",
+      "merged_from": "jeremy-day-19"
     },
     {
       "id": "v1c8-10",
       "front": "What does VTP do, and why is it dangerous in default mode?",
-      "back": "VLAN Trunking Protocol — propagates VLAN configuration changes across all switches in the same VTP domain. Modes: server, client, transparent, off. Danger: a new switch with default mode (server) and a higher revision number can WIPE the VLAN database on the entire domain. Mitigations: disable VTP, use transparent mode, or VTPv3 with primary/secondary roles.",
+      "back": "VLAN Trunking Protocol \u2014 propagates VLAN configuration changes across all switches in the same VTP domain. Modes: server, client, transparent, off. Danger: a new switch with default mode (server) and a higher revision number can WIPE the VLAN database on the entire domain. Mitigations: disable VTP, use transparent mode, or VTPv3 with primary/secondary roles.",
       "topic": "vtp"
     },
     {
       "id": "v1c8-11",
       "front": "What is the default VLAN that all switch ports belong to out of the box?",
-      "back": "VLAN 1 (default). Cisco best practice: don't use VLAN 1 for user traffic or as the native trunk VLAN — change both for security.",
+      "back": "VLAN 1 (default). Cisco best practice: don't use VLAN 1 for user traffic or as the native trunk VLAN \u2014 change both for security.",
       "topic": "vlan-basics"
     },
     {
       "id": "v1c8-12",
       "front": "What command shows VLAN-to-port assignments in a compact table?",
-      "back": "`show vlan brief` — lists each VLAN, its name, status, and the access ports assigned. `show vlan` (without brief) adds extra fields (MTU, parent, etc.).",
+      "back": "`show vlan brief` \u2014 lists each VLAN, its name, status, and the access ports assigned. `show vlan` (without brief) adds extra fields (MTU, parent, etc.).",
       "topic": "show-commands"
+    },
+    {
+      "id": "v1c8-j01",
+      "front": "What are the 5 default VLANs on a Cisco switch out of the box?",
+      "back": "VLAN 1 (default), 1002 (fddi-default), 1003 (token-ring-default), 1004 (fddinet-default), 1005 (trnet-default). VLANs 1002-1005 are reserved/legacy and cannot be deleted. VLANs 0 and 4095 are reserved system-only and cannot be configured.",
+      "topic": "vlan-defaults"
+    },
+    {
+      "id": "v1c8-j02",
+      "front": "Detailed 802.1Q tag fields: TPID, PCP, DEI, VID \u2014 what is each?",
+      "back": "TPID (Tag Protocol Identifier, 16 bits, fixed at 0x8100). PCP (Priority Code Point, 3 bits) \u2014 Class of Service / 802.1p priority 0-7. DEI (Drop Eligible Indicator, 1 bit) \u2014 frame can be dropped first if congested. VID (VLAN ID, 12 bits) \u2014 0-4095, identifies the VLAN.",
+      "topic": "dot1q-tag"
+    },
+    {
+      "id": "v1c8-j03",
+      "front": "What is Router-on-a-Stick (ROAS) and how is it configured?",
+      "back": "Single physical router interface configured with multiple subinterfaces, each tagged with one VLAN, to route between VLANs over a trunk to a switch. Per subinterface: `interface gi0/0.10` then `encapsulation dot1q 10` (or `encapsulation dot1q 10 native` for the native VLAN \u2014 no tag added) and `ip address ...`. The physical interface itself is `no shutdown` with no IP.",
+      "topic": "inter-vlan-routing"
+    },
+    {
+      "id": "v1c8-j04",
+      "front": "What is a Switch Virtual Interface (SVI) on a multilayer / Layer 3 switch?",
+      "back": "An SVI is a virtual L3 interface bound to a VLAN \u2014 `interface vlan 10` \u2014 given an IP address; the switch then routes between SVIs internally. Requires `ip routing` (off by default) on the multilayer switch. SVIs are `shutdown` by default \u2014 must `no shutdown`. SVI is up only if at least one access port in that VLAN is up. Also called a 'multilayer switch' (= L3 switch).",
+      "topic": "inter-vlan-routing"
+    },
+    {
+      "id": "v1c8-j05",
+      "front": "How do you turn a switchport into a routed (L3) port on a multilayer switch?",
+      "back": "In interface config: `no switchport`. The port becomes a routed L3 interface (like a router port) \u2014 you can then assign an IP directly with `ip address ...`. Used for point-to-point links between L3 devices, no VLAN involved.",
+      "topic": "routed-port"
+    },
+    {
+      "id": "v1c8-j07",
+      "front": "ISL vs 802.1Q \u2014 which is Cisco-proprietary, and over which VLAN do DTP frames travel?",
+      "back": "ISL: Cisco-proprietary, fully encapsulates frames (adds 26-byte header + 4-byte CRC). DTP frames travel in VLAN 1. 802.1Q: IEEE standard, inserts 4-byte tag inside frame. DTP frames travel in the native VLAN. Modern switches use only 802.1Q (ISL is legacy/removed).",
+      "topic": "trunking-protocols"
+    },
+    {
+      "id": "v1c8-j08",
+      "front": "VTP modes server/client/transparent \u2014 VLAN edit ability, NVRAM storage, and sync behavior?",
+      "back": "Server: can add/modify/delete VLANs; stores DB in NVRAM; syncs from higher revision number. Client: CANNOT edit VLANs; v1/v2 do NOT store DB in NVRAM (re-learn at boot); syncs from higher rev #. Transparent: CAN edit VLANs locally; stores DB in NVRAM; does NOT sync (only forwards VTP messages). Default mode = server. Big risk: a stale switch with a higher revision # joining the domain can wipe production VLANs.",
+      "topic": "vtp"
+    },
+    {
+      "id": "v1c8-j09",
+      "front": "How do you reset the VTP revision number to 0 (so a switch can be safely added)?",
+      "back": "Two methods: (1) Change the VTP domain to a different/unused name, then back. (2) Change the VTP mode to transparent (then optionally back to server/client). Either resets the revision counter \u2014 important before connecting a switch with stale config to production.",
+      "topic": "vtp"
+    },
+    {
+      "id": "v1c8-j10",
+      "front": "Which VTP version supports the extended VLAN range (1006-4094)?",
+      "back": "Only VTPv3. VTPv1 and VTPv2 do NOT advertise extended-range VLANs \u2014 you must use transparent mode (or VTPv3) to use VLANs 1006-4094 across the domain.",
+      "topic": "vtp"
     }
   ]
 }

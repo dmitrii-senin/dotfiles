@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch11",
   "title": "Implementing Switch Port Security",
-  "weeks": [20],
+  "weeks": [
+    20
+  ],
   "cards": [
     {
       "id": "v2c11-01",
@@ -44,6 +46,24 @@
       "front": "Why does port security require the port to be in 'access' mode?",
       "back": "By design, port security applies per-port and per-VLAN. Trunk ports also support it but require additional `switchport port-security maximum X vlan Y` syntax. The simplest scenario is `switchport mode access` + port-security commands. Default `dynamic auto` mode is incompatible.",
       "topic": "port-security"
+    },
+    {
+      "id": "v2c11-j01",
+      "front": "Port-security violation modes truth table: which (a) disables interface, (b) increments counter, (c) sends syslog/SNMP?",
+      "back": "shutdown (default): disables interface YES, counter YES, syslog YES. restrict: disables NO, counter YES, syslog YES. protect: disables NO, counter NO, syslog NO (silently drops violating frames). Only shutdown actually err-disables; the other two leave the port up and just drop offending traffic.",
+      "topic": "port-security-violation"
+    },
+    {
+      "id": "v2c11-j02",
+      "front": "Port-security aging types: absolute vs inactivity, and default behaviors?",
+      "back": "Absolute (default aging type if any): MAC entry expires N minutes after being learned, regardless of activity. Inactivity: entry expires only after N minutes of no traffic from that MAC. Aging is configured with `switchport port-security aging time <minutes>` and `... aging type {absolute|inactivity}`. Static secure-MAC aging is DISABLED by default — enable it with `... aging static`.",
+      "topic": "port-security-aging"
+    },
+    {
+      "id": "v2c11-j03",
+      "front": "What switchport modes is port-security INCOMPATIBLE with?",
+      "back": "Cannot be enabled on `switchport mode dynamic auto` or `dynamic desirable` — i.e., any port that's still negotiating trunking via DTP. You must hard-code the port to `switchport mode access` (or `switchport mode trunk`) before applying `switchport port-security`.",
+      "topic": "port-security-modes"
     }
   ]
 }

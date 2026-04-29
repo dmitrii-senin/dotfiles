@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch15",
   "title": "Subnet Design",
-  "weeks": [4],
+  "weeks": [
+    4
+  ],
   "cards": [
     {
       "id": "v1c15-01",
@@ -44,6 +46,12 @@
       "front": "Minimum subnet size for typical purposes: PtP link, small office, large campus.",
       "back": "PtP link: /30 (2 hosts) or /31 (2 hosts, RFC 3021). Small office: /27 (30 hosts) or /26 (62). Large campus subnet: /23 or /22 (510-1022). Avoid putting too many hosts in one broadcast domain — STP convergence and ARP get noisy past ~500.",
       "topic": "subnetting-design"
+    },
+    {
+      "id": "v1c15-j01",
+      "front": "What does CIDR stand for, and what did it replace?",
+      "back": "Classless Inter-Domain Routing (RFC 1518/1519, 1993). Replaced classful IPv4 addressing — allows arbitrary prefix lengths (e.g., /22, /27) instead of being locked to /8, /16, /24 boundaries. Enables VLSM, route aggregation, and slowed IPv4 exhaustion. Uses prefix notation like 192.168.0.0/24.",
+      "topic": "cidr"
     }
   ]
 }

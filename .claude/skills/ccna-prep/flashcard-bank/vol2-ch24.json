@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch24",
   "title": "Understanding Ansible and Terraform",
-  "weeks": [23],
+  "weeks": [
+    23
+  ],
   "cards": [
     {
       "id": "v2c24-01",
@@ -44,6 +46,18 @@
       "front": "What is YANG, and how does it relate to NETCONF/RESTCONF?",
       "back": "YANG (RFC 6020) is a DATA MODELING language — describes the structure of configuration and state data. NETCONF and RESTCONF use YANG models to validate operations. Cisco/IETF/OpenConfig publish YANG models. Tools: pyang to validate, ncclient (Python) to talk NETCONF.",
       "topic": "yang"
+    },
+    {
+      "id": "v2c24-j01",
+      "front": "Compare Ansible / Puppet / Chef across: language, agentless?, push or pull?, transport, configuration filename.",
+      "back": "Ansible: Python; agentless; PUSH; SSH (port 22); 'playbook' (.yaml). Puppet: Ruby; agent-based (Puppet master + clients on TCP/8140 HTTPS); PULL; 'manifest' (Puppet DSL). Chef: Ruby; agent-based (uses TCP/10002 HTTPS to push configs to nodes via the Chef Server); PULL (clients pull recipes); 'recipe' / 'run-list' (Ruby DSL).",
+      "topic": "config-mgmt-tools"
+    },
+    {
+      "id": "v2c24-j02",
+      "front": "Ansible terminology: control node, inventory, playbook, module, role?",
+      "back": "Control node: machine running Ansible (the 'server'). Inventory: file listing managed hosts (group_vars, host_vars). Playbook: YAML file describing plays/tasks. Module: a single unit of work invoked by a task (ios_config, file, apt). Role: reusable bundle of tasks/templates/vars. Templates use Jinja2.",
+      "topic": "ansible-terms"
     }
   ]
 }

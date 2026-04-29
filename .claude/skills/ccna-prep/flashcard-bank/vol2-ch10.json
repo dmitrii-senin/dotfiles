@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch10",
   "title": "Securing Network Devices",
-  "weeks": [19],
+  "weeks": [
+    19
+  ],
   "cards": [
     {
       "id": "v2c10-01",
@@ -44,6 +46,36 @@
       "front": "What does `login block-for` do, and why use it?",
       "back": "Throttles login attempts to slow down brute-force. Example: `login block-for 60 attempts 4 within 30` — block all logins for 60s after 4 failed attempts within 30s. Apply to console + VTY. Pair with `login on-failure log` for syslog visibility.",
       "topic": "login-hardening"
+    },
+    {
+      "id": "v2c10-j01",
+      "front": "Configure SSH on a Cisco device — what are the prerequisite steps?",
+      "back": "(1) Set hostname (`hostname R1`) and domain (`ip domain name example.com`) — needed to name RSA keys (FQDN). (2) Generate keys: `crypto key generate rsa` (recommend 2048-bit). (3) `ip ssh version 2`. (4) Create local user: `username admin secret PASS`. (5) Under `line vty 0 15`: `transport input ssh`, `login local`. Verify: `show ip ssh`.",
+      "topic": "ssh-config"
+    },
+    {
+      "id": "v2c10-j02",
+      "front": "What does `transport input` do under VTY config, and what values are useful?",
+      "back": "Restricts which protocols can connect via that VTY line. `transport input ssh` (recommended — SSH only). `transport input telnet` (insecure). `transport input ssh telnet` (both). `transport input none` (block all remote login). `transport input all` (everything supported). Best practice: `transport input ssh`.",
+      "topic": "vty-transport"
+    },
+    {
+      "id": "v2c10-j03",
+      "front": "What does `access-class <acl> in` on a VTY line do?",
+      "back": "Applies an ACL specifically to inbound connections to that VTY line (SSH/Telnet management plane), separate from interface ACLs. Restricts WHICH source IPs can attempt to log in. Example: `access-list 10 permit 10.1.1.0 0.0.0.255` then `line vty 0 15` → `access-class 10 in`. Critical for hardening.",
+      "topic": "access-class"
+    },
+    {
+      "id": "v2c10-j04",
+      "front": "Cisco IOS image naming: K9 vs NPE — what's the difference?",
+      "back": "K9 images: include cryptographic features (SSH, IPsec, encryption). NPE (No Payload Encryption) images: stripped of strong crypto for export to countries with import restrictions; no SSH support. The 'k9' substring in the IOS filename indicates the crypto-enabled variant. Verify with `show version`.",
+      "topic": "ios-images"
+    },
+    {
+      "id": "v2c10-j05",
+      "front": "On a switch, how do you set the default gateway, and why is this needed?",
+      "back": "`ip default-gateway <ip>` (in global config). A LAYER-2 switch has no routing capability; it needs a default gateway only for management traffic (SSH/Telnet to its management VLAN IP). On a multilayer (L3) switch with `ip routing` enabled, use a default route (`ip route 0.0.0.0 0.0.0.0 <next-hop>`) instead — `ip default-gateway` is then ignored.",
+      "topic": "switch-mgmt"
     }
   ]
 }

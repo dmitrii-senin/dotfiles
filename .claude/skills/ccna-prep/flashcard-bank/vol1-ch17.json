@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch17",
   "title": "Configuring IPv4 Addresses and Static Routes",
-  "weeks": [10],
+  "weeks": [
+    10
+  ],
   "cards": [
     {
       "id": "v1c17-01",
@@ -49,6 +51,12 @@
       "id": "v1c17-08",
       "front": "What's a recursive route lookup, and what's the risk with next-hop static routes?",
       "back": "When forwarding to a static-route's next-hop IP, the router looks up that next-hop IP itself in the routing table to find the egress interface. If a static route's next-hop becomes unreachable, the route can stay in the table (Cisco doesn't remove it unless you use a tracked next-hop) — leading to black holes.",
+      "topic": "static-routes"
+    },
+    {
+      "id": "v1c17-j01",
+      "front": "How does a static route appear in the routing table when configured with only an exit-interface vs. only a next-hop?",
+      "back": "Exit-interface only: marked as `S` and shown as 'directly connected, <iface>' (router treats the destination as if it were attached to that interface — sends ARP for every destination IP, which is inefficient on multi-access links but fine on serial/PtP). Next-hop only: marked `S` with `[AD/0] via <next-hop>` and triggers a recursive lookup to find the egress interface. Specifying both avoids recursion and ARP-per-destination.",
       "topic": "static-routes"
     }
   ]

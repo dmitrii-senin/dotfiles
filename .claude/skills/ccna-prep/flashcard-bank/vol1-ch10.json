@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch10",
   "title": "RSTP and EtherChannel Configuration",
-  "weeks": [9],
+  "weeks": [
+    9
+  ],
   "cards": [
     {
       "id": "v1c10-01",
@@ -62,6 +64,72 @@
       "front": "What is Loop Guard and when do you use it?",
       "back": "When a port stops receiving BPDUs (e.g., unidirectional fiber failure), it could transition to forwarding and create a loop. Loop Guard puts the port into 'loop-inconsistent' state instead of letting it transition. Used on root and alternate ports of point-to-point links. Configured per port: `spanning-tree guard loop` or globally with `spanning-tree loopguard default`.",
       "topic": "loop-guard"
+    },
+    {
+      "id": "v1c10-j01",
+      "front": "What does BPDU Filter do, and how does it differ in interface vs global config?",
+      "back": "BPDU Filter prevents a port from sending and processing BPDUs. Interface-level (`spanning-tree bpdufilter enable`): port silently ignores received BPDUs and sends none — DANGEROUS, can cause loops if mis-applied. Global default (`spanning-tree portfast bpdufilter default`): applied only to PortFast ports; if such a port RECEIVES a BPDU, both PortFast and BPDU Filter are disabled and the port becomes a normal STP port (safer).",
+      "topic": "stp-bpdu-filter"
+    },
+    {
+      "id": "v1c10-j02",
+      "front": "What is ErrDisable Recovery and how do you configure it?",
+      "back": "Cisco feature that automatically re-enables ports that were placed in err-disabled state (e.g., by BPDU Guard, port-security violation). View status: `show errdisable recovery`. Default interval = 300 s. Configure: `errdisable recovery interval <sec>`, and per cause `errdisable recovery cause bpduguard` (or psecure-violation, etc.). Manual recovery is `shutdown` then `no shutdown`.",
+      "topic": "errdisable"
+    },
+    {
+      "id": "v1c10-j03",
+      "front": "RSTP Alternate vs Backup port — how are they distinguished?",
+      "back": "Both are 'discarding' (blocking) backups. Alternate port: receives a SUPERIOR BPDU from a different switch — backup for the root port (alt path to the root). Backup port: receives a superior BPDU from the SAME switch (only possible on a shared/hub segment) — backup for a designated port. Alternates are common; backups are rare on full-duplex links.",
+      "topic": "rstp-roles"
+    },
+    {
+      "id": "v1c10-j04",
+      "front": "RSTP / Multiple STP IEEE numbers, and Cisco's flavors?",
+      "back": "RSTP = IEEE 802.1w. MST/MSTP = IEEE 802.1s. Cisco PVST+ = Cisco's per-VLAN extension of 802.1D. Cisco Rapid PVST+ = per-VLAN 802.1w. To enable: `spanning-tree mode rapid-pvst` (or `pvst`, or `mst`).",
+      "topic": "stp-versions"
+    },
+    {
+      "id": "v1c10-j05",
+      "front": "RSTP link types (edge / point-to-point / shared) — what are they and when?",
+      "back": "Edge: connects to an end host (PC), skips discarding/learning — set with `spanning-tree portfast`. Point-to-point: full-duplex switch-to-switch link, fast convergence via proposal/agreement (`spanning-tree link-type point-to-point`, default for full-duplex). Shared: half-duplex (legacy hub) — slow, classic STP-like behavior (`spanning-tree link-type shared`, default for half-duplex).",
+      "topic": "rstp-link-types"
+    },
+    {
+      "id": "v1c10-j06",
+      "front": "Memorize RSTP (long) port costs: 10M, 100M, 1G, 10G, 100G, 1T.",
+      "back": "10 Mbps = 2,000,000. 100 Mbps = 200,000. 1 Gbps = 20,000. 10 Gbps = 2,000. 100 Gbps = 200. 1 Tbps = 20. (10 Tbps = 2.) RSTP uses long path-cost method by default; values fall by 10× per speed jump.",
+      "topic": "rstp-cost"
+    },
+    {
+      "id": "v1c10-j07",
+      "front": "Loop Guard vs Root Guard interaction on the same port?",
+      "back": "They are mutually exclusive — a port can have one, not both. Configuring `spanning-tree guard root` overrides any prior `spanning-tree guard loop`. To remove either, use `spanning-tree guard none`. Globally: `spanning-tree loopguard default` enables Loop Guard on all ports, but a per-interface guard root command takes precedence on that port.",
+      "topic": "stp-protection"
+    },
+    {
+      "id": "v1c10-j08",
+      "front": "EtherChannel — what does LAG / PAgP / LACP stand for, and what IEEE standard is LACP?",
+      "back": "LAG = Link Aggregation Group (industry term for EtherChannel). PAgP = Port Aggregation Protocol (Cisco proprietary, modes: desirable/auto). LACP = Link Aggregation Control Protocol = IEEE 802.3ad (industry standard, modes: active/passive). LACP supports up to 8 active + 8 standby links per bundle.",
+      "topic": "etherchannel"
+    },
+    {
+      "id": "v1c10-j09",
+      "front": "EtherChannel — must channel-group numbers match between switches? Must port count match?",
+      "back": "Channel-group numbers do NOT need to match between the two switches (locally significant). Member-port count and configuration (speed, duplex, switchport mode, allowed VLANs, native VLAN, dot1q encap, STP cost) MUST match between the two switches and across local member ports.",
+      "topic": "etherchannel"
+    },
+    {
+      "id": "v1c10-j10",
+      "front": "EtherChannel load-balancing methods on Cisco?",
+      "back": "src-mac, dst-mac, src-dst-mac, src-ip, dst-ip, src-dst-ip (and on newer hardware src/dst port). Default varies by platform (often src-mac on L2 switches). Configured globally: `port-channel load-balance <method>`. View: `show etherchannel load-balance`.",
+      "topic": "etherchannel"
+    },
+    {
+      "id": "v1c10-j11",
+      "front": "Configure a Layer-3 EtherChannel?",
+      "back": "Configure the port-channel as a routed interface — first `no switchport` on each member, then `channel-group N mode <mode>`. Then on the port-channel interface itself: `no switchport` and `ip address ...`. Used between L3 switches/routers without a VLAN.",
+      "topic": "etherchannel-l3"
     }
   ]
 }

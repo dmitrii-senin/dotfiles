@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch21",
   "title": "Introduction to Controller-Based Networking",
-  "weeks": [23],
+  "weeks": [
+    23
+  ],
   "cards": [
     {
       "id": "v2c21-01",
@@ -38,6 +40,30 @@
       "front": "What is the imperative vs declarative model in network programming?",
       "back": "Imperative: tell the device exactly what commands to run, in order ('configure VLAN 10 on this switch port'). Declarative: declare the end state ('this user should be in VLAN 10') — the controller computes the device config. Declarative is more abstract and scalable.",
       "topic": "imperative-declarative"
+    },
+    {
+      "id": "v2c21-j01",
+      "front": "Three layers of SDN architecture: Application, Control, Infrastructure?",
+      "back": "Application layer: scripts and apps that consume the network via the northbound API (analytics, automation tools). Control layer: the SDN controller (Cisco Catalyst Center, ACI APIC, vManage). Infrastructure layer: the physical network devices (switches, routers, APs) that the controller programs via the southbound API.",
+      "topic": "sdn-layers"
+    },
+    {
+      "id": "v2c21-j02",
+      "front": "SDN underlay vs overlay vs fabric?",
+      "back": "Underlay: physical network of devices and links (cables, IP routing between switches). Overlay: virtual network built on top — typically VXLAN tunnels between fabric devices. Fabric: combination of overlay + underlay treated as one logical network. SD-Access uses LISP for control plane, VXLAN for data plane, and Cisco TrustSec for policy.",
+      "topic": "sdn-fabric"
+    },
+    {
+      "id": "v2c21-j03",
+      "front": "Cisco SDN solutions: SD-Access, ACI, SD-WAN — what does each automate?",
+      "back": "SD-Access: campus LAN automation (powered by Catalyst Center). ACI (Application-Centric Infrastructure): data-center networks (powered by APIC controller). SD-WAN: WAN automation across multiple transports (powered by vManage / Cisco Catalyst SD-WAN). All three are Cisco's Digital Network Architecture (DNA) family.",
+      "topic": "cisco-sdn"
+    },
+    {
+      "id": "v2c21-j04",
+      "front": "Three node types in Cisco SD-Access fabric?",
+      "back": "Edge node: connects end hosts to the fabric (campus access switch with SD-Access role). Border node: connects the fabric to outside networks (WAN, internet, legacy LAN). Control node: runs LISP map-server / map-resolver, tracking endpoint-to-location mappings. A single switch can play multiple roles.",
+      "topic": "sd-access-nodes"
     }
   ]
 }

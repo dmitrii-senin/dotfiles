@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch19",
   "title": "WAN Architecture",
-  "weeks": [19],
+  "weeks": [
+    19
+  ],
   "cards": [
     {
       "id": "v2c19-01",
@@ -44,6 +46,30 @@
       "front": "What is SD-WAN at a conceptual level?",
       "back": "Software-Defined WAN — centrally controlled overlay across multiple transport types (MPLS, internet, LTE). The controller picks the best path per application based on policy and real-time link metrics (loss, latency, jitter). Cisco implementations: Viptela (vEdge), Meraki MX. Replaces traditional static-WAN designs.",
       "topic": "sdwan"
+    },
+    {
+      "id": "v2c19-j01",
+      "front": "T-carrier vs E-carrier leased line speeds: T1, T3, E1, E3?",
+      "back": "T1 = 1.544 Mbps (24 DS0 channels @ 64kbps + framing). T3 = 44.736 Mbps (28 T1s). E1 = 2.048 Mbps (32 channels — European standard). E3 = 34.368 Mbps. T2/E2 are intermediate and rarely used. T-carrier is North American; E-carrier is the rest of the world.",
+      "topic": "leased-lines"
+    },
+    {
+      "id": "v2c19-j02",
+      "front": "MPLS L3VPN vs L2VPN — what's the customer-facing difference?",
+      "back": "L3VPN: CE and PE routers form a routing-protocol PEERING (OSPF/BGP/EIGRP/static). The provider participates in routing; customer sees PE as a routing neighbor. L2VPN: Provider is INVISIBLE to customer L3 — the WAN looks like one big switched LAN. CE routers form routing peerings DIRECTLY with each other (over the L2 cloud).",
+      "topic": "mpls-vpn-types"
+    },
+    {
+      "id": "v2c19-j03",
+      "front": "Internet redundancy designs: single-homed, dual-homed, multihomed, dual-multihomed?",
+      "back": "Single-homed: 1 link to 1 ISP (no redundancy). Dual-homed: 2 links to the SAME ISP. Multihomed: 1 link each to TWO different ISPs (ISP redundancy). Dual-multihomed: 2 links each to 2 ISPs (max redundancy — typical for production data centers). More redundancy = more cost + more BGP complexity.",
+      "topic": "internet-redundancy"
+    },
+    {
+      "id": "v2c19-j04",
+      "front": "Compare GRE vs IPsec — encryption, multicast support?",
+      "back": "GRE: tunnel encapsulation, NO encryption. SUPPORTS multicast/broadcast and non-IP protocols (so OSPF/EIGRP can run over it). IPsec: encrypts, authenticates, integrity-protects. Does NOT natively support multicast/broadcast. Combine as 'GRE over IPsec' to get encryption AND routing-protocol support. DMVPN (Cisco) builds dynamic full-mesh GRE-over-IPsec tunnels.",
+      "topic": "gre-ipsec"
     }
   ]
 }

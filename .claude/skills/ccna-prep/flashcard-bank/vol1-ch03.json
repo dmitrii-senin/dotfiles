@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch03",
   "title": "Fundamentals of WANs and IP Routing",
-  "weeks": [1],
+  "weeks": [
+    1
+  ],
   "cards": [
     {
       "id": "v1c3-01",
@@ -56,6 +58,42 @@
       "front": "What's the difference between a routed protocol and a routing protocol?",
       "back": "Routed protocol = the protocol whose packets are being forwarded (IP, IPv6, IPX). Routing protocol = the protocol routers use to share reachability information and build routing tables (OSPF, EIGRP, BGP, RIP).",
       "topic": "routing-fundamentals"
+    },
+    {
+      "id": "v1c3-j01",
+      "front": "List the IPv4 header fields in order, with their sizes.",
+      "back": "Version (4 bits, =4 for IPv4) | IHL (4, header length in 4-byte words, max 15 → 60 bytes max header) | DSCP+ECN (8: 6+2) | Total Length (16, full packet incl. data, 20-65535) | Identification (16) | Flags (3, incl. DF and MF) | Fragment Offset (13) | TTL (8) | Protocol (8) | Header Checksum (16) | Source IP (32) | Destination IP (32) | Options (0-320 bits) | Padding. Min header = 20 bytes, max = 60.",
+      "topic": "ipv4-header"
+    },
+    {
+      "id": "v1c3-j02",
+      "front": "What do the IPv4 DSCP and ECN fields do?",
+      "back": "DSCP (Differentiated Services Code Point, 6 bits) — used for QoS to prioritize delay-sensitive traffic. ECN (Explicit Congestion Notification, 2 bits) — provides end-to-end signaling of network congestion without dropping packets. Together they form the 8-bit ToS byte.",
+      "topic": "ipv4-header"
+    },
+    {
+      "id": "v1c3-j03",
+      "front": "How does IPv4 fragmentation use the Identification, Flags (DF/MF), and Fragment Offset fields?",
+      "back": "If a packet exceeds the outgoing link's MTU (typically 1500 bytes), it is fragmented (unless DF=1, then dropped + ICMP 'Frag Needed' returned). All fragments share the same Identification value. MF (More Fragments) = 1 on every fragment except the last. Fragment Offset (13 bits, in 8-byte units) tells the receiver where this fragment goes in the original packet. Reassembly happens at the destination only.",
+      "topic": "ipv4-header"
+    },
+    {
+      "id": "v1c3-j04",
+      "front": "What is the IPv4 TTL field, recommended default, and how is it used?",
+      "back": "Time To Live, 8 bits. Each router decrements TTL by 1; if it reaches 0 the packet is dropped and an ICMP 'Time Exceeded' is returned. Prevents infinite routing loops. Recommended default = 64 (Linux), Windows uses 128, Cisco uses 255 for some traffic.",
+      "topic": "ipv4-header"
+    },
+    {
+      "id": "v1c3-j05",
+      "front": "Memorize common values of the IPv4 'Protocol' field: 1, 6, 17, 89.",
+      "back": "1 = ICMP. 6 = TCP. 17 = UDP. 89 = OSPF. (Others to know: 47 = GRE, 50 = ESP, 51 = AH, 88 = EIGRP, 112 = VRRP.) Indicates which L4/upper protocol is encapsulated.",
+      "topic": "ipv4-header"
+    },
+    {
+      "id": "v1c3-j06",
+      "front": "What does the IPv4 Header Checksum cover, and why is it recomputed at every router?",
+      "back": "16-bit checksum over the IPv4 header only (not payload). Each router decrements TTL, so the checksum changes — the router must recompute and rewrite it on every hop. (IPv6 removes this field entirely; checksumming is delegated to L2/L4.)",
+      "topic": "ipv4-header"
     }
   ]
 }

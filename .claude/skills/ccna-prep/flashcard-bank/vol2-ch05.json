@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch05",
   "title": "Introduction to TCP/IP Transport and Applications",
-  "weeks": [18],
+  "weeks": [
+    18
+  ],
   "cards": [
     {
       "id": "v2c5-01",
@@ -38,6 +40,18 @@
       "front": "What are well-known, registered, and dynamic/private port ranges?",
       "back": "0-1023: well-known (HTTP 80, SSH 22, etc.). 1024-49151: registered (assigned by IANA, e.g., MS-SQL 1433). 49152-65535: dynamic/ephemeral (used as source port for outgoing client connections). Cisco PAT typically uses ports 1024-65535 for translations.",
       "topic": "port-ranges"
+    },
+    {
+      "id": "v2c5-j01",
+      "front": "Memorize: TFTP, POP3, SNMP agent, SNMP manager, Syslog port numbers and protocols.",
+      "back": "TFTP = UDP/69. POP3 = TCP/110. SNMP agent (queried) = UDP/161. SNMP manager (receives traps) = UDP/162. Syslog = UDP/514. (Also: IMAP = TCP/143, NTP = UDP/123, RADIUS = UDP/1812 auth + UDP/1813 acct, TACACS+ = TCP/49.)",
+      "topic": "well-known-ports"
+    },
+    {
+      "id": "v2c5-j02",
+      "front": "How are L4 source vs destination ports chosen?",
+      "back": "Destination port: identifies the application/service on the receiver (well-known: HTTP=80, etc.). Source port: chosen RANDOMLY by the initiating host from the ephemeral range (49152-65535 per IANA, though Linux often uses 32768-60999). The reply swaps source/destination so the response reaches the correct socket.",
+      "topic": "l4-ports"
     }
   ]
 }

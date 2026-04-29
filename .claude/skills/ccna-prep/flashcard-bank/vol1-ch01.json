@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch01",
   "title": "Introduction to TCP/IP Networking",
-  "weeks": [1],
+  "weeks": [
+    1
+  ],
   "cards": [
     {
       "id": "v1c1-01",

@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch04",
   "title": "Building a Wireless LAN",
-  "weeks": [21],
+  "weeks": [
+    21
+  ],
   "cards": [
     {
       "id": "v2c4-01",
@@ -18,8 +20,9 @@
     {
       "id": "v2c4-03",
       "front": "AP discovers its WLC. What 4 mechanisms can it use?",
-      "back": "(1) DHCP option 43 (vendor-specific, returns WLC IP). (2) DNS lookup of CISCO-CAPWAP-CONTROLLER.<domain>. (3) Subnet broadcast. (4) Statically configured 'priming' (manual IP via console). Most production deployments use option 43 or DNS.",
-      "topic": "ap-wlc-discovery"
+      "back": "(1) DHCP option 43 (vendor-specific, returns WLC IP). (2) DNS lookup of CISCO-CAPWAP-CONTROLLER.<domain>. (3) Layer-2 broadcast on the AP's local subnet. (4) Statically configured controller IP via prior console/GUI provisioning. The AP probes all known WLCs, picks the primary or least-loaded, and joins.",
+      "topic": "ap-wlc-discovery",
+      "merged_from": "jeremy-day-58"
     },
     {
       "id": "v2c4-04",
@@ -38,6 +41,30 @@
       "front": "Why use a separate VLAN/SSID for guest Wi-Fi?",
       "back": "Isolation — guests can't reach internal resources. Often combined with: captive portal for sign-in, guest-anchor (tunneling guest traffic to a DMZ WLC), strict ACLs, DHCP lease limits, and bandwidth caps. Keeps guest devices off the corporate network entirely.",
       "topic": "guest-wlan"
+    },
+    {
+      "id": "v2c4-j01",
+      "front": "WLC port types: Service, Distribution System, Console, Redundancy — what is each?",
+      "back": "Service port: out-of-band management; connects to a switch ACCESS port (separate VLAN from data). Distribution system ports: production traffic — carry CAPWAP, client data; usually a LAG/trunk to the switch fabric. Console port: serial CLI access. Redundancy port: direct connection to the standby WLC for HA pair (state sync). All ports are physical.",
+      "topic": "wlc-ports"
+    },
+    {
+      "id": "v2c4-j02",
+      "front": "WLC interface types: Management, Redundancy-Management, Virtual, Service-Port, Dynamic — what is each?",
+      "back": "Management: in-band mgmt; CAPWAP tunnels terminate here. Redundancy-Management: manages standby WLC in HA pair. Virtual: uses a private IP (e.g., 1.1.1.1) for client-facing services like DHCP relay, web auth redirects, mobility. Service-Port: bound to the physical service port. Dynamic: maps WLANs to client VLANs (one dynamic interface per client VLAN). All interfaces are LOGICAL.",
+      "topic": "wlc-interfaces"
+    },
+    {
+      "id": "v2c4-j03",
+      "front": "WLAN QoS profiles on Cisco WLC: Platinum, Gold, Silver, Bronze — what traffic class does each represent?",
+      "back": "Platinum = Voice (highest priority). Gold = Video. Silver = Best Effort (DEFAULT for new WLANs). Bronze = Background (lowest). Maps to 802.11e WMM access categories.",
+      "topic": "wlc-qos"
+    },
+    {
+      "id": "v2c4-j04",
+      "front": "Does a WLC support LACP/PAgP for link aggregation?",
+      "back": "No — Cisco WLCs only support STATIC LAG (mode `on` / unconditional). LACP and PAgP are not supported. The connecting switch must also be configured for static EtherChannel (`channel-group N mode on`).",
+      "topic": "wlc-lag"
     }
   ]
 }

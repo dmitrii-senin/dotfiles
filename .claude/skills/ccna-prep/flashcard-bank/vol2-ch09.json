@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch09",
   "title": "Security Architectures",
-  "weeks": [19],
+  "weeks": [
+    19
+  ],
   "cards": [
     {
       "id": "v2c9-01",
@@ -44,6 +46,30 @@
       "front": "What is multi-factor authentication?",
       "back": "Authentication using ≥2 factors from different categories: 'something you know' (password), 'something you have' (token, phone), 'something you are' (biometric). Drastically reduces account takeover even if one factor is compromised.",
       "topic": "mfa"
+    },
+    {
+      "id": "v2c9-j01",
+      "front": "Phishing variants: spear phishing, whaling, vishing, smishing, watering hole, tailgating?",
+      "back": "Spear phishing: targeted at specific people/orgs. Whaling: targeted at high-value individuals (execs). Vishing: phishing via phone (voice). Smishing: phishing via SMS. Watering hole: compromise a site that targets are known to visit. Tailgating: physically following an authorized person through a secured door without your own badge.",
+      "topic": "phishing-types"
+    },
+    {
+      "id": "v2c9-j02",
+      "front": "AAA — what does each A do, and what protocols implement it?",
+      "back": "Authentication (who you are — verify identity). Authorization (what you can do — granted permissions). Accounting (what you did — log activity). Implemented by RADIUS (open standard, UDP/1812 auth + UDP/1813 acct, encrypts only password) or TACACS+ (Cisco proprietary, TCP/49, encrypts entire payload, separates A/A/A operations). Cisco's AAA server: ISE (Identity Services Engine).",
+      "topic": "aaa"
+    },
+    {
+      "id": "v2c9-j03",
+      "front": "Specific attack types: SYN flood, DHCP exhaustion, reflection, amplification, ARP spoofing/poisoning, MITM?",
+      "back": "SYN flood: sends many TCP SYNs without completing handshake → server resources exhausted. DHCP exhaustion: floods DHCP Discover from spoofed MACs → pool emptied. Reflection: spoof victim IP, send queries to legit servers (reflectors) which reply to the victim. Amplification: reflection where the reply is much bigger than the request (DNS, NTP, memcached). ARP spoofing/poisoning: send fake ARP replies so victim sends traffic to attacker's MAC. MITM: attacker sits between two parties, intercepts/modifies traffic.",
+      "topic": "common-attacks"
+    },
+    {
+      "id": "v2c9-j04",
+      "front": "Malware categories: Virus, Worm, Trojan?",
+      "back": "Virus: needs a host program; spreads when the host runs. Worm: standalone, self-replicating; spreads automatically across networks (no user action). Trojan: disguised as legitimate software; user runs it willingly. (Other terms: Ransomware encrypts files for ransom; Spyware steals info; Rootkit hides presence at OS level.)",
+      "topic": "malware-types"
     }
   ]
 }

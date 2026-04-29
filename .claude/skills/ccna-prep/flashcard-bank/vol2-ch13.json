@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch13",
   "title": "Device Management Protocols",
-  "weeks": [16],
+  "weeks": [
+    16
+  ],
   "cards": [
     {
       "id": "v2c13-01",
@@ -44,6 +46,36 @@
       "front": "Memorize: what UDP/TCP port does syslog use?",
       "back": "UDP/514 (default). Some implementations support TCP/514 or TLS-encrypted (TCP/6514) for reliability/confidentiality. Cisco IOS uses UDP/514 by default.",
       "topic": "syslog-ports"
+    },
+    {
+      "id": "v2c13-j01",
+      "front": "CDP and LLDP key facts: multicast MACs, default timer, default holdtime, default state on Cisco?",
+      "back": "CDP: multicast 0100.0CCC.CCCC, default hello 60s, holdtime 180s, ENABLED by default on Cisco, Cisco-proprietary, runs CDPv2 by default. LLDP: multicast 0180.C200.000E, default hello 30s, holdtime 120s, reinit 2s, DISABLED by default on Cisco (must `lldp run`), IEEE 802.1AB standard. A device can run both at once. Per-interface: `lldp transmit` / `lldp receive` (vs CDP's single `cdp enable`).",
+      "topic": "cdp-lldp-defaults"
+    },
+    {
+      "id": "v2c13-j02",
+      "front": "NTP — primary vs secondary servers, stratum number, server vs client/peer modes?",
+      "back": "Primary servers: get time directly from a reference clock (e.g., GPS/atomic) — stratum 1. Secondary servers: get time from another NTP server — stratum N+1 (where N is upstream stratum, max 15). Lower stratum = more authoritative = preferred. Configure as client: `ntp server <ip>`. Configure as server (manual stratum): `ntp master [stratum]`. Symmetric peer (mutual): `ntp peer <ip>`. Asterisk on `show clock` = clock not authoritative (not yet synced).",
+      "topic": "ntp-strata"
+    },
+    {
+      "id": "v2c13-j03",
+      "front": "Syslog message format and what each field is?",
+      "back": "`seq:timestamp: %facility-severity-mnemonic: description`. seq = sequence number (only with `service sequence-numbers`). timestamp = when (`service timestamps log datetime`). facility = subsystem (e.g., LINK, OSPF, SYS). severity = 0-7 number. mnemonic = short event code (e.g., UPDOWN, ADJCHG). description = human-readable detail. Example: `*Apr 28 12:00:00.123: %LINK-3-UPDOWN: Interface Gi0/0, changed state to down`.",
+      "topic": "syslog-format"
+    },
+    {
+      "id": "v2c13-j04",
+      "front": "Where do syslog messages go by default on Cisco IOS, and how do you set per-destination severity?",
+      "back": "Default destinations: console line and the local logging buffer. Per destination: `logging console <severity>` (console), `logging monitor <sev>` (VTY — and you must run `terminal monitor` in your session), `logging buffered [size] <sev>` (RAM buffer), `logging trap <sev>` (external syslog server). `logging host <ip>` adds a server. Severity is a number 0-7 OR a name (e.g., warnings = 4).",
+      "topic": "syslog-config"
+    },
+    {
+      "id": "v2c13-j05",
+      "front": "What does `logging synchronous` do under a line?",
+      "back": "Prevents syslog/console messages from interleaving with the command you're typing. Without it, when a log message prints mid-command it pushes your cursor down; you have to mentally re-find your place. With it, the IOS reprints your current command-line buffer after each unsolicited message. Highly recommended on `line console 0` and `line vty 0 15`.",
+      "topic": "logging-synchronous"
     }
   ]
 }

@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch20",
   "title": "Cloud Architecture",
-  "weeks": [22],
+  "weeks": [
+    22
+  ],
   "cards": [
     {
       "id": "v2c20-01",
@@ -38,6 +40,24 @@
       "front": "What is a hypervisor and what's the type 1 vs type 2 distinction?",
       "back": "Software that runs and manages VMs. Type 1 (bare-metal): runs directly on hardware (ESXi, Hyper-V, KVM, Xen) — used in data centers. Type 2 (hosted): runs on top of an existing OS (VirtualBox, VMware Workstation) — used on developer laptops.",
       "topic": "hypervisor"
+    },
+    {
+      "id": "v2c20-j01",
+      "front": "Map cloud service-model categories to common product examples: SaaS, PaaS, IaaS.",
+      "back": "SaaS: Microsoft 365, Salesforce, Gmail, Dropbox. PaaS: AWS Lambda, Google App Engine, Azure App Service, Heroku. IaaS: AWS EC2, Google Compute Engine, Azure VMs, DigitalOcean Droplets. The further LEFT in 'IaaS-PaaS-SaaS', the MORE the cloud provider manages for you.",
+      "topic": "cloud-examples"
+    },
+    {
+      "id": "v2c20-j02",
+      "front": "Container vs VM — boot speed, disk usage, CPU/RAM usage, isolation?",
+      "back": "Container: faster boot (seconds), smaller disk (MBs), less CPU/RAM, LESS isolated (shared host kernel). VM: slower boot (minutes), bigger disk (GBs), more CPU/RAM, MORE isolated (each VM has own kernel). Containers stack on a CONTAINER ENGINE (Docker, containerd); orchestrators (Kubernetes, Docker Swarm) manage many containers across hosts.",
+      "topic": "container-vs-vm"
+    },
+    {
+      "id": "v2c20-j03",
+      "front": "What is VRF, and what's a key constraint it removes?",
+      "back": "VRF (Virtual Routing and Forwarding) lets a SINGLE router maintain MULTIPLE independent routing tables — like running multiple virtual routers in one box. Without VRF, two interfaces on the same router can NOT be in the same subnet (they'd share the routing table); WITH VRF, each interface can be in a separate VRF and use overlapping IP space. Configure: `ip vrf VRFNAME` then `ip vrf forwarding VRFNAME` on the interface. View: `show ip route vrf NAME`. VRF leaking allows controlled inter-VRF routing.",
+      "topic": "vrf"
     }
   ]
 }

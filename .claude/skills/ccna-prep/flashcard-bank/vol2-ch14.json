@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch14",
   "title": "Network Address Translation",
-  "weeks": [17],
+  "weeks": [
+    17
+  ],
   "cards": [
     {
       "id": "v2c14-01",
@@ -44,6 +46,12 @@
       "front": "Common NAT issue: 'outside hosts can't initiate to inside server'. Why and how to fix?",
       "back": "Default NAT only translates outbound flows; inbound has no mapping until inside-initiated. Fix with STATIC NAT (or port forwarding via `ip nat inside source static tcp 10.1.1.10 80 200.1.1.10 80`) so the inside server is reachable from outside.",
       "topic": "nat-troubleshooting"
+    },
+    {
+      "id": "v2c14-j01",
+      "front": "What happens to a packet under dynamic NAT/PAT if (a) no inside-global addresses are available, (b) the ACL doesn't match the packet?",
+      "back": "(a) Packet is DROPPED — pool exhaustion. Use PAT (overload) to avoid this — one IP supports thousands of flows. (b) Packet is NOT translated — but it is NOT dropped either; it's forwarded with its original source IP (which usually then fails because it's a private RFC1918 address — internet routers will drop it).",
+      "topic": "nat-edge-cases"
     }
   ]
 }

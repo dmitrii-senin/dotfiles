@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch07",
   "title": "Configuring and Verifying Switch Interfaces",
-  "weeks": [2],
+  "weeks": [
+    2
+  ],
   "cards": [
     {
       "id": "v1c7-01",
@@ -12,13 +14,13 @@
     {
       "id": "v1c7-02",
       "front": "How do you set port speed and duplex manually, and what are the defaults?",
-      "back": "`speed {10|100|1000|auto}` and `duplex {half|full|auto}`. Default is `auto` for both — IEEE autonegotiation. If both ends auto: matched. If one is fixed and the other auto: mismatch risk (auto side often falls back to half-duplex on a 100 Mbps link).",
+      "back": "`speed {10|100|1000|auto}` and `duplex {half|full|auto}`. Default is `auto` for both \u2014 IEEE autonegotiation. If both ends auto: matched. If one is fixed and the other auto: mismatch risk (auto side often falls back to half-duplex on a 100 Mbps link).",
       "topic": "switch-interface"
     },
     {
       "id": "v1c7-03",
       "front": "What does `show interfaces status` reveal compared to `show ip interface brief`?",
-      "back": "`show interfaces status` (switch-only) gives one line per port: status, VLAN, duplex, speed, type. `show ip interface brief` gives interface, IP address, OK?, status, protocol — usable on routers and switches. Use `status` for switch port quick view; `brief` for IP/L3 view.",
+      "back": "`show interfaces status` (switch-only) gives one line per port: status, VLAN, duplex, speed, type. `show ip interface brief` gives interface, IP address, OK?, status, protocol \u2014 usable on routers and switches. Use `status` for switch port quick view; `brief` for IP/L3 view.",
       "topic": "show-commands"
     },
     {
@@ -29,14 +31,15 @@
     },
     {
       "id": "v1c7-05",
-      "front": "What are runts, giants, CRC errors, and late collisions in `show interfaces` output?",
-      "back": "Runts: frames < 64 bytes (often collisions or bad NIC). Giants: > 1518 bytes (or 1522 with 802.1Q) — usually MTU mismatch. CRC errors: FCS check failed (cable, EMI, duplex mismatch). Late collisions: collision after first 512 bits — almost always indicates a duplex mismatch.",
-      "topic": "interface-errors"
+      "front": "What are the `show interfaces` error counters: runts, giants, CRC, frame, late collisions, input errors, output errors?",
+      "back": "Runts: frames < 64 bytes (collisions or bad NIC). Giants: > 1518 bytes (1522 with 802.1Q tag) \u2014 usually MTU mismatch. CRC: FCS check failed (cabling, EMI, duplex mismatch). Frame: malformed/illegal frame (bad alignment). Late collisions: collision after first 512 bits \u2014 almost always duplex mismatch. Input errors: aggregate of all inbound errors (runts+giants+CRC+frame+overrun+ignored). Output errors: frames the device tried to send but couldn't (transmit failures, buffer issues).",
+      "topic": "interface-errors",
+      "merged_from": "jeremy-day-09"
     },
     {
       "id": "v1c7-06",
       "front": "If you see 'CRC' and 'late collisions' on a switch interface, what's the most likely cause?",
-      "back": "Duplex mismatch — one side full-duplex, other side half-duplex. Half-duplex side detects collisions late because the full-duplex side ignores CSMA/CD and transmits whenever. Verify with `show interfaces` and `show interfaces … status`; fix by hard-coding both ends to full duplex or letting both autonegotiate.",
+      "back": "Duplex mismatch \u2014 one side full-duplex, other side half-duplex. Half-duplex side detects collisions late because the full-duplex side ignores CSMA/CD and transmits whenever. Verify with `show interfaces` and `show interfaces \u2026 status`; fix by hard-coding both ends to full duplex or letting both autonegotiate.",
       "topic": "interface-errors"
     },
     {
@@ -50,6 +53,12 @@
       "front": "Why is it best practice to manually disable autonegotiation on switch-to-switch trunks/uplinks but leave it on access ports?",
       "back": "Trunks: hard-code speed/duplex (gigabit/full) to avoid autoneg quirks during convergence and for predictable performance. Access ports: leave auto-MDIX and autoneg on so any user device works without manual config.",
       "topic": "switch-interface"
+    },
+    {
+      "id": "v1c7-j01",
+      "front": "Default interface state on a Cisco switch vs. router (out of the box)?",
+      "back": "Cisco SWITCH ports default to 'up/up' (no shutdown is the default \u2014 they auto-enable). Cisco ROUTER interfaces default to 'administratively down/down' \u2014 you must explicitly issue `no shutdown` to bring them up. Common gotcha for new lab learners.",
+      "topic": "interface-defaults"
     }
   ]
 }

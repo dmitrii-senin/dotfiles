@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch01",
   "title": "Fundamentals of Wireless Networks",
-  "weeks": [21],
+  "weeks": [
+    21
+  ],
   "cards": [
     {
       "id": "v2c1-01",
@@ -44,6 +46,42 @@
       "front": "What does an AP do at L2 between wireless and wired sides?",
       "back": "The AP bridges the wireless BSS to a wired VLAN. Frames going wireless→wired are translated from 802.11 → 802.3 Ethernet (and vice versa). The wired interface is typically a trunk carrying multiple VLANs, one per SSID.",
       "topic": "wireless-ap"
+    },
+    {
+      "id": "v2c1-j01",
+      "front": "5 RF propagation effects: Absorption, Reflection, Refraction, Diffraction, Scattering — what is each?",
+      "back": "Absorption: signal converted to heat, weakening it (walls, water, body). Reflection: signal bounces off (metal, mirrors). Refraction: signal bends when entering a different medium. Diffraction: signal bends around an obstacle's edge. Scattering: signal disperses in many directions (rough surfaces, dust). All affect Wi-Fi range and reliability.",
+      "topic": "rf-propagation"
+    },
+    {
+      "id": "v2c1-j02",
+      "front": "Properties of 2.4 GHz vs 5 GHz Wi-Fi bands?",
+      "back": "2.4 GHz: longer reach, better penetration of walls/obstacles, BUT only 3 non-overlapping channels (1, 6, 11 in US) and crowded (microwave ovens, Bluetooth, baby monitors). 5 GHz: shorter reach, more attenuated by walls, BUT many more non-overlapping channels (~24 in US, depending on DFS) and less crowded. 6 GHz (added in Wi-Fi 6E / 802.11ax): even more spectrum, even shorter reach.",
+      "topic": "wifi-bands"
+    },
+    {
+      "id": "v2c1-j03",
+      "front": "Map 802.11 amendment letters to Wi-Fi marketing names: 802.11n, 802.11ac, 802.11ax.",
+      "back": "802.11n = Wi-Fi 4 (2.4/5 GHz, MIMO). 802.11ac = Wi-Fi 5 (5 GHz only). 802.11ax = Wi-Fi 6 / Wi-Fi 6E (2.4/5/6 GHz, OFDMA). The Wi-Fi Alliance retroactively numbered older standards: 802.11g = 'Wi-Fi 3' is rarely used in marketing.",
+      "topic": "wifi-marketing-names"
+    },
+    {
+      "id": "v2c1-j04",
+      "front": "AP modes: Repeater, Workgroup Bridge (WGB), Outdoor Bridge — what is each used for?",
+      "back": "Repeater: extends a BSS by re-transmitting another AP's signal (halves throughput). Workgroup Bridge (WGB): operates as a wireless CLIENT of another AP, then bridges WIRED devices on its Ethernet ports onto the wireless LAN. Outdoor Bridge: dedicated point-to-point or point-to-multipoint link between buildings/sites, often with directional antennas.",
+      "topic": "ap-modes"
+    },
+    {
+      "id": "v2c1-j05",
+      "front": "Mesh wireless terms: MBSS, RAP, MAP, DS — what is each?",
+      "back": "MBSS (Mesh Basic Service Set): a mesh wireless network where APs interconnect over wireless backhaul. RAP (Root Access Point): the mesh AP that's connected to the wired network — gateway between mesh and the rest of the LAN. MAP (Mesh Access Point): non-root mesh AP, no wired uplink, communicates only wirelessly. DS (Distribution System): the upstream wired network all APs ultimately connect to.",
+      "topic": "mesh-wireless"
+    },
+    {
+      "id": "v2c1-j06",
+      "front": "What does the SSID identify, and must it be unique?",
+      "back": "SSID (Service Set Identifier) is the human-readable name of a wireless network (e.g., 'CorpWiFi'). Up to 32 bytes. SSIDs do NOT have to be unique — two completely separate networks can share the name (clients distinguish by BSSID, the AP's radio MAC). One ESS = one SSID across multiple APs to allow seamless roaming.",
+      "topic": "ssid"
     }
   ]
 }

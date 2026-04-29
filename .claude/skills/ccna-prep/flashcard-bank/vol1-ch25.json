@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch25",
   "title": "Fundamentals of IP Version 6",
-  "weeks": [14],
+  "weeks": [
+    14
+  ],
   "cards": [
     {
       "id": "v1c25-01",
@@ -37,6 +39,24 @@
       "id": "v1c25-06",
       "front": "How do you enable IPv6 routing globally on a Cisco router?",
       "back": "`ipv6 unicast-routing`. Without this command, IPv6 packets are dropped (not forwarded) even if interfaces have IPv6 addresses.",
+      "topic": "ipv6-config"
+    },
+    {
+      "id": "v1c25-j01",
+      "front": "Name the 5 Regional Internet Registries (RIRs) and which region each covers.",
+      "back": "AFRINIC: Africa. APNIC: Asia-Pacific. ARIN: USA, Canada, parts of Caribbean and North Atlantic. LACNIC: Latin America and Caribbean. RIPE NCC: Europe, Middle East, parts of Central Asia. They allocate IP blocks (IPv4 + IPv6) to ISPs and large orgs, working under IANA.",
+      "topic": "rir"
+    },
+    {
+      "id": "v1c25-j02",
+      "front": "Standard IPv6 prefix sizes: enterprise allocation, single subnet?",
+      "back": "An enterprise typically receives a /48 from its ISP/RIR (allows 65,536 /64 subnets). A single IPv6 subnet uses /64 by default — required for SLAAC (Stateless Address Autoconfiguration), which generates a 64-bit interface ID. Larger blocks: ISPs receive /32; very large orgs may get /29 or larger.",
+      "topic": "ipv6-prefix-sizes"
+    },
+    {
+      "id": "v1c25-j03",
+      "front": "How do you assign an IPv6 address to a Cisco router interface?",
+      "back": "Per interface: `ipv6 address 2001:db8:1::1/64` (specify full address + prefix length). For EUI-64 auto-derived host portion: `ipv6 address 2001:db8:1::/64 eui-64`. To use only a link-local: `ipv6 enable`. Globally first: `ipv6 unicast-routing` (otherwise IPv6 packets won't be forwarded).",
       "topic": "ipv6-config"
     }
   ]

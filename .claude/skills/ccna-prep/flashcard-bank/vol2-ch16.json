@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch16",
   "title": "First Hop Redundancy Protocols",
-  "weeks": [20],
+  "weeks": [
+    20
+  ],
   "cards": [
     {
       "id": "v2c16-01",
@@ -44,6 +46,30 @@
       "front": "What are the default HSRP timers, and how do you tune them?",
       "back": "Hello = 3 sec, Hold = 10 sec. Tune for faster failover: `standby 1 timers msec 200 msec 700` (200ms hello, 700ms hold). Sub-second failover for VoIP-friendly environments.",
       "topic": "hsrp-timers"
+    },
+    {
+      "id": "v2c16-j01",
+      "front": "FHRP multicast addresses and virtual MAC formats: HSRPv1, HSRPv2, VRRP, GLBP.",
+      "back": "HSRPv1: multicast 224.0.0.2, vMAC 0000.0c07.acXX (XX=group, max 255). HSRPv2: 224.0.0.102, vMAC 0000.0c9f.fXXX (XXX=group, max 4095). VRRP: 224.0.0.18, vMAC 0000.5e00.01XX. GLBP: 224.0.0.102, vMAC 0007.b400.XXYY (XX=group, YY=AVF#).",
+      "topic": "fhrp-addresses"
+    },
+    {
+      "id": "v2c16-j02",
+      "front": "GLBP architecture: AVG and AVF — what are they?",
+      "back": "AVG (Active Virtual Gateway): single elected per group; replies to ARPs for the virtual IP, handing out DIFFERENT virtual MACs to different clients. AVF (Active Virtual Forwarder): up to FOUR per group; each owns one of the virtual MACs and actually forwards traffic. Result: load-balancing across multiple physical routers within a single subnet (unlike HSRP/VRRP which use only one active router).",
+      "topic": "glbp-arch"
+    },
+    {
+      "id": "v2c16-j03",
+      "front": "What is gratuitous ARP, and when does an FHRP send one?",
+      "back": "Gratuitous ARP: an ARP REPLY sent without anyone asking — broadcast to update other hosts' ARP caches. When an HSRP standby promotes to active (or after VRRP/GLBP failover), it sends a gratuitous ARP for the virtual IP→virtual MAC so switches relearn the new path and clients update their cache. Also used during DAD-like duplicate-IP detection.",
+      "topic": "gratuitous-arp"
+    },
+    {
+      "id": "v2c16-j04",
+      "front": "HSRP active-router election order, default priority, and is preemption on by default?",
+      "back": "Election: (1) HIGHEST priority wins, (2) tie-break on highest IP. Default priority = 100; range 0-255. Preemption: DISABLED by default — once an active router is elected, a higher-priority router coming online will NOT take over until manual `standby N preempt` is configured. Same for VRRP (preemption enabled by default in VRRP, actually); GLBP (preemption disabled by default).",
+      "topic": "hsrp-election"
     }
   ]
 }

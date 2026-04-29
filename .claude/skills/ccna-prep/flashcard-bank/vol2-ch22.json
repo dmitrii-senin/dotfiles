@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch22",
   "title": "Cisco Software-Defined Access (Cisco SD-Access)",
-  "weeks": [23],
+  "weeks": [
+    23
+  ],
   "cards": [
     {
       "id": "v2c22-01",

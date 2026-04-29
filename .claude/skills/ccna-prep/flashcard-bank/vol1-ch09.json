@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch09",
   "title": "Spanning Tree Protocol Concepts",
-  "weeks": [8],
+  "weeks": [
+    8
+  ],
   "cards": [
     {
       "id": "v1c9-01",
@@ -56,6 +58,60 @@
       "front": "What does `show spanning-tree` (or `show spanning-tree vlan X`) reveal?",
       "back": "Per-VLAN: root bridge ID + cost + port, this switch's bridge ID, hello/forward-delay/max-age timers, then per-port: role (Root/Desg/Altn), state (FWD/BLK/DIS), cost, priority/portID. The first thing to check when diagnosing root election issues.",
       "topic": "show-commands"
+    },
+    {
+      "id": "v1c9-j01",
+      "front": "Memorize 802.1D STP path costs by interface speed: 10 Mbps, 100 Mbps, 1 Gbps, 10 Gbps.",
+      "back": "10 Mbps = 100. 100 Mbps = 19. 1 Gbps = 4. 10 Gbps = 2. (Newer 'long' / IEEE 802.1D-2004 cost values: 10M=2,000,000; 100M=200,000; 1G=20,000; 10G=2,000; 100G=200. Cisco still defaults to the short values unless `spanning-tree pathcost method long` is configured.)",
+      "topic": "stp-cost"
+    },
+    {
+      "id": "v1c9-j02",
+      "front": "What does each classic STP port state DO? (Disabled, Blocking, Listening, Learning, Forwarding)",
+      "back": "Disabled: admin down, nothing. Blocking: receives BPDUs only — no send, no MAC learning, no data. Listening: sends + receives BPDUs, no MAC learning, no data (15s). Learning: sends + receives BPDUs, learns MACs, no data (15s). Forwarding: full operation. A Forwarding port CAN move directly to Blocking (link loss); a Blocking port CANNOT move directly to Forwarding (must go through Listening/Learning).",
+      "topic": "stp-states"
+    },
+    {
+      "id": "v1c9-j03",
+      "front": "Default STP timers (802.1D): Hello, Forward Delay, Max Age?",
+      "back": "Hello = 2 seconds. Forward Delay = 15 seconds (per state, so listening 15 + learning 15 = 30). Max Age = 20 seconds (= 10 × hello). Total convergence after a topology change ≈ 50 seconds (20 + 15 + 15). Timers configured on the root bridge are advertised to all switches.",
+      "topic": "stp-timers"
+    },
+    {
+      "id": "v1c9-j04",
+      "front": "What MAC addresses do standard STP and PVST+ BPDUs use as destination?",
+      "back": "Standard 802.1D STP: 0180.C200.0000 (IEEE multicast). PVST+: 0100.0CCC.CCCD (Cisco multicast). PVST+ also adds an SSTP shim header so per-VLAN BPDUs can traverse trunks correctly.",
+      "topic": "stp-bpdu"
+    },
+    {
+      "id": "v1c9-j05",
+      "front": "What does PortFast do, and where is it safe to enable?",
+      "back": "Lets a port skip the listening/learning states and move directly to Forwarding when it comes up. Enables on access ports connected to end hosts (PCs, printers) — not switch-to-switch links. Per-port: `spanning-tree portfast`. Globally on all access ports: `spanning-tree portfast default`. If a PortFast port receives a BPDU, it loses PortFast status (or, with BPDU Guard, is shut down).",
+      "topic": "stp-portfast"
+    },
+    {
+      "id": "v1c9-j06",
+      "front": "What do BPDU Guard, Root Guard, and Loop Guard each do?",
+      "back": "BPDU Guard: if any BPDU is received on the port, it's err-disabled (shut). Used with PortFast to prevent rogue switch attachment. `spanning-tree bpduguard enable` per port, or `spanning-tree portfast bpduguard default` globally. Root Guard: if a superior BPDU is received, port goes 'root-inconsistent' (blocked) — prevents a new switch from becoming root. Loop Guard: if a non-designated port STOPS receiving BPDUs, it goes 'loop-inconsistent' (blocked) — prevents a unidirectional link from forming a loop.",
+      "topic": "stp-protection"
+    },
+    {
+      "id": "v1c9-j07",
+      "front": "How do you make a Cisco switch the root bridge for VLAN X (primary or secondary)?",
+      "back": "`spanning-tree vlan X root primary` → sets priority to 24576 (or 4096 less than current root, whichever is lower). `spanning-tree vlan X root secondary` → sets priority to 28672. Or set explicitly: `spanning-tree vlan X priority N` (N must be a multiple of 4096, range 0-61440).",
+      "topic": "stp-root"
+    },
+    {
+      "id": "v1c9-j08",
+      "front": "What are the Bridge Priority field changes when Extended System ID is in use?",
+      "back": "Original bridge priority = 16 bits (0-65535, default 32768). With Extended System ID, the priority is split: 4 bits of priority (configurable in 4096 increments: 0, 4096, 8192, ..., 61440) + 12 bits of VLAN ID (the extended system ID). So actual advertised priority = (configured priority) + (VLAN ID). Default 32768 + VLAN 1 = 32769.",
+      "topic": "stp-bridge-id"
+    },
+    {
+      "id": "v1c9-j09",
+      "front": "Configure the STP cost or port-priority of a specific interface for a VLAN?",
+      "back": "`spanning-tree vlan <id> cost <cost>` — overrides the speed-derived cost. `spanning-tree vlan <id> port-priority <prio>` — overrides default 128 (range 0-240, in increments of 16). Lower wins. Used to influence root port / designated port elections when bridge IDs and costs tie.",
+      "topic": "stp-tuning"
     }
   ]
 }

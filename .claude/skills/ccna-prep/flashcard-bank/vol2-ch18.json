@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch18",
   "title": "LAN Architecture",
-  "weeks": [22],
+  "weeks": [
+    22
+  ],
   "cards": [
     {
       "id": "v2c18-01",
@@ -38,6 +40,18 @@
       "front": "What is PoE, and what are the IEEE standards?",
       "back": "Power over Ethernet — delivers DC power over the same UTP cable as data. 802.3af (PoE): 15.4W. 802.3at (PoE+): 30W. 802.3bt Type 3: 60W. 802.3bt Type 4 (UPoE): 90W. Used to power phones, APs, cameras, IoT — eliminates separate power.",
       "topic": "poe"
+    },
+    {
+      "id": "v2c18-j01",
+      "front": "Network topology terms: star, full mesh, partial mesh.",
+      "back": "Star: all devices connect to one central hub/switch (typical LAN). Full mesh: every device connects to every other device (n × (n-1) / 2 links — used for redundancy in DC core or DMVPN spokes). Partial mesh: some pairs of devices have direct links but not all (compromise — common in WAN designs).",
+      "topic": "topologies"
+    },
+    {
+      "id": "v2c18-j02",
+      "front": "Spine-leaf rules — what connects to what?",
+      "back": "Every LEAF (top-of-rack) connects to every SPINE. Leaf must NOT connect to leaf; spine must NOT connect to spine. End hosts connect ONLY to leaves. All paths between any two leaves are EXACTLY 2 hops (leaf → spine → leaf), enabling predictable latency and ECMP. Optimized for east-west (server-to-server) traffic in modern data centers.",
+      "topic": "spine-leaf"
     }
   ]
 }

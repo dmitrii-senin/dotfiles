@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch02",
   "title": "Analyzing Cisco Wireless Architectures",
-  "weeks": [21],
+  "weeks": [
+    21
+  ],
   "cards": [
     {
       "id": "v2c2-01",
@@ -12,8 +14,9 @@
     {
       "id": "v2c2-02",
       "front": "What is CAPWAP, and what 2 separate tunnels does it use?",
-      "back": "Control And Provisioning of Wireless Access Points — the protocol between Lightweight APs and the WLC. Uses 2 UDP tunnels: Control (UDP 5246, encrypted DTLS — config, RRM, statistics) and Data (UDP 5247, optionally encrypted — wraps 802.11 frames).",
-      "topic": "capwap"
+      "back": "Control And Provisioning of Wireless Access Points (CAPWAP) — IETF protocol between Lightweight APs and the WLC. Two UDP tunnels: Control on UDP 5246 (encrypted by default with DTLS), Data on UDP 5247 (NOT encrypted by default, can be enabled). Replaced Cisco's older LWAPP. AP→WLC discovery uses methods like CAPWAP broadcast, DHCP option 43, DNS, or static.",
+      "topic": "capwap",
+      "merged_from": "jeremy-day-56"
     },
     {
       "id": "v2c2-03",
@@ -38,6 +41,36 @@
       "front": "What's an SSID-to-VLAN mapping, and why does it matter?",
       "back": "Each SSID is mapped to a single VLAN at the WLC. Wireless clients on that SSID get DHCP from that VLAN's pool, and traffic is tagged onto that VLAN at the AP-to-switch trunk. Used to separate guest, employee, IoT into different VLANs/subnets/security policies.",
       "topic": "ssid-vlan"
+    },
+    {
+      "id": "v2c2-j01",
+      "front": "Three 802.11 frame TYPES, with examples of frames in each.",
+      "back": "Management: Beacon, Probe Request/Response, Authentication, Association Request/Response, Reassociation, Disassociation, Deauth. Control: RTS, CTS, ACK, Block ACK, PS-Poll. Data: actual user payload + QoS Data. The Type+Subtype bits in the Frame Control field determine which.",
+      "topic": "wifi-frame-types"
+    },
+    {
+      "id": "v2c2-j02",
+      "front": "Active vs passive 802.11 scanning — how does each work?",
+      "back": "Active scan: client sends a Probe Request on each channel; APs reply with Probe Response (containing SSID, supported rates, capabilities). Faster. Passive scan: client just listens on each channel for Beacons (sent ~10/sec by APs). Slower but draws no transmissions. Hidden SSIDs aren't found by passive scanning unless the client probes for the exact SSID.",
+      "topic": "wifi-scanning"
+    },
+    {
+      "id": "v2c2-j03",
+      "front": "Three 802.11 connection states, in order?",
+      "back": "1) Not Authenticated, not Associated. 2) Authenticated, not Associated. 3) Authenticated AND Associated (fully connected — can send/receive data). Authentication is the older 802.11 step (often 'open'); the real security is via 802.1X/EAP/WPA2-3 after association.",
+      "topic": "wifi-connection-states"
+    },
+    {
+      "id": "v2c2-j04",
+      "front": "Lightweight AP operating modes: Local, FlexConnect, Sniffer, Monitor, Rogue Detector, SE-Connect, Bridge/Mesh, Flex+Bridge — what is each?",
+      "back": "Local (default): serves a BSS to clients. FlexConnect: also serves clients but can switch traffic locally if the WLC tunnel is down. Sniffer: captures 802.11 frames and forwards to a remote analyzer. Monitor: listens passively to detect rogue devices. Rogue Detector: listens on the WIRED network for rogue MACs. SE-Connect: dedicated RF spectrum analysis on all channels. Bridge/Mesh: forms point-to-point or mesh wireless backhaul. Flex+Bridge: combines FlexConnect with Bridge functionality.",
+      "topic": "lightweight-ap-modes"
+    },
+    {
+      "id": "v2c2-j05",
+      "front": "Autonomous vs Lightweight AP switch-port type?",
+      "back": "Autonomous APs connect via TRUNK ports (so they can carry multiple SSIDs/VLANs themselves). Lightweight APs connect via ACCESS ports (a single 'AP-management' VLAN — all client traffic is tunneled to the WLC inside CAPWAP). Cloud-based APs (Meraki) are also access ports.",
+      "topic": "ap-switchport"
     }
   ]
 }

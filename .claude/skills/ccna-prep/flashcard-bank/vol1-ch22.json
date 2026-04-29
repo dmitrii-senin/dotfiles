@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch22",
   "title": "Implementing Basic OSPF Features",
-  "weeks": [12],
+  "weeks": [
+    12
+  ],
   "cards": [
     {
       "id": "v1c22-01",
@@ -44,6 +46,36 @@
       "front": "What is the OSPF default hello interval, and how do you change it?",
       "back": "10 seconds (broadcast/PtP) or 30 seconds (NBMA). Change per interface: `ip ospf hello-interval <seconds>`. Dead interval automatically becomes 4× hello (or set explicitly with `ip ospf dead-interval <seconds>`).",
       "topic": "ospf-timers"
+    },
+    {
+      "id": "v1c22-j01",
+      "front": "OSPFv2 vs OSPFv3 — what's the difference, and what does each support?",
+      "back": "OSPFv2 (RFC 2328): IPv4. OSPFv3 (RFC 5340): originally IPv6, later extended to support both IPv4 and IPv6 via address families. OSPFv3 uses link-local IPv6 source addresses for hellos, drops authentication from the protocol itself (uses IPsec), and routes are per-link rather than per-subnet.",
+      "topic": "ospf-versions"
+    },
+    {
+      "id": "v1c22-j02",
+      "front": "OSPF router roles: Internal, Backbone, ABR, ASBR — what is each?",
+      "back": "Internal router: all interfaces in a single non-zero area. Backbone router: at least one interface in area 0. ABR (Area Border Router): interfaces in two or more areas (one usually being area 0). ASBR (Autonomous System Boundary Router): redistributes routes from outside the OSPF domain (static, BGP, EIGRP) into OSPF. A single router can be more than one type.",
+      "topic": "ospf-roles"
+    },
+    {
+      "id": "v1c22-j03",
+      "front": "OSPF route types: intra-area (O), inter-area (O IA), external (O E1 / O E2) — what does each mean?",
+      "back": "Intra-area (O): destination is in the SAME area as the receiving router; computed via SPF on the local LSDB. Inter-area (O IA): destination is in a DIFFERENT area, learned via Type-3 LSAs from an ABR. External (O E1, O E2): destination is OUTSIDE the OSPF AS, redistributed by an ASBR. E1 = metric increases at each hop; E2 (default) = metric is fixed at the value the ASBR advertised, no matter how far you travel.",
+      "topic": "ospf-route-types"
+    },
+    {
+      "id": "v1c22-j04",
+      "front": "Does the OSPF process ID need to match between neighbors? Does single-area OSPF need to use area 0?",
+      "back": "Process ID: NO — locally significant only (just like EIGRP AS number is required to match, but OSPF's process-id is not). Single-area OSPF: NO — you can use any area number, but if multi-area is added later, area 0 must exist. Best practice: use area 0 even for single-area to avoid future re-design.",
+      "topic": "ospf-config"
+    },
+    {
+      "id": "v1c22-j05",
+      "front": "How long do OSPF LSAs live before being refreshed/aged out?",
+      "back": "Default LSA aging timer = 30 minutes (1800 s). The originating router refreshes its LSAs every 30 minutes by re-flooding them with a higher sequence number. If an LSA reaches MaxAge (3600 s = 1 hour) without a refresh, it's flushed from the LSDB.",
+      "topic": "ospf-lsa-age"
     }
   ]
 }

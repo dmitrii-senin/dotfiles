@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch26",
   "title": "IPv6 Addressing and Subnetting",
-  "weeks": [14],
+  "weeks": [
+    14
+  ],
   "cards": [
     {
       "id": "v1c26-01",
@@ -44,6 +46,42 @@
       "front": "Multicast — list 4 well-known IPv6 multicast addresses.",
       "back": "ff02::1 — all nodes on the link. ff02::2 — all routers. ff02::5 — all OSPF routers. ff02::6 — all OSPF DRs. ff02::1:ffXX:XXXX — solicited-node multicast (used by NDP, derived from last 24 bits of unicast).",
       "topic": "ipv6-multicast"
+    },
+    {
+      "id": "v1c26-j01",
+      "front": "What does U/L bit mean in a MAC address, and how does EUI-64 use it?",
+      "back": "U/L = Universal/Local bit, the 7th bit of the first byte. UAA (Universally Administered) means burned-in MAC, U/L=0. LAA (Locally Administered) means manually set, U/L=1. EUI-64 conversion FLIPS this bit when forming an IPv6 interface ID — so a burned-in MAC starting 02:xx becomes 00:xx in the resulting interface ID, and vice versa.",
+      "topic": "eui-64"
+    },
+    {
+      "id": "v1c26-j02",
+      "front": "Three sections of an IPv6 Global Unicast Address (GUA), and typical sizes?",
+      "back": "Global routing prefix: typically 48 bits (assigned by ISP/RIR). Subnet identifier: typically 16 bits (lets enterprise carve up to 65,536 subnets). Interface identifier: 64 bits (host portion, often EUI-64 derived). Total = 128 bits.",
+      "topic": "ipv6-gua"
+    },
+    {
+      "id": "v1c26-j03",
+      "front": "Structure of an IPv6 Unique Local Address (ULA): prefix bits, global ID, subnet ID, interface ID?",
+      "back": "FC00::/7 range (in practice all begin with FD — FC00::/8 is reserved for centrally-managed assignment, never used). Format: 8 bits = FD, 40 bits = randomly-chosen Global ID, 16 bits = Subnet ID, 64 bits = Interface ID. The random Global ID makes ULA prefixes effectively unique even between merged organizations.",
+      "topic": "ipv6-ula"
+    },
+    {
+      "id": "v1c26-j04",
+      "front": "IPv6 multicast scope hex prefixes: FF01, FF02, FF05, FF08, FF0E.",
+      "back": "FF01 = Interface-local (loopback only). FF02 = Link-local (single segment, never routed). FF05 = Site-local. FF08 = Organization-local. FF0E = Global (routable). The second hex digit of an FFxx address encodes the scope.",
+      "topic": "ipv6-multicast-scope"
+    },
+    {
+      "id": "v1c26-j05",
+      "front": "List the IPv6 cast types (and the IPv6 address with no broadcast equivalent).",
+      "back": "Unicast: one-to-one. Multicast: one-to-many (FF00::/8). Anycast: one-to-one-of-many — same address on multiple devices, the network routes to the topologically nearest. NO broadcast in IPv6 — anything that needed broadcast in IPv4 (ARP, DHCP discovery) uses multicast in IPv6.",
+      "topic": "ipv6-cast-types"
+    },
+    {
+      "id": "v1c26-j06",
+      "front": "IPv6 unspecified (::), loopback (::1), and the 224.0.0.x ↔ FF02::x equivalents for routing protocols.",
+      "back": "Unspecified: :: (used as source when no address yet). Loopback: ::1 (= 127.0.0.1). All-nodes link-local IPv6: FF02::1 (= 224.0.0.1). All-routers IPv6: FF02::2 (= 224.0.0.2). OSPF: FF02::5 (=224.0.0.5), DR/BDR FF02::6 (=224.0.0.6). RIP: FF02::9 (=224.0.0.9). EIGRP: FF02::A (=224.0.0.10).",
+      "topic": "ipv6-special"
     }
   ]
 }

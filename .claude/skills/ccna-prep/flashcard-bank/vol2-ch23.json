@@ -1,7 +1,9 @@
 {
   "chapter": "vol2-ch23",
   "title": "Understanding REST and JSON",
-  "weeks": [22],
+  "weeks": [
+    22
+  ],
   "cards": [
     {
       "id": "v2c23-01",
@@ -44,6 +46,18 @@
       "front": "What is idempotency in REST, and which HTTP methods are idempotent?",
       "back": "Idempotent: making the same request multiple times has the same effect as making it once. GET, PUT, DELETE are idempotent (PUT to /users/5 with same body always = same end state). POST is NOT idempotent (each POST typically creates a new resource).",
       "topic": "idempotency"
+    },
+    {
+      "id": "v2c23-j01",
+      "front": "Whitespace significance: JSON, XML, YAML?",
+      "back": "JSON: whitespace is NOT significant (purely syntactic spacing). XML: whitespace is generally NOT significant (configurable). YAML: whitespace IS significant — indentation defines structure (use spaces, never tabs).",
+      "topic": "data-formats"
+    },
+    {
+      "id": "v2c23-j02",
+      "front": "Quick syntax cues: which is JSON, XML, YAML?",
+      "back": "JSON: `{\"key\": \"value\"}` — braces, quoted keys, colon separator. XML: `<key>value</key>` — angle-bracket tags. YAML: starts with `---`, then `key: value` lines indented with spaces; lists use `- item`. All three commonly serve as REST API payloads (JSON is dominant for REST; XML for SOAP/NETCONF; YAML for config files like Ansible playbooks and Kubernetes manifests).",
+      "topic": "data-format-syntax"
     }
   ]
 }

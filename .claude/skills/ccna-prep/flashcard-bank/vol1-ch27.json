@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch27",
   "title": "Implementing IPv6 Addressing on Routers",
-  "weeks": [14],
+  "weeks": [
+    14
+  ],
   "cards": [
     {
       "id": "v1c27-01",

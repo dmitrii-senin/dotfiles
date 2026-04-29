@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch02",
   "title": "Fundamentals of Ethernet LANs",
-  "weeks": [1],
+  "weeks": [
+    1
+  ],
   "cards": [
     {
       "id": "v1c2-01",
@@ -56,6 +58,66 @@
       "front": "What is the OUI portion of a MAC address?",
       "back": "Organizationally Unique Identifier — the first 24 bits (3 bytes) of a MAC, assigned to the NIC vendor by IEEE. The remaining 24 bits are vendor-assigned to make each MAC globally unique.",
       "topic": "mac-address"
+    },
+    {
+      "id": "v1c2-j01",
+      "front": "What Cisco product line names map to: switch, router, firewall?",
+      "back": "Switch: Catalyst. Router: ISR (Integrated Services Router). Firewall: ASA (legacy) and Firepower (next-generation, NGFW). NGFW = traditional firewall + advanced filtering (app-level inspection, IPS).",
+      "topic": "cisco-hardware"
+    },
+    {
+      "id": "v1c2-j02",
+      "front": "Match each IEEE 802.3 amendment to its Ethernet speed/standard: 802.3i, 802.3u, 802.3ab, 802.3an, 802.3z, 802.3ae.",
+      "back": "802.3i = 10BASE-T (10 Mbps over UTP). 802.3u = 100BASE-T (Fast Ethernet). 802.3ab = 1000BASE-T (Gigabit over UTP). 802.3an = 10GBASE-T. 802.3z = 1000BASE-X (Gigabit fiber, e.g. 1000BASE-LX). 802.3ae = 10G fiber (10GBASE-SR/LR/ER).",
+      "topic": "ethernet-standards"
+    },
+    {
+      "id": "v1c2-j03",
+      "front": "How many UTP wire pairs are used by 10/100BASE-T vs 1000/10GBASE-T?",
+      "back": "10BASE-T and 100BASE-T use 2 pairs (4 wires) — pins 1-2 and 3-6. 1000BASE-T and 10GBASE-T use all 4 pairs (8 wires) — pins 1-2, 3-6, 4-5, 7-8.",
+      "topic": "utp-cabling"
+    },
+    {
+      "id": "v1c2-j04",
+      "front": "On a FastEthernet RJ45 connection, which devices transmit on pins 1-2 vs 3-6?",
+      "back": "Endpoints/'MDI' devices (PC, router, firewall) transmit on 1-2, receive on 3-6. Switches/'MDI-X' devices transmit on 3-6, receive on 1-2. That's why a straight-through cable works between unlike (PC-switch) and a crossover is needed between like (switch-switch, router-router, PC-router).",
+      "topic": "utp-cabling"
+    },
+    {
+      "id": "v1c2-j05",
+      "front": "What is Auto MDI-X?",
+      "back": "A switch/NIC feature that automatically detects and adjusts which RJ45 pin pairs it uses to transmit vs receive, so a straight-through cable works regardless of device pairing. Most modern Gigabit ports support it; the exam still tests the manual cable rules.",
+      "topic": "utp-cabling"
+    },
+    {
+      "id": "v1c2-j06",
+      "front": "How are fiber-optic cables connected to a router or switch?",
+      "back": "Via SFP (Small Form-Factor Pluggable) transceivers — modular optics that plug into an SFP slot on the device. Variants include SFP+ (10G), QSFP (40G), QSFP28 (100G).",
+      "topic": "fiber-optics"
+    },
+    {
+      "id": "v1c2-j07",
+      "front": "Single-mode vs multimode fiber — core size, light path, distance, cost?",
+      "back": "Single-mode: narrow core (~9 µm), light travels at one angle, longer distances (km+), more expensive — uses laser. Multimode: wider core (50/62.5 µm), light enters at multiple angles (modes), shorter distance, cheaper — uses LED or VCSEL.",
+      "topic": "fiber-optics"
+    },
+    {
+      "id": "v1c2-j08",
+      "front": "Approximate max cable length for 10GBASE-SR, 10GBASE-LR, 10GBASE-ER, 1000BASE-LX?",
+      "back": "10GBASE-SR: ~400 m (multimode, Short Range). 10GBASE-LR: 10 km (single-mode, Long Range). 10GBASE-ER: 30-40 km (single-mode, Extended Range). 1000BASE-LX: 550 m multimode / 5 km single-mode.",
+      "topic": "fiber-optics"
+    },
+    {
+      "id": "v1c2-j09",
+      "front": "Why is fiber more secure than UTP copper?",
+      "back": "UTP cables emit a faint EM signal outside the cable that can be detected/copied (eavesdropping) and are vulnerable to EMI. Fiber transmits light through glass — no EM emission, no EMI susceptibility, much harder to tap.",
+      "topic": "fiber-optics"
+    },
+    {
+      "id": "v1c2-j10",
+      "front": "What does the speed label 'Ethernet / FastEthernet / GigabitEthernet / 10 GigE' mean in Mbps/Gbps?",
+      "back": "Ethernet = 10 Mbps. FastEthernet = 100 Mbps. GigabitEthernet = 1 Gbps (1000 Mbps). 10 GigabitEthernet = 10 Gbps. (Cisco interface names: Ethernet0, FastEthernet0/1, GigabitEthernet0/0, TenGigabitEthernet0/1.)",
+      "topic": "ethernet-speeds"
     }
   ]
 }

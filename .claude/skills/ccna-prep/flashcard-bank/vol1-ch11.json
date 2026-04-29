@@ -1,7 +1,9 @@
 {
   "chapter": "vol1-ch11",
   "title": "Perspectives on IPv4 Subnetting",
-  "weeks": [4],
+  "weeks": [
+    4
+  ],
   "cards": [
     {
       "id": "v1c11-01",
@@ -44,6 +46,24 @@
       "front": "Two design goals when planning a subnet — what's the typical tradeoff?",
       "back": "More subnets vs. more hosts per subnet. Borrow more bits = more subnets but smaller subnets. Borrow fewer = fewer subnets but more hosts each. Pick the smallest mask that satisfies your largest required subnet, then VLSM the rest.",
       "topic": "subnetting-concepts"
+    },
+    {
+      "id": "v1c11-j01",
+      "front": "IPv4 address classes A/B/C/D/E — first-octet ranges, leading bit pattern, default prefix, and use.",
+      "back": "A: 0-127, leading 0xxx, /8, unicast (huge nets). B: 128-191, 10xx, /16, unicast (medium). C: 192-223, 110x, /24, unicast (small). D: 224-239, 1110, multicast (no prefix concept). E: 240-255, 1111, experimental/reserved. Class A 127.0.0.0/8 is loopback (not a usable host range).",
+      "topic": "ipv4-classes"
+    },
+    {
+      "id": "v1c11-j02",
+      "front": "What is the IPv4 loopback address range, and what is it used for?",
+      "back": "127.0.0.0/8 — any address with first octet 127 is a loopback. Most commonly 127.0.0.1. Packets sent here never leave the local host; used to test the network stack and for inter-process communication on the same machine.",
+      "topic": "ipv4-special"
+    },
+    {
+      "id": "v1c11-j03",
+      "front": "Within a subnet, what makes an address the network address vs the broadcast address?",
+      "back": "Network address: host portion all 0s — identifies the subnet, not assignable to a host. Broadcast address: host portion all 1s — sent to all hosts in the subnet. Both are unusable for hosts, which is why the formula is 2^H − 2 usable addresses per subnet.",
+      "topic": "subnetting"
     }
   ]
 }
