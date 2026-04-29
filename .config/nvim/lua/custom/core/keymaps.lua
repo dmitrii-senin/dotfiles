@@ -21,8 +21,6 @@ map("n", "<M-S-Left>", "<Cmd>vertical resize +2<cr>", { desc = "Increase Window 
 map("n", "<M-S-Right>", "<Cmd>vertical resize -2<cr>", { desc = "Decrease Window Width" })
 
 -- buffers
-map("n", "<S-h>", "<Cmd>bprevious<cr>", { desc = "Prev Buffer" })
-map("n", "<S-l>", "<Cmd>bnext<cr>", { desc = "Next Buffer" })
 map("n", "[b", "<Cmd>bprevious<cr>", { desc = "Prev Buffer" })
 map("n", "]b", "<Cmd>bnext<cr>", { desc = "Next Buffer" })
 map("n", "<Leader>bb", "<Cmd>e #<cr>", { desc = "Switch to Other Buffer" })
