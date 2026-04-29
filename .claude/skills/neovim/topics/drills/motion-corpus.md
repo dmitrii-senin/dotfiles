@@ -65,6 +65,16 @@ Drills the `/neovim drill` and `warmup` modes pick from. Each entry is a short, 
 - **target**: `3}` then `3{`
 - **accept**: end at original cursor line.
 
+### hd-08 *(level:1, tags: line-motion, plus)*
+- **prompt**: Move cursor down 5 lines, landing on the first non-blank of the destination line.
+- **target**: `5+`
+- **accept**: cursor 5 lines below, on first non-blank of that line. Verify with `:echo col('.')`.
+
+### hd-09 *(level:2, tags: eol, last-non-blank)*
+- **prompt**: Move to the last non-blank character of the current line (skipping any trailing whitespace).
+- **target**: `g_`
+- **accept**: cursor on the last visible character — same as `$` for clean lines, but skips trailing spaces.
+
 ---
 
 ## wm — word motions
@@ -113,6 +123,16 @@ Drills the `/neovim drill` and `warmup` modes pick from. Each entry is a short, 
 - **prompt**: From inside a function call, jump to the *opening* `(` of the call.
 - **target**: `[(`
 - **accept**: cursor on `(`. *(or `F(` if same line).*
+
+### wm-10 *(level:2, tags: f, count, find)*
+- **prompt**: On a line with several commas, jump to the 3rd comma after the cursor in one motion.
+- **target**: `3f,`
+- **accept**: cursor on the 3rd `,` ahead.
+
+### wm-11 *(level:2, tags: iskeyword, e)*
+- **prompt**: Given `foo_bar.baz`, with default `iskeyword` (which includes `_`), jump from the start to the end of `foo_bar` using `e`, then to the end of `baz` with `we`.
+- **target**: `e`, then `we`
+- **accept**: cursor on `r` (end of `foo_bar`), then on `z` (end of `baz`). The `.` is a word boundary; `_` is not.
 
 ---
 
@@ -168,6 +188,16 @@ Drills the `/neovim drill` and `warmup` modes pick from. Each entry is a short, 
 - **target**: `ya]` *(equivalent: `ya[`)*
 - **accept**: register contents include `[…]`.
 
+### to-11 *(level:3, tags: at, html-tag, around)*
+- **prompt**: In an HTML/JSX file with a `<div>...</div>` block, delete the entire element including both opening and closing tags.
+- **target**: `dat`
+- **accept**: tag pair and inner content removed.
+
+### to-12 *(level:3, tags: vat, html-tag, visual)*
+- **prompt**: In an HTML/JSX file, visually select the entire tag including its body (both `<tag>` and `</tag>` plus contents).
+- **target**: `vat`
+- **accept**: visual covers both tags + body.
+
 ---
 
 ## op — operators
@@ -216,6 +246,21 @@ Drills the `/neovim drill` and `warmup` modes pick from. Each entry is a short, 
 - **prompt**: Insert `// ` at the start of the next 5 lines using visual block mode.
 - **target**: `<C-v>4j`, `I// <Esc>`
 - **accept**: prefix added to all 5 lines after `<Esc>`.
+
+### op-10 *(level:1, tags: xp, swap)*
+- **prompt**: Fix a transposed-letters typo: place the cursor on the first of two adjacent characters that need swapping (e.g., `r` in `wrod`) and swap with the next char.
+- **target**: `xp`
+- **accept**: the two adjacent chars are now in correct order. Useful daily idiom.
+
+### op-11 *(level:2, tags: gJ, join, no-space)*
+- **prompt**: Join the current line with the next without inserting a space between them (vs `J` which adds a space).
+- **target**: `gJ`
+- **accept**: lines concatenated end-to-end with no inserted whitespace.
+
+### op-12 *(level:2, tags: dot, repeat, daw)*
+- **prompt**: Delete the word under cursor with `daw`. Then move forward with `w` and use `.` to repeat the deletion. Then again. Three deletions, two of them via dot-repeat.
+- **target**: `daw`, then `w` (or whatever advances to next word), `.`, `.`
+- **accept**: 3 words removed; the dot-repeat habit is the point.
 
 ---
 
@@ -300,6 +345,21 @@ Drills the `/neovim drill` and `warmup` modes pick from. Each entry is a short, 
 - **target**: `mA`, `:e other.txt<CR>`, `'A`
 - **accept**: original file reopened, cursor on marked line.
 
+### mj-07 *(level:2, tags: visual-marks)*
+- **prompt**: After making a visual selection, the start and end positions are stored in marks `<` and `>`. Without using `gv`, jump to the *start* of the last visual selection.
+- **target**: `` `< ``
+- **accept**: cursor at the position where the last visual selection began.
+
+### mj-08 *(level:3, tags: global-mark, workflow)*
+- **prompt**: Set global mark `M` (uppercase = global) in this file. Open a different file with `:e`. Jump back via the mark and verify the original file reopens with cursor at the marked position.
+- **target**: `mM`, `:e other.txt<CR>`, then `` `M ``
+- **accept**: original file reopened, cursor on marked position. Distinct from mj-06 in that this drill is about *practicing the workflow*, not just knowing the keystroke.
+
+### mj-09 *(level:1, tags: marks, list)*
+- **prompt**: List all currently defined marks (file-local lowercase `a-z`, global uppercase `A-Z`, and special marks like `'`, `"`).
+- **target**: `:marks<CR>`
+- **accept**: a table of marks appears in the cmd area.
+
 ---
 
 ## rg — registers
@@ -338,6 +398,16 @@ Drills the `/neovim drill` and `warmup` modes pick from. Each entry is a short, 
 - **prompt**: In insert mode, paste the current file's path.
 - **target**: in insert: `<C-r>%`
 - **accept**: full filename appears at cursor.
+
+### rg-08 *(level:2, tags: clipboard, paste, plus)*
+- **prompt**: Paste the contents of the system clipboard *after* the cursor (i.e., as if you'd copied something in your browser and want it dropped into the buffer).
+- **target**: `"+p`
+- **accept**: the clipboard payload appears in the buffer at the expected position.
+
+### rg-09 *(level:2, tags: black-hole, delete-line, real-flow)*
+- **prompt**: You yanked a line earlier (it sits in the unnamed register and `0`). Now you want to delete the current line WITHOUT clobbering that yank, so the next `p` still pastes the original. Use the black-hole register.
+- **target**: `"_dd`
+- **accept**: line removed; `:reg "` shows the previously-yanked content unchanged; `p` pastes the original yank.
 
 ---
 
@@ -431,6 +501,26 @@ Drills the `/neovim drill` and `warmup` modes pick from. Each entry is a short, 
 - **target**: `<C-w>w`, `<C-w>W`
 - **accept**: focus moves between windows.
 
+### fw-06 *(level:1, tags: window-only)*
+- **prompt**: With multiple splits open, close all windows except the current one in a single command.
+- **target**: `<C-w>o`
+- **accept**: only the current window remains.
+
+### fw-07 *(level:1, tags: window-equal)*
+- **prompt**: With multiple splits of varying sizes, equalize all window sizes in one command.
+- **target**: `<C-w>=`
+- **accept**: all windows have approximately equal width/height.
+
+### fw-08 *(level:2, tags: fold-toggle, granular)*
+- **prompt**: Toggle the fold under the cursor — open if closed, close if open — without affecting any other folds.
+- **target**: `za`
+- **accept**: only the cursor's fold flips state.
+
+### fw-09 *(level:3, tags: fold-create, manual)*
+- **prompt**: With `foldmethod=manual`, create a fold from the current line through the end of the enclosing function using a text-object motion.
+- **target**: `zfaf`
+- **accept**: the function's lines are now folded into one display line. *(Set `:set foldmethod=manual` first if not already.)*
+
 ---
 
 ## lsp — LSP-driven (0.11+ defaults)
@@ -504,15 +594,25 @@ Drills the `/neovim drill` and `warmup` modes pick from. Each entry is a short, 
 - **target**: configured `init_selection` then `node_incremental` repeatedly *(check user's `treesitter.lua`)*
 - **accept**: selection grows scope by scope.
 
+### ts-06 *(level:2, tags: function-end, ]M)*
+- **prompt**: Jump to the *end* of the current function (closing brace or last statement of body).
+- **target**: `]M`
+- **accept**: cursor on the function's last syntactic element. Mirror of `]m` (function start).
+
+### ts-07 *(level:2, tags: class-jump, ]])*
+- **prompt**: Jump to the start of the next class/struct/module definition in the buffer.
+- **target**: `]]`
+- **accept**: cursor on the next class/struct/module header line.
+
 ---
 
 ## Index
 
-Total drills: **70**
-- hd: 7  • wm: 9  • to: 10  • op: 9  • ss: 9  • mj: 6
-- rg: 7  • mc: 5  • ex: 6  • fw: 5  • lsp: 8  • ts: 5
+Total drills: **106**
+- hd: 9  • wm: 11  • to: 12  • op: 12  • ss: 9  • mj: 9
+- rg: 9  • mc: 5  • ex: 6  • fw: 9  • lsp: 8  • ts: 7
 
-Suggested **warmup pool** (level:1 only): `hd-01 hd-02 hd-03 wm-01 wm-04 to-01 to-02 to-03 op-01 op-02 op-03 ss-01 ss-02 mj-04 rg-01 rg-02 fw-01 fw-03 lsp-01 lsp-02 lsp-07`.
+Suggested **warmup pool** (level:1 only): `hd-01 hd-02 hd-03 hd-08 wm-01 wm-04 to-01 to-02 to-03 op-01 op-02 op-03 op-10 ss-01 ss-02 mj-04 mj-09 rg-01 rg-02 fw-01 fw-03 fw-06 fw-07 lsp-01 lsp-02 lsp-07`.
 
 Suggested **daily core** (level:2): everything tagged `level:2`.
 
