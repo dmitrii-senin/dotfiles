@@ -272,16 +272,18 @@ Append to `data/flashcards.json`:
 
 ### `flash review`
 
-**Step 1 — Inject this week's bank cards into the active deck.**
+**Step 1 — Inject bank cards for chapters the user has *finished* into the active deck.**
+
+A chapter is "finished" once the last week it was scheduled for has ended. Never inject cards for material the user hasn't yet read/watched — that defeats the purpose of spaced review.
 
 1. Compute the current plan week (same logic as `schedule` mode — read the start date from `ccna-prep.md`, compute weeks elapsed).
-2. Read `ccna-prep.md` to find which OCG chapters are listed for the current week (look for `OCG Vol N: Ch X *Title*` patterns under the current week's heading).
-3. For each matched chapter, read `flashcard-bank/vol{N}-ch{NN}.json`.
-4. For each card in the bank file, check if its `id` is already in `data/flashcards.json` deck. If not, **append it** with:
-   - `chapter` and `week` fields copied from the bank file (use first entry of `weeks` array as the week)
+2. Scan every file in `flashcard-bank/`. For each bank file, look at its `weeks` array.
+3. A chapter is **eligible for injection** iff `current_week > max(weeks)` — the entire span of weeks for that chapter is in the past. Example: chapter with `"weeks": [6, 7]` becomes eligible starting week 8; chapter with `"weeks": [10]` becomes eligible starting week 11.
+4. For each eligible chapter, for each card in its bank file: check if the card's `id` is already in `data/flashcards.json` deck. If not, **append it** with:
+   - `chapter` and `week` fields copied from the bank file (use first entry of `weeks` array as the week — this records when the material was first studied)
    - `box: 1`, `due_date: today`, `created: today`
 5. Save the updated deck.
-6. Print: *"Injected N new cards from <chapter list> for week <W>."* (or skip the message if N=0).
+6. Print: *"Injected N new cards from <chapter list> (chapters finished through week <current_week - 1>)."* (or skip the message if N=0).
 
 **Step 2 — Review due cards.**
 
@@ -295,7 +297,9 @@ Append to `data/flashcards.json`:
 4. Save updated `flashcards.json`.
 
 **Edge cases:**
-- If today is in a consolidation/light/exam week (current_week ≥ 27) or pre-prep (today < start_date): skip Step 1, run Step 2 only.
+- If today is pre-prep (today < start_date): skip Step 1, run Step 2 only — no chapter has been studied yet.
+- During week 1, `current_week - 1 = 0` so no chapters are eligible yet. This is correct: the user is still reading week-1 material; cards inject starting week 2.
+- During consolidation/light/exam weeks (current_week ≥ 27), Step 1 is effectively a no-op since all bank chapters were already injected in earlier weeks. Run it anyway — cheap.
 - If a bank chapter file is missing: warn but don't error — *"Chapter <X> bank not yet generated."*
 - Bank cards are read-only reference. Once injected into the active deck they live there independently — promoting/demoting a card never touches the bank file.
 
