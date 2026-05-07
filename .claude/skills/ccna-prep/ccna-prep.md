@@ -6,9 +6,9 @@ You're preparing for the **Cisco CCNA 200-301** exam with a **7-month** timeline
 
 The longer runway lets you go deeper, repeat labs from memory, and consolidate — instead of cramming. The risk of a long timeline is **forgetting early material**, so this plan bakes in cumulative review every 4 weeks. Two video tracks (Jeremy's IT Lab + Neil Anderson's Udemy CCNA Complete) run in parallel and reinforce each topic from two angles.
 
-**Plan start date:** Monday **2026-04-27** (this is the source of truth for the `/ccna-prep schedule` mode — change it here if the start shifts).
+**Plan start date:** Monday **2026-05-04** (this is the source of truth for the `/ccna-prep schedule` mode — change it here if the start shifts). *Originally 2026-04-27; shifted +7 days on 2026-05-07 to absorb a holiday week (2026-05-11 to 2026-05-17).*
 
-**Goal:** Pass CCNA 200-301 in **November 2026**. Week 26 ends ~2026-10-25; **target exam date ~2026-11-23** (week 30). Weeks 27-28 are confidence-consolidation (no new material), week 29 is light review, exam in week 30.
+**Goal:** Pass CCNA 200-301 in **November/December 2026**. Week 26 ends ~2026-11-01; **target exam date ~2026-11-30** (week 30). Weeks 27-28 are confidence-consolidation (no new material), week 29 is light review, exam in week 30.
 
 ## Resources (locked in)
 
@@ -165,7 +165,7 @@ The longer runway lets you go deeper, repeat labs from memory, and consolidate �
 - OCG Vol 2: Ch 5 *Introduction to TCP/IP Transport and Applications* (port-number context for ACLs), Ch 6 *Basic IPv4 Access Control Lists*, Ch 7 *Named and Extended IP ACLs*, Ch 8 *Applied IP ACLs*
 - **Udemy**: Sec 28 ACLs - Access Control Lists (8 lectures, 1h9m) + Sec 32 The Security Threat Landscape (10 lectures, 2h1m) — first half (threats, common attacks, firewalls vs IDS/IPS, packet filters)
 - Lab: standard ACL, extended ACL, named ACL — practice placement (extended close to source, standard close to destination)
-- **Buy Cisco exam voucher this week** and schedule for ~2026-11-23 (week 30). Re-confirm CCNA 200-301 v1.1 is still the current blueprint before purchase.
+- **Buy Cisco exam voucher this week** and schedule for ~2026-11-30 (week 30). Re-confirm CCNA 200-301 v1.1 is still the current blueprint before purchase.
 
 **Week 19 — Cisco device security + AAA + WAN/VPN concepts**
 - Jeremy Day 47-49
@@ -239,7 +239,7 @@ The longer runway lets you go deeper, repeat labs from memory, and consolidate �
 - Skim OCG chapters tagged "review" in your notes
 - No new labs
 
-**Week 30 — Exam week (~2026-11-23)**
+**Week 30 — Exam week (~2026-11-30)**
 - 2 days before: only flashcards, sleep, hydrate
 - Exam day
 
@@ -332,5 +332,5 @@ You're exam-ready when **all** of these are true:
 - **Boson ExSim** kept optional — your Udemy course covers practice testing; Boson is a polish-and-confidence add-on for week 24+ if you want extra signal before exam day.
 - **Packet Tracer over GNS3/EVE-NG** — covers 100% of CCNA blueprint with zero IOS image licensing hassle. If you want to go further post-cert, switch to EVE-NG for CCNP prep.
 - This plan assumes the current **CCNA 200-301 v1.1** blueprint. Confirm Cisco hasn't released a v1.2 before purchasing the exam voucher (week 18). Re-check at week 1 too.
-- **Buy the exam voucher in week 18** and schedule the exam for ~2026-11-23 (week 30). Earlier purchase = ~12 weeks of "exam scheduled" pressure. Concrete date > vague target.
+- **Buy the exam voucher in week 18** and schedule the exam for ~2026-11-30 (week 30). Earlier purchase = ~12 weeks of "exam scheduled" pressure. Concrete date > vague target.
 - **Plan source of truth:** this file is now the canonical copy at `~/x/dotfiles/.claude/skills/ccna-prep/ccna-prep.md` (the original at `~/ccna-prep.md` can be deleted or symlinked: `ln -sf ~/x/dotfiles/.claude/skills/ccna-prep/ccna-prep.md ~/ccna-prep.md`).
