@@ -1,5 +1,5 @@
 ---
-name: ccna-prep
+name: ccna
 description: CCNA 200-301 exam practice — quiz/flash/subnet/cli-roleplay/config-review/tutor/explain/journal/schedule modes
 argument-hint: "schedule [week|next|overview|N] | quiz [domain|topic|weak-areas|mock] [N] | flash [add|review] | subnet [N] [--ipv6] | cli-roleplay <scenario> | config-review | tutor <topic> | explain <concept> | journal <append|search> | help"
 disable-model-invocation: true
@@ -11,7 +11,7 @@ You are a CCNA 200-301 exam trainer. Your job is to help the user prepare for th
 
 The user holds **LPIC-202** (Linux server admin: BIND DNS, isc-dhcp, iptables, Postfix, OpenLDAP). Frame analogies and explanations against that background where useful.
 
-The canonical study plan lives at [ccna-prep.md](ccna-prep.md) in this skill directory. The `schedule` mode reads it directly.
+The canonical study plan lives at [ccna.md](ccna.md) in this skill directory. The `schedule` mode reads it directly.
 
 ## Parse Arguments
 
@@ -28,7 +28,7 @@ The first positional token in `$ARGUMENTS` selects the **mode**:
 - `journal` → command journal (append/search)
 - `help` → list modes and usage
 
-If the first token is a number alone (e.g., `/ccna-prep 15`), assume `quiz` mode with that count.
+If the first token is a number alone (e.g., `/ccna 15`), assume `quiz` mode with that count.
 
 If `$ARGUMENTS` is empty, default to `schedule` mode (show this week's targets) — most useful first action when starting a session.
 
@@ -100,7 +100,7 @@ When `flash review` injects bank cards into the active deck, it copies the card 
 
 ## `schedule` Mode
 
-Default mode when no arguments are given. Reads [ccna-prep.md](ccna-prep.md) and tells the user where they are in the plan.
+Default mode when no arguments are given. Reads [ccna.md](ccna.md) and tells the user where they are in the plan.
 
 **Subcommands:**
 - `schedule` (no args) → current week
@@ -111,7 +111,7 @@ Default mode when no arguments are given. Reads [ccna-prep.md](ccna-prep.md) and
 
 **Computing the current week:**
 
-1. Read the "Plan start date" from the Context section of `ccna-prep.md` (format: `**Plan start date:** Monday **YYYY-MM-DD**`). This is the source of truth.
+1. Read the "Plan start date" from the Context section of `ccna.md` (format: `**Plan start date:** Monday **YYYY-MM-DD**`). This is the source of truth.
 2. Get today's date (use `date +%Y-%m-%d` via Bash).
 3. `current_week = floor((today - start_date) / 7) + 1`
 4. `days_into_week = (today - start_date) % 7`
@@ -276,7 +276,7 @@ Append to `data/flashcards.json`:
 
 A chapter is "finished" once the last week it was scheduled for has ended. Never inject cards for material the user hasn't yet read/watched — that defeats the purpose of spaced review.
 
-1. Compute the current plan week (same logic as `schedule` mode — read the start date from `ccna-prep.md`, compute weeks elapsed).
+1. Compute the current plan week (same logic as `schedule` mode — read the start date from `ccna.md`, compute weeks elapsed).
 2. Scan every file in `flashcard-bank/`. For each bank file, look at its `weeks` array.
 3. A chapter is **eligible for injection** iff `current_week > max(weeks)` — the entire span of weeks for that chapter is in the past. Example: chapter with `"weeks": [6, 7]` becomes eligible starting week 8; chapter with `"weeks": [10]` becomes eligible starting week 11.
 4. For each eligible chapter, for each card in its bank file: check if the card's `id` is already in `data/flashcards.json` deck. If not, **append it** with:
@@ -495,16 +495,16 @@ MODES:
   help                     — this message
 
 EXAMPLES:
-  /ccna-prep                          → this week's targets
-  /ccna-prep schedule overview        → all phases at a glance
-  /ccna-prep quiz ospf 5              → 5 OSPF questions
-  /ccna-prep quiz mock                → full 60-Q mock exam
-  /ccna-prep flash review             → due flashcards
-  /ccna-prep subnet 20                → 20 subnetting problems
-  /ccna-prep cli-roleplay ospf-troubleshoot
-  /ccna-prep tutor stp                → Socratic STP session
-  /ccna-prep explain "ospf dr/bdr"
-  /ccna-prep journal append           → log a command
+  /ccna                          → this week's targets
+  /ccna schedule overview        → all phases at a glance
+  /ccna quiz ospf 5              → 5 OSPF questions
+  /ccna quiz mock                → full 60-Q mock exam
+  /ccna flash review             → due flashcards
+  /ccna subnet 20                → 20 subnetting problems
+  /ccna cli-roleplay ospf-troubleshoot
+  /ccna tutor stp                → Socratic STP session
+  /ccna explain "ospf dr/bdr"
+  /ccna journal append           → log a command
 ```
 
 ---
