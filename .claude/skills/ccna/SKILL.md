@@ -288,13 +288,21 @@ A chapter is "finished" once the last week it was scheduled for has ended. Never
 **Step 2 — Review due cards.**
 
 1. Load `data/flashcards.json`. Filter cards where `due_date <= today`. If none: *"No cards due. Next due: <date>."* and exit.
-2. For each due card:
+2. **If due count > 30, ask the user how to scope the session** via `AskUserQuestion` with these options:
+   - **Cap at 25, prioritize wrongs** (recommended when prior session had misses) — cards where `last_result == "n"` come first, then fill with oldest-due.
+   - **Cap at 25, prioritize new** — cards that have never been reviewed (`last_reviewed` missing) come first.
+   - **Cap at 25, oldest-due first** — pure FIFO on `due_date`.
+   - **All N cards** — no cap; warn it'll be ~`N * 1.5` minutes.
+
+   Cards NOT selected for the session have `due_date` deferred by 1 day. (Skip this prompt if due count ≤ 30 — just review them all.)
+3. For each card in the session:
    - Show `front`. Wait for the user's answer.
    - Show `back`. Ask: *"Got it right? [y/n]"*
    - On `y`: `box = min(5, box+1)`, `due_date` = today + interval for new box.
    - On `n`: `box = 1`, `due_date` = tomorrow.
-3. After all cards: *"Reviewed N cards. Promoted X, demoted Y. Next session: M cards due in D days."*
-4. Save updated `flashcards.json`.
+   - **Always** update: `last_reviewed = today`, `last_result = "y"` or `"n"`.
+4. After all cards: *"Reviewed N cards. Promoted X, demoted Y. Next session: M cards due in D days."* — and if any misses: *"Wrongs (re-test tomorrow): <list of card ids>"*.
+5. Save updated `flashcards.json`.
 
 **Edge cases:**
 - If today is pre-prep (today < start_date): skip Step 1, run Step 2 only — no chapter has been studied yet.
