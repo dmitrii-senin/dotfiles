@@ -2,7 +2,7 @@
 
 ## Context
 
-You're preparing for the **Cisco CCNA 200-301** exam with a **7-month** timeline at a sustainable **~7-8 h/week** pace. You hold **LPIC-202**, so you already have solid foundations in Linux networking, DNS, DHCP, mail, web services, and routing concepts at the OS level. The CCNA shifts the perspective from *host-side* to *network-device-side* (Cisco IOS CLI, switching, routing protocols, ACLs, wireless, automation).
+You're preparing for the **Cisco CCNA 200-301** exam with a **7-month** timeline at a sustainable **~7-8 h/week** pace. The CCNA scope: Cisco IOS CLI, switching, routing protocols, IP services, ACLs, wireless, and automation/programmability — viewed from the network-device side.
 
 The longer runway lets you go deeper, repeat labs from memory, and consolidate — instead of cramming. The risk of a long timeline is **forgetting early material**, so this plan bakes in cumulative review every 4 weeks. Two video tracks (Jeremy's IT Lab + Neil Anderson's Udemy CCNA Complete) run in parallel and reinforce each topic from two angles.
 
@@ -46,9 +46,8 @@ The longer runway lets you go deeper, repeat labs from memory, and consolidate �
 - OCG Vol 1: Ch 1 *Introduction to TCP/IP Networking*, Ch 2 *Fundamentals of Ethernet LANs*, Ch 3 *Fundamentals of WANs and IP Routing*
 - **Udemy**: Sec 1 Welcome (20m), Sec 2 How to Use the Lab Exercises and Anki Flashcards (29m) — pure orientation, knock out first; Sec 3 Host to Host Communications (30m), Sec 5 OSI Layer 4 - The Transport Layer (13m), Sec 6 OSI Layer 3 - The Network Layer (54m)
 - Lab: install Packet Tracer, interface tour, basic device drag-and-drop topology
-- **Start daily 10-problem subnetting drill on subnettingpractice.com** (or `/ccna subnet 10`). Begin from week 1 — your LPIC-202 IPv4 background means there's no warm-up needed; longer runway = more reps before exam.
+- **Start daily 10-problem subnetting drill on subnettingpractice.com** (or `/ccna subnet 10`). Begin from week 1 — longer runway = more reps before exam.
 - **Confirm Cisco CCNA 200-301 v1.1 is still current** (check cisco.com training-events page) — don't study for an outdated blueprint.
-- *LPIC-202 leverage:* skim OSI fast — focus on Cisco-specific layer terminology
 
 **Week 2 — IOS CLI fundamentals**
 - Jeremy Day 4-7
@@ -137,7 +136,6 @@ The longer runway lets you go deeper, repeat labs from memory, and consolidate �
 - OCG Vol 1: Ch 25 *Fundamentals of IP Version 6*, Ch 26 *IPv6 Addressing and Subnetting*, Ch 27 *Implementing IPv6 Addressing on Routers*, Ch 28 *Implementing IPv6 Addressing on Hosts*, Ch 29 *Implementing IPv6 Routing*
 - **Udemy**: Sec 30 IPv6 Addressing and Routing (12 lectures, 1h45m)
 - Lab: dual-stack topology, SLAAC, OSPFv3
-- *LPIC-202 leverage:* IPv6 addressing rules transfer directly — focus on Cisco config syntax
 
 **Week 15 — Consolidation + Phase 3 review (mid-plan checkpoint)**
 - Re-build a full Phase 3 lab from memory: 3 routers + 2 switches + VLANs + OSPF + dual-stack
@@ -152,7 +150,6 @@ The longer runway lets you go deeper, repeat labs from memory, and consolidate �
 - OCG Vol 2: Ch 13 *Device Management Protocols* (covers NTP, syslog, CDP/LLDP). Note: OCG has no dedicated DHCP/DNS chapter — DHCP server config lives in Vol 1 Ch 19; lean on Jeremy / Udemy Sec 23 for DHCP basics this week.
 - **Udemy**: Sec 23 DHCP - Dynamic Host Configuration Protocol (7 lectures, 32m) + Sec 34 Network Device Management (10 lectures, 1h4m) — NTP / syslog / CDP / LLDP lectures (defer SNMP/FTP/TFTP lectures to week 20)
 - Lab: IOS DHCP server + `ip helper-address` relay, NTP client/server hierarchy
-- *LPIC-202 leverage:* DHCP/DNS concepts identical — focus on IOS syntax
 
 **Week 17 — NAT (static, dynamic, PAT) + QoS**
 - Jeremy Day 41-43
@@ -195,7 +192,6 @@ The longer runway lets you go deeper, repeat labs from memory, and consolidate �
 - OCG Vol 2: Ch 18 *LAN Architecture*, Ch 20 *Cloud Architecture*, Ch 23 *Understanding REST and JSON*
 - **Udemy**: Sec 36 Cloud Computing (9 lectures, 1h28m) + Sec 38 Network Automation and Programmability (15 lectures, 2h50m) — first half (Python/Git/CI-CD, JSON/XML/YAML, REST/SOAP APIs, Postman lab)
 - Lab: hit a REST API with curl or Postman, parse a JSON response
-- *LPIC-202 leverage:* you've used YAML and JSON — focus on Cisco's specific automation tools
 
 **Week 23 — Automation deep dive + AI/ML + SDN**
 - Jeremy Day 59-60
@@ -257,7 +253,7 @@ The 6-month timeline + your absence of a question-bank-on-demand makes Claude an
 | `/ccna cli-roleplay <scenario>` | Claude pretends to be an IOS device. You type commands, it returns realistic `show` output and accepts config changes. Scenarios: `ospf-troubleshoot`, `vlan-build`, `acl-design`, `bare-router`. **Huge value** because real exam includes simlets — and this trains muscle memory without booting Packet Tracer. |
 | `/ccna config-review` | Paste an IOS config; Claude critiques it as if it were an exam scenario: missing best practices, security gaps, would this pass the lab task |
 | `/ccna tutor <topic>` | Socratic mode. Claude asks questions to draw out your understanding of e.g. OSPF neighbor states, doesn't give answers until you commit |
-| `/ccna explain <concept>` | Direct explanation, but framed against your LPIC-202 background (e.g., "OSPF LSA flooding is like…") |
+| `/ccna explain <concept>` | Direct explanation of a CCNA concept: essence, mechanism, IOS specifics, common exam trap. |
 | `/ccna journal <append\|search>` | Persistent IOS command journal. `append` adds a `{date, topic, command, note}` entry; `search` greps for command/topic. Replaces the plain text "command journal" habit. |
 | `/ccna schedule [week\|next\|overview]` | Reads this plan file, computes current week from the start date, prints what's due this week (theory targets, lab task, milestones, habit reminders) and weeks-until-exam. `schedule next` previews next week; `schedule overview` shows all phases at a glance. |
 
@@ -272,7 +268,7 @@ Three small files maintained by the skill (under `~/.claude/skills/ccna/data/`, 
 ### Why a skill, not a hook or memory
 
 - **Skill** = on-demand, parameterized, has its own instructions and data files → perfect fit for quiz/flash/CLI roleplay
-- **Memory** = facts about you (already used for "user holds LPIC-202", "studying for CCNA")
+- **Memory** = facts about you (e.g., "studying for CCNA, target exam date")
 - **Hook** = automatic on event. *Optional add:* a `SessionStart` hook that runs `/ccna flash review` to surface 5 due cards at the start of every session — turns idle session-opens into review opportunities. Decide in week 4 whether you want this nudge or find it noisy.
 
 ### Build sequence (week 1, ~2 hours total)
@@ -301,18 +297,17 @@ Use Claude for **drilling concepts, fast feedback loops, weak-area discovery, an
 5. **Command journal** — use `/ccna journal append` after every lab. Becomes your personal cheat sheet for weeks 22-24 and feeds `/ccna cli-roleplay` scenario design.
 6. **Monthly cumulative review** — every 4 weeks (built into the consolidation weeks above), re-do labs from earlier phases to fight decay.
 
-## Leveraging your LPIC-202 background
+## Where the real depth lies
 
-| You already know (LPIC-202) | CCNA angle to focus on |
-|---|---|
-| DNS server config (BIND) | DNS as a *client service* on IOS, `ip name-server`, `ip domain-lookup` |
-| DHCP server (isc-dhcp) | IOS DHCP server + `ip helper-address` relay |
-| Routing concepts (Linux `ip route`) | Cisco RIB/FIB, administrative distance, OSPF LSA types and neighbor states |
-| Firewall (iptables/nftables) | Cisco ACLs (stateless, top-down match, implicit deny — placement rules) |
-| TCP/IP, OSI, ports | Skim fast; reinvest the saved time in switching/STP/wireless |
-| YAML, scripting basics | Focus on Cisco automation tooling specifics (DNA Center, NETCONF/RESTCONF) |
+**Highest-yield topics for exam points and real-world use** — budget extra mental energy here:
 
-**Where the real new learning happens:** switching internals, STP/RSTP, wireless architecture, OSPF Cisco-specific behavior (DR/BDR, LSA types, neighbor state machine), and the IOS CLI itself. Budget mental energy there.
+- Switching internals: MAC learning, flooding, frame forwarding
+- STP / RSTP: port roles/states, root election, convergence
+- Wireless architecture: APs, WLCs, CAPWAP, SSIDs, WLAN security
+- OSPF Cisco specifics: DR/BDR election, LSA types, neighbor state machine, MTU/area mismatches
+- IOS CLI muscle memory: config modes, `show`/`debug` output reading, common error messages
+- ACLs: standard vs extended, wildcard masks, top-down match logic, placement rules
+- Subnetting: pure speed — must be < 30s per problem cold
 
 ## Verification — how you'll know you're ready
 
