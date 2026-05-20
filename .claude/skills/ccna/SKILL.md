@@ -321,11 +321,21 @@ Default count = 10. Format: `subnet [N] [--ipv6]`.
 
 ### IPv4 problem types (cycle through)
 
+**Variety principle:** never reuse the same canonical example twice in a session. Rotate the source prefix, the octet where the math lands, the starting offset (don't always start at `.0`), and the IP block (mix 10.x, 172.16–31.x, 192.168.x, and occasional 100.64.x or 203.0.113.x). The CCNA exam loves problems where the math straddles an octet boundary or starts at a non-zero offset — predictable "always /24 → /22" drills don't build that muscle.
+
 1. **Network/broadcast/usable range** — Given `192.168.42.135/27`, find network, broadcast, first usable, last usable, total usable hosts.
 2. **Subnet mask for N hosts** — Given "need 50 hosts on a subnet", what's the smallest mask?
 3. **Subnet mask for N subnets** — Given a /24 and "need 8 equal subnets", what's the new mask and what are the network IDs?
 4. **VLSM allocation** — Given a /24 and 3 LANs needing 100, 50, 20 hosts, allocate non-overlapping subnets.
-5. **Summarization** — Given a list of 4 contiguous subnets, find the summary route.
+5. **Summarization** — Given a list of contiguous subnets, find the summary route. **Vary aggressively** — do NOT default to "4 contiguous /24s → /22". Rotate across:
+   - **Source prefixes**: /30, /29, /28, /27, /26, /25, /24, /23 (not just /24).
+   - **Count of subnets in the list**: 2, 4, 8, 16 — and occasionally 3, 5, 6, 7 (odd counts force the user to pick the most-specific summary that *over-includes* extra space, or recognize that no clean summary exists).
+   - **Octet location**: third-octet boundaries are most common, but also use second-octet (`172.16.0.0/16` + `172.17.0.0/16` → `172.16.0.0/15`) and fourth-octet (`10.1.1.0/28` + `10.1.1.16/28` → `10.1.1.0/27`).
+   - **Starting boundary**: avoid always starting at `.0`. Use offsets like `10.4.20.0/24` – `10.4.23.0/24`, or `192.168.96.0/23` – `192.168.102.0/23`.
+   - **Address blocks**: mix 10.x, 172.16–31.x, 192.168.x, and occasionally public-style blocks like 203.0.113.x.
+   - **Span octet boundaries**: e.g., `10.1.254.0/24` + `10.1.255.0/24` + `10.2.0.0/24` + `10.2.1.0/24` — these can't be summarized as a single /22 because they don't align; force the user to recognize the boundary trap.
+   - **Discontiguous "smallest covering summary"**: occasionally give a list like `10.1.4.0/24, 10.1.5.0/24, 10.1.7.0/24` (missing .6) — ask for the most specific summary that covers all (`10.1.4.0/22`, accepting that .6 is included as collateral). This mirrors real BGP/OSPF area-summarization decisions.
+   - **Reverse direction**: occasionally invert — given a summary `10.1.16.0/20`, list all the /24s it covers, or all the /22s.
 6. **Wildcard mask conversion** — Given subnet mask `255.255.255.224`, what's the wildcard? (For ACL/OSPF use.)
 
 ### IPv6 problem types
