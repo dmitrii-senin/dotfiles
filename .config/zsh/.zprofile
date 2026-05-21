@@ -7,10 +7,19 @@ path+=("$CARGO_HOME/bin")
 
 path+=("$GOPATH/bin")
 
-case "$(uname -o)" in
-	"Darwin")
-    eval "$(/opt/homebrew/bin/brew shellenv zsh)"
-    path+=("$(brew --prefix go)/bin")
+case "$(uname -s)" in
+	Darwin)
+		for brew_prefix in /opt/homebrew /usr/local; do
+			if [[ -x "$brew_prefix/bin/brew" ]]; then
+				eval "$("$brew_prefix/bin/brew" shellenv zsh)"
+				break
+			fi
+		done
+		if command -v brew >/dev/null 2>&1; then
+			if go_prefix=$(brew --prefix go 2>/dev/null); then
+				path+=("$go_prefix/bin")
+			fi
+		fi
 		;;
 esac
 
