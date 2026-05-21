@@ -25,8 +25,6 @@ export TZ="Europe/London"
 # Dev Environment
 # --------------------------------------------------------------------------------
 export CARGO_HOME="$HOME/.local/cargo"
-
-export GOROOT=/usr/local/go
 export GOPATH=$HOME/.local/go
 
 

@@ -6,12 +6,11 @@ path+=("$HOME/.local/bin")
 path+=("$CARGO_HOME/bin")
 
 path+=("$GOPATH/bin")
-path+=("$GOROOT/bin")
 
 case "$(uname -o)" in
 	"Darwin")
-		path+=("$HOME/homebrew/bin")
-		path+=("$HOME/homebrew/sbin")
+    eval "$(/opt/homebrew/bin/brew shellenv zsh)"
+    path+=("$(brew --prefix go)/bin")
 		;;
 esac
 
