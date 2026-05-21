@@ -230,10 +230,10 @@ Install [Rust](https://www.rust-lang.org/tools/install):
 curl https://sh.rustup.rs -sSf | sh
 ```
 
-Install `yazi`:
+Install `yazi` (installs both the `yazi` TUI and the `ya` CLI):
 
 ```sh
-cargo install yazi-fm
+cargo install --force yazi-build
 ```
 
 ### 4. Go Tools (Linux only)
