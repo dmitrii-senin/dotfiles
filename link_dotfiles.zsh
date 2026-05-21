@@ -19,12 +19,15 @@ sync_paths=(
 	.config/wezterm
 	.config/zsh
 	.zshenv
+	.claude/settings.json
+	.claude/settings.local.json
+	.claude/statusline.sh
 )
 
 
 function make_xdg_dirs() {
 	local xdg_dir
-	local xdg_dirs=("$HOME/.config" "$HOME/.local/state" "$HOME/.local/share")
+	local xdg_dirs=("$HOME/.config" "$HOME/.local/state" "$HOME/.local/share" "$HOME/.claude")
 	for xdg_dir in $xdg_dirs; do
 		if [ ! -d "$xdg_dir" ]; then
 			inf "Creating dir '$xdg_dir' ..."

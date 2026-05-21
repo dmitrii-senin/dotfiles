@@ -1,0 +1,8 @@
+{
+  "theme": "dark",
+  "effortLevel": "xhigh",
+  "statusLine": {
+    "type": "command",
+    "command": "bash $HOME/.claude/statusline.sh"
+  }
+}
