@@ -64,6 +64,8 @@ Install [Homebrew](https://brew.sh/) if not already installed:
 
 Install packages:
 
+> `zsh` ships pre-installed on macOS 10.15 (Catalina) and later — no need to install it.
+
 ```sh
 brew install \
     bat \
@@ -78,8 +80,7 @@ brew install \
     ripgrep \
     starship \
     yazi \
-    zellij \
-    zsh
+    zellij
 ```
 
 Install GUI apps and fonts:
