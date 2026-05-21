@@ -66,11 +66,18 @@ Install packages:
 
 ```sh
 brew install \
+    bat \
+    eza \
+    fd \
     fzf \
     git \
+    git-delta \
+    glow \
     go \
     neovim \
+    ripgrep \
     starship \
+    yazi \
     zellij \
     zsh
 ```
@@ -103,13 +110,31 @@ Install system packages:
 ```sh
 sudo apt update
 sudo apt install -y \
+    bat \
     build-essential \
     curl \
+    eza \
+    fd-find \
     fontconfig \
+    fzf \
     git \
+    git-delta \
     neovim \
+    ripgrep \
+    starship \
+    zellij \
     zsh
 ```
+
+> On Debian/Ubuntu, `bat` and `fd-find` install as `batcat` and `fdfind` to avoid conflicts with other packages. Symlink them to their usual names:
+>
+> ```sh
+> mkdir -p ~/.local/bin
+> ln -sf "$(which batcat)" ~/.local/bin/bat
+> ln -sf "$(which fdfind)" ~/.local/bin/fd
+> ```
+>
+> Ensure `~/.local/bin` is on your `PATH`.
 
 Install WezTerm:
 
@@ -128,18 +153,6 @@ mkdir -p "$FONT_DIR"
 curl -L https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz \
     | tar xJf - -C "$FONT_DIR"
 fc-cache -fv "$FONT_DIR"
-```
-
-Install starship:
-
-```sh
-curl -sS https://starship.rs/install.sh | sh
-```
-
-Install fzf:
-
-```sh
-sudo apt install -y fzf
 ```
 
 Install zellij plugins ([zjstatus](https://github.com/dj95/zjstatus), [vim-zellij-navigator](https://github.com/hiasr/vim-zellij-navigator)):
@@ -161,11 +174,20 @@ Install system packages:
 
 ```sh
 sudo dnf install -y \
+    bat \
     curl \
+    eza \
+    fd-find \
+    fzf \
     gcc \
     git \
+    git-delta \
     make \
     neovim \
+    ripgrep \
+    starship \
+    yazi \
+    zellij \
     zsh
 ```
 
@@ -186,18 +208,6 @@ curl -L https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrai
 fc-cache -fv "$FONT_DIR"
 ```
 
-Install starship:
-
-```sh
-curl -sS https://starship.rs/install.sh | sh
-```
-
-Install fzf:
-
-```sh
-sudo dnf install -y fzf
-```
-
 Install zellij plugins ([zjstatus](https://github.com/dj95/zjstatus), [vim-zellij-navigator](https://github.com/hiasr/vim-zellij-navigator)):
 
 ```sh
@@ -210,7 +220,9 @@ curl -L https://github.com/hiasr/vim-zellij-navigator/releases/latest/download/v
 
 </details>
 
-### 3. Rust CLI Tools (all platforms)
+### 3. Rust CLI Tools (Ubuntu only)
+
+> macOS gets `yazi` via Homebrew and Fedora via dnf above. Ubuntu doesn't ship `yazi` in its repos, so it's the one tool we still build from source.
 
 Install [Rust](https://www.rust-lang.org/tools/install):
 
@@ -218,22 +230,17 @@ Install [Rust](https://www.rust-lang.org/tools/install):
 curl https://sh.rustup.rs -sSf | sh
 ```
 
-Install CLI tools:
+Install `yazi`:
 
 ```sh
-cargo install \
-    bat \
-    eza \
-    fd-find \
-    git-delta \
-    ripgrep \
-    yazi-fm \
-    zellij
+cargo install yazi-fm
 ```
 
-### 4. Go Tools (all platforms)
+### 4. Go Tools (Linux only)
 
-> Go must be installed first (`brew install go` on macOS, or see [go.dev](https://go.dev/dl/)).
+> macOS gets `glow` via Homebrew above. On Linux it's not packaged in apt/dnf, so install from source.
+>
+> Go must be installed first — see [go.dev](https://go.dev/dl/).
 
 ```sh
 go install github.com/charmbracelet/glow@latest
