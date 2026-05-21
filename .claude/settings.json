@@ -1,5 +1,7 @@
 {
   "theme": "dark",
+  "model": "opus",
+  "editorMode": "vim",
   "effortLevel": "xhigh",
   "statusLine": {
     "type": "command",
