@@ -35,3 +35,13 @@ export EDITOR="vim"
 if command -v nvim &> /dev/null ; then
 	export EDITOR="nvim"
 fi
+
+
+# ================================================================================
+# Claude Code shells: source aliases so `!` commands work
+# --------------------------------------------------------------------------------
+if [[ -n "$CLAUDECODE" ]]; then
+	for f in aliases.zsh git.zsh docker.zsh functions.zsh; do
+		[ -f "$ZDOTDIR/$f" ] && source "$ZDOTDIR/$f"
+	done
+fi

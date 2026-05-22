@@ -10,4 +10,5 @@ zsh-meta/
 .claude/skills/ccna/data/weak-areas.json
 .claude/skills/ccna/data/flashcards.json
 .claude/skills/ccna/data/command-journal.md
-.claude/skills/ccna/*.epub
+
+*.epub
