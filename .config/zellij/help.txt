@@ -12,6 +12,7 @@ QUICK KEYS (any non-locked mode)
   Alt j / k          prev / next tab
   Alt H / L          move current tab left / right
   Alt h / l          move pane left / right (slides floats; swaps tiled neighbors)
+  Alt i / o          focus prev / next pane (cycles through floating panes)
   Alt w              toggle floating panes (show/hide)
   Alt z              zoom (toggle fullscreen) current pane
   Alt p              pin / unpin focused floating pane
@@ -20,7 +21,7 @@ QUICK KEYS (any non-locked mode)
   Alt d              detach session
   Alt q              quit zellij (session stays resurrectable)
   Alt Q              kill+delete current session (with confirm)
-  Alt o              open session manager (rename/switch sessions)
+  Alt m              open session manager (rename/switch sessions)
   Alt /              open this keymap
 
 NORMAL (default)
@@ -104,7 +105,7 @@ SESSION MODE (prefix → o)
   Esc/Enter/q        back
   d                  detach
   q                  quit zellij
-  o / Alt o          open session manager
+  o / Alt m          open session manager
 
   CLI: zellij action rename-session NAME    (rename current session)
 

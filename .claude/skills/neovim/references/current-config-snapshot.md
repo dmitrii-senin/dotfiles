@@ -114,8 +114,8 @@ Still missing:
 ## Last-session marker
 
 ```
-last_session: 01 (Mental Model & Modal Editing)
-last_session_date: 2026-05-25
+last_session: 02 (Motions & Text Objects)
+last_session_date: 2026-05-26
 notes_for_next_session: (none)
 ```
 

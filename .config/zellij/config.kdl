@@ -15,6 +15,7 @@
 //   Alt+j/k     prev / next tab
 //   Alt+H/L     move tab left / right
 //   Alt+h/l     move pane left / right (slides floating panes; swaps tiled neighbors)
+//   Alt+i/o     focus prev / next pane (cycles through floating panes)
 //   Alt+w       toggle floating panes (show/hide)
 //   Alt+z       zoom (toggle fullscreen) current pane
 //   Alt+p       pin / unpin focused floating pane
@@ -23,7 +24,7 @@
 //   Alt+d       detach session
 //   Alt+q       quit zellij (session stays resurrectable)
 //   Alt+Q       kill+delete current session (with confirm)
-//   Alt+o       open session manager (rename/switch sessions)
+//   Alt+m       open session manager (rename/switch sessions)
 //   Alt+/       open this keymap (help.txt)
 //
 // Vim-aware navigation
@@ -159,7 +160,7 @@ keybinds clear-defaults=true {
         bind "Esc" "Enter" "q" { SwitchToMode "Normal"; }
         bind "d" { Detach; }
         bind "q" { Quit; }
-        bind "o" "Alt o" {
+        bind "o" "Alt m" {
             LaunchPlugin "session-manager" {
                 floating true
             };
@@ -177,6 +178,8 @@ keybinds clear-defaults=true {
         bind "Alt L" { MoveTab "Right"; }
         bind "Alt h" { MovePane "Left"; }
         bind "Alt l" { MovePane "Right"; }
+        bind "Alt i" { MoveFocus "Left"; }
+        bind "Alt o" { MoveFocus "Right"; }
         bind "Alt p" { TogglePanePinned; }
         bind "Alt e" { TogglePaneEmbedOrFloating; }
         bind "Alt n" { NewTab; }
@@ -203,7 +206,7 @@ keybinds clear-defaults=true {
                 close_on_exit true
             };
         }
-        bind "Alt o" {
+        bind "Alt m" {
             LaunchPlugin "session-manager" {
                 floating true
             };

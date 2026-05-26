@@ -67,7 +67,7 @@ layout {
 
                 tab_sync_indicator       " "
                 tab_fullscreen_indicator " 󰊓"
-                tab_floating_indicator   " 󰹙"
+                tab_floating_indicator   " 󰹙 "
 
                 // Notifications
                 notification_format_unread "#[bg=$surface0,fg=$yellow]#[bg=$yellow,fg=$crust] #[bg=$surface1,fg=$yellow] {message}#[bg=$surface0,fg=$surface1]"
@@ -93,6 +93,7 @@ layout {
                 command_bat_format     "{stdout}"
                 command_bat_interval   "30"
                 command_bat_rendermode "dynamic"
+
 
                 // Datetime
                 datetime          "{format}"
