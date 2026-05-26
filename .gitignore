@@ -11,4 +11,8 @@ zsh-meta/
 .claude/skills/ccna/data/flashcards.json
 .claude/skills/ccna/data/command-journal.md
 
+.claude/skills/claude/data/progress.json
+.claude/skills/claude/data/session-log.md
+.claude/skills/claude/data/audit-log.md
+
 *.epub
