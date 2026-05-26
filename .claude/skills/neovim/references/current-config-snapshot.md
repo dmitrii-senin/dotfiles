@@ -114,8 +114,8 @@ Still missing:
 ## Last-session marker
 
 ```
-last_session: (none)
-last_session_date: (n/a)
+last_session: 01 (Mental Model & Modal Editing)
+last_session_date: 2026-05-25
 notes_for_next_session: (none)
 ```
 
