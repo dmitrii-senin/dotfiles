@@ -1,7 +1,7 @@
 ---
 name: ccna
 description: CCNA 200-301 exam practice — quiz/flash/subnet/cli-roleplay/config-review/tutor/explain/journal/schedule modes
-argument-hint: "schedule [week|next|overview|N] | quiz [domain|topic|weak-areas|mock] [N] | flash [add|review] | subnet [N] [--ipv6] | cli-roleplay <scenario> | config-review | tutor <topic> | explain <concept> | journal <append|search> | help"
+argument-hint: "schedule [week|next|overview|N] | quiz [domain|topic|weak-areas|mock] [N] | flash [add|review|stats] | subnet [N] [--ipv6] | cli-roleplay <scenario> | config-review | tutor <topic> | explain <concept> | journal <append|search> | help"
 disable-model-invocation: true
 ---
 
@@ -63,7 +63,7 @@ For `mock` and `weak-areas` quiz modes, read all 6 domain files (or the subset m
 Three state files in `data/` (gitignored — exist locally, not in version control):
 
 - `data/weak-areas.json` — `{topic_key: {misses, attempts, last_seen, last_score}}`. Updated at end of every quiz.
-- `data/flashcards.json` — `{"deck": [{"id", "front", "back", "chapter", "week", "topic", "box", "due_date", "created"}], "version": 2}`. Leitner-box scheduling.
+- `data/flashcards.json` — `{"deck": [{"id", "front", "back", "chapter", "week", "topic", "box", "due_date", "created", "last_reviewed", "last_result", "consecutive_resets"}], "version": 2}`. Leitner-box scheduling with confidence grading. `last_result` stores `"a"/"h"/"g"/"e"` (again/hard/good/easy); legacy `"y"/"n"` values are treated as `"g"/"a"` respectively.
 - `data/command-journal.md` — append-only markdown log: `## YYYY-MM-DD — topic` headers + command/note bodies.
 
 **Always create these files if missing** when entering a mode that needs them. Use empty defaults: `{}`, `{"deck": [], "version": 2}`, and a `# CCNA Command Journal\n\n` header respectively.
@@ -246,6 +246,8 @@ Mirrors real CCNA 200-301:
 
 Lightweight Leitner-box flashcards in `data/flashcards.json`.
 
+**Subcommands:** `flash add`, `flash review`, `flash stats`.
+
 **Box → review interval:**
 - Box 1: daily
 - Box 2: every 3 days
@@ -253,7 +255,32 @@ Lightweight Leitner-box flashcards in `data/flashcards.json`.
 - Box 4: every 2 weeks
 - Box 5: monthly
 
-New cards start in Box 1. Correct answer → promote one box (max 5). Wrong answer → demote to Box 1.
+**Confidence grading** (replaces binary y/n):
+
+After showing the back, ask: *"How'd you do? [a]gain · [h]ard · [g]ood · [e]asy"*
+
+| Grade | Box change | Due date | When to pick |
+|-------|-----------|----------|--------------|
+| **again** | → Box 1 | tomorrow | Didn't know it / got it wrong |
+| **hard** | stays same box | tomorrow | Got it but struggled or partially wrong |
+| **good** | +1 box (max 5) | today + new box interval | Knew it with reasonable effort |
+| **easy** | +2 boxes (max 5) | today + new box interval | Instant recall, no effort |
+
+Always update: `last_reviewed = today`, `last_result = grade` (store as `"a"`, `"h"`, `"g"`, `"e"`).
+
+**Leech detection:**
+
+Track `consecutive_resets` on each card (number of times the card has been sent back to Box 1 without reaching Box 3+). Increment on `again`; reset to 0 when the card reaches Box 3.
+
+When `consecutive_resets >= 3`, the card is a **leech**. At the end of the review session, list leeches separately:
+
+```
+⚠ Leeches (3+ resets — consider rewriting):
+  • v1c8-03: "What is the default VLAN on Cisco switches?" — 4 resets
+    → Try: break into smaller cards, use tutor mode on this topic, or rewrite front/back
+```
+
+Offer: *"Want to rewrite any of these? Or start a tutor session on the topic?"*
 
 ### `flash add`
 
@@ -285,21 +312,38 @@ A chapter is "finished" once the last week it was scheduled for has ended. Never
 
 **Step 2 — Review due cards.**
 
-1. Load `data/flashcards.json`. Filter cards where `due_date <= today`. If none: *"No cards due. Next due: <date>."* and exit.
+**CRITICAL: Never expose card backs before the user answers.** Tool call outputs (Bash, Read) are visible to the user. If you read the full flashcards.json, the user sees every answer. Follow this protocol strictly:
+
+1. **Build the session queue without reading backs.** Use `jq` to extract only scheduling metadata (no `back` field):
+   ```bash
+   jq '[.deck[] | select(.due_date <= "YYYY-MM-DD") | {id, front, box, due_date, last_result, chapter, topic}]' data/flashcards.json
+   ```
+   This gives you everything needed to filter, sort, and count due cards — without leaking answers.
+
 2. **If due count > 30, ask the user how to scope the session** via `AskUserQuestion` with these options:
-   - **Cap at 25, prioritize wrongs** (recommended when prior session had misses) — cards where `last_result == "n"` come first, then fill with oldest-due.
+   - **Cap at 25, prioritize wrongs** (recommended when prior session had misses) — cards where `last_result == "a"` or `"h"` come first, then fill with oldest-due.
    - **Cap at 25, prioritize new** — cards that have never been reviewed (`last_reviewed` missing) come first.
    - **Cap at 25, oldest-due first** — pure FIFO on `due_date`.
    - **All N cards** — no cap; warn it'll be ~`N * 1.5` minutes.
 
    Cards NOT selected for the session have `due_date` deferred by 1 day. (Skip this prompt if due count ≤ 30 — just review them all.)
-3. For each card in the session:
-   - Show `front`. Wait for the user's answer.
-   - Show `back`. Ask: *"Got it right? [y/n]"*
-   - On `y`: `box = min(5, box+1)`, `due_date` = today + interval for new box.
-   - On `n`: `box = 1`, `due_date` = tomorrow.
-   - **Always** update: `last_reviewed = today`, `last_result = "y"` or `"n"`.
-4. After all cards: *"Reviewed N cards. Promoted X, demoted Y. Next session: M cards due in D days."* — and if any misses: *"Wrongs (re-test tomorrow): <list of card ids>"*.
+
+3. **Present each card one at a time:**
+   - Show `front` (already in memory from step 1). Wait for the user's answer.
+   - **Only after the user answers**, fetch that single card's back:
+     ```bash
+     jq -r '.deck[] | select(.id == "CARD_ID") | .back' data/flashcards.json
+     ```
+   - Show `back`. Ask: *"How'd you do? [a]gain · [h]ard · [g]ood · [e]asy"*
+   - Apply the confidence grading table (see above) to update `box` and `due_date`.
+   - If grade is `again`: increment `consecutive_resets` (initialize to 0 if missing).
+   - If card reaches Box 3+: reset `consecutive_resets` to 0.
+   - **Always** update: `last_reviewed = today`, `last_result = grade`.
+   - **Never batch-read multiple backs.** Each back is fetched individually, after the user commits an answer.
+
+4. After all cards, print session summary:
+   - *"Reviewed N cards. Easy: X · Good: Y · Hard: Z · Again: W. Next session: M cards due in D days."*
+   - If any leeches (`consecutive_resets >= 3`): show the leech warning block (see Leech detection above).
 5. Save updated `flashcards.json`.
 
 **Edge cases:**
@@ -308,6 +352,42 @@ A chapter is "finished" once the last week it was scheduled for has ended. Never
 - During consolidation/light/exam weeks (current_week ≥ 27), Step 1 is effectively a no-op since all bank chapters were already injected in earlier weeks. Run it anyway — cheap.
 - If a bank chapter file is missing: warn but don't error — *"Chapter <X> bank not yet generated."*
 - Bank cards are read-only reference. Once injected into the active deck they live there independently — promoting/demoting a card never touches the bank file.
+
+### `flash stats`
+
+Print a progress dashboard. Read `data/flashcards.json` using `jq` (no need for backs — only scheduling metadata).
+
+**Output:**
+
+```
+📊 Flashcard Progress
+─────────────────────
+Total cards: N
+
+Box distribution:
+  Box 1 (daily)     ██████████████ 42  (28%)
+  Box 2 (3-day)     ████████       24  (16%)
+  Box 3 (weekly)    ██████████     30  (20%)
+  Box 4 (2-week)    ████████████   36  (24%)
+  Box 5 (monthly)   ██████         18  (12%)
+
+Mastered (Box 4+5): 54 / 150  (36%)
+
+Review streak: 12 days (last reviewed: 2026-05-27)
+Due today: 8 · Due this week: 23
+
+Last 7 days:  reviewed 45, again 3, hard 8, good 28, easy 6 — retention 76%
+Last 30 days: reviewed 180, again 12, hard 30, good 110, easy 28 — retention 77%
+
+Leeches (3+ resets): 2 cards
+  • v1c8-03: "What is the default VLAN on Cisco switches?" — 4 resets
+  • v1c2-07: "Name the 3 frame types on 802.3 Ethernet" — 3 resets
+```
+
+**Calculations:**
+- **Retention rate** = `(good + easy) / total_reviewed` over the period. Derive from `last_reviewed` and `last_result` fields across the deck. This is an approximation (only tracks the most recent result per card, not full history), but sufficient for trend awareness.
+- **Review streak** = count consecutive days backward from today where at least one card has `last_reviewed` on that date. If no card was reviewed today, streak = 0.
+- **Bar chart** = use Unicode block characters (`█`), scale so the longest bar is ~20 chars.
 
 ---
 
@@ -484,7 +564,7 @@ MODES:
   quiz [domain|topic|N]    — interactive quiz, default 10 mixed Qs
   quiz weak-areas [N]      — focus on your weakest subtopics
   quiz mock [N]            — full mock exam, 60 weighted Qs
-  flash add | review       — Leitner flashcards
+  flash add | review | stats — Leitner flashcards
   subnet [N] [--ipv6]      — subnetting drill
   cli-roleplay <scenario>  — IOS device roleplay (bare-router, bare-switch,
                              vlan-build, ospf-troubleshoot, acl-design, stp-investigate)
@@ -500,6 +580,7 @@ EXAMPLES:
   /ccna quiz ospf 5              → 5 OSPF questions
   /ccna quiz mock                → full 60-Q mock exam
   /ccna flash review             → due flashcards
+  /ccna flash stats              → SRS progress dashboard
   /ccna subnet 20                → 20 subnetting problems
   /ccna cli-roleplay ospf-troubleshoot
   /ccna tutor stp                → Socratic STP session
