@@ -257,7 +257,11 @@ Lightweight Leitner-box flashcards in `data/flashcards.json`.
 
 **Confidence grading** (replaces binary y/n):
 
-After showing the back, ask: *"How'd you do? [a]gain · [h]ard · [g]ood · [e]asy"*
+After showing the back, ask the user to rate using this exact format (no bold, no markdown):
+
+```
+Rate: (a)gain · (h)ard · (g)ood · (e)asy
+```
 
 | Grade | Box change | Due date | When to pick |
 |-------|-----------|----------|--------------|
@@ -312,7 +316,7 @@ A chapter is "finished" once the last week it was scheduled for has ended. Never
 
 **Step 2 — Review due cards.**
 
-**CRITICAL: Never expose card backs before the user answers.** Tool call outputs (Bash, Read) are visible to the user. If you read the full flashcards.json, the user sees every answer. Follow this protocol strictly:
+**CRITICAL: Never expose card backs BEFORE the user answers.** Tool call outputs (Bash, Read) are visible to the user, so reading the full flashcards.json would leak all answers. Fetch backs one at a time, only AFTER the user has answered — then always display the back so the user can compare.
 
 1. **Build the session queue without reading backs.** Use `jq` to extract only scheduling metadata (no `back` field):
    ```bash
@@ -334,7 +338,7 @@ A chapter is "finished" once the last week it was scheduled for has ended. Never
      ```bash
      jq -r '.deck[] | select(.id == "CARD_ID") | .back' data/flashcards.json
      ```
-   - Show `back`. Ask: *"How'd you do? [a]gain · [h]ard · [g]ood · [e]asy"*
+   - **Print the back content in your response text** so the user can compare their answer. Then print the rating prompt: `Rate: (a)gain · (h)ard · (g)ood · (e)asy`
    - Apply the confidence grading table (see above) to update `box` and `due_date`.
    - If grade is `again`: increment `consecutive_resets` (initialize to 0 if missing).
    - If card reaches Box 3+: reset `consecutive_resets` to 0.
