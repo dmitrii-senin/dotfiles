@@ -27,7 +27,7 @@ return {
           vim.lsp.completion.enable(true, client.id, event.buf, { autotrigger = true })
         end
 
-        if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
+        if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
           local highlight_augroup = vim.api.nvim_create_augroup("custom-lsp-highlight", { clear = false })
           vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
             buffer = event.buf,
@@ -50,13 +50,13 @@ return {
           })
         end
 
-        if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
+        if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
           map("<Leader>th", function()
             vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
           end, "[T]oggle Inlay [H]ints")
         end
 
-        if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_foldingRange) then
+        if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_foldingRange) then
           local win = vim.api.nvim_get_current_win()
           vim.wo[win][0].foldmethod = "expr"
           vim.wo[win][0].foldexpr = "v:lua.vim.lsp.foldexpr()"

@@ -23,8 +23,6 @@ return {
         "prettier",
         "ruff",
         "rustfmt",
-        -- Linters (used by nvim-lint)
-        "clangtidy",
         -- Debuggers (used by nvim-dap configurations)
         "codelldb",
         "debugpy",

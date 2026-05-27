@@ -5,8 +5,6 @@ return {
     local lint = require("lint")
     lint.linters_by_ft = {
       python = { "ruff" },
-      cpp = { "clangtidy" },
-      c = { "clangtidy" },
     }
     vim.api.nvim_create_autocmd({ "BufWritePost", "BufReadPost", "InsertLeave" }, {
       callback = function()
