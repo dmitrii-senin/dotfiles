@@ -48,6 +48,6 @@ return {
     map("n", "<Leader>fk", builtin.keymaps, { desc = "[F]ind [K]eymaps" })
     map("n", "<Leader>fm", builtin.man_pages, { desc = "[F]ind [M]an pages" })
     map("n", "<Leader>f'", builtin.marks, { desc = "[F]ind Marks" })
-    map("n", "<Leader>f\"", builtin.registers, { desc = "[F]ind Registers" })
+    map("n", "<Leader>fr", builtin.registers, { desc = "[F]ind [R]egisters" })
   end,
 }

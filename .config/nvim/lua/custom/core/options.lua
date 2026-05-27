@@ -50,6 +50,7 @@ opt.jumpoptions = "view"
 opt.laststatus = 3 -- global statusline
 opt.linebreak = true -- Wrap lines at convenient points
 opt.mouse = "a" -- Enable mouse mode
+opt.completeopt = "menuone,noinsert,popup"
 opt.pumblend = 10 -- Popup blend
 opt.pumheight = 10 -- Maximum number of entries in a popup
 opt.ruler = false -- Disable the default ruler

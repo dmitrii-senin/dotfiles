@@ -20,6 +20,7 @@ return {
         map("gO", require("telescope.builtin").lsp_document_symbols, "Document Symbols")
         map("<Leader>ft", require("telescope.builtin").lsp_type_definitions, "[F]ind [T]ype Definition")
         map("gW", require("telescope.builtin").lsp_dynamic_workspace_symbols, "[W]orkspace Symbols")
+        map("<Leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
 
         -- Native completion
         local client = vim.lsp.get_client_by_id(event.data.client_id)
@@ -75,7 +76,11 @@ return {
       for type, icon in pairs(signs) do
         diagnostic_signs[vim.diagnostic.severity[type]] = icon
       end
-      vim.diagnostic.config({ signs = { text = diagnostic_signs } })
+      vim.diagnostic.config({
+        signs = { text = diagnostic_signs },
+        virtual_text = false,
+        virtual_lines = { current_line = true },
+      })
     end
 
     vim.lsp.config("lua_ls", {

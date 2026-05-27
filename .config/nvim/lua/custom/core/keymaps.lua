@@ -40,8 +40,6 @@ map("v", ">", ">gv")
 -- new file
 map("n", "<Leader>fn", "<Cmd>enew<cr>", { desc = "New File" })
 
-map("n", "<Leader>ll", "<Cmd>lopen<cr>", { desc = "Location List" })
-map("n", "<Leader>lq", "<Cmd>copen<cr>", { desc = "Quickfix List" })
 
 map("n", "[q", vim.cmd.cprev, { desc = "Previous Quickfix" })
 map("n", "]q", vim.cmd.cnext, { desc = "Next Quickfix" })
@@ -55,6 +53,12 @@ map({ "i", "s" }, "<C-h>", function()
   if vim.snippet.active({ direction = -1 }) then return vim.snippet.jump(-1) end
 end, { desc = "Snippet jump backward", expr = true })
 
+-- completion: re-trigger / open menu manually
+map("i", "<C-n>", "<C-x><C-o>", { desc = "Trigger completion" })
+map("i", "<Tab>", function()
+  return vim.fn.pumvisible() == 1 and "<C-y>" or "<Tab>"
+end, { desc = "Confirm completion or indent", expr = true })
+
 -- diagnostic
 local diagnostic_goto = function(next, severity)
   severity = severity and vim.diagnostic.severity[severity] or nil
@@ -62,7 +66,6 @@ local diagnostic_goto = function(next, severity)
     vim.diagnostic.jump({ count = next and 1 or -1, severity = severity })
   end
 end
-map("n", "<Leader>cd", vim.diagnostic.open_float, { desc = "Line Diagnostics" })
 map("n", "]e", diagnostic_goto(true, "ERROR"), { desc = "Next Error" })
 map("n", "[e", diagnostic_goto(false, "ERROR"), { desc = "Prev Error" })
 map("n", "]w", diagnostic_goto(true, "WARN"), { desc = "Next Warning" })

@@ -7,18 +7,18 @@ return {
       "mfussenegger/nvim-dap-python",
     },
     keys = {
-      { "<leader>db", function() require("dap").toggle_breakpoint() end, desc = "Toggle Breakpoint" },
-      { "<leader>dB", function()
+      { "<leader>Db", function() require("dap").toggle_breakpoint() end, desc = "Toggle Breakpoint" },
+      { "<leader>DB", function()
         require("dap").set_breakpoint(vim.fn.input("Breakpoint condition: "))
       end, desc = "Conditional Breakpoint" },
-      { "<leader>dc", function() require("dap").continue() end, desc = "Continue" },
-      { "<leader>do", function() require("dap").step_over() end, desc = "Step Over" },
-      { "<leader>di", function() require("dap").step_into() end, desc = "Step Into" },
-      { "<leader>dO", function() require("dap").step_out() end, desc = "Step Out" },
-      { "<leader>dr", function() require("dap").repl.toggle() end, desc = "Toggle REPL" },
-      { "<leader>dl", function() require("dap").run_last() end, desc = "Run Last" },
-      { "<leader>dt", function() require("dap").terminate() end, desc = "Terminate" },
-      { "<leader>du", function() require("dapui").toggle() end, desc = "Toggle DAP UI" },
+      { "<leader>Dc", function() require("dap").continue() end, desc = "Continue" },
+      { "<leader>Do", function() require("dap").step_over() end, desc = "Step Over" },
+      { "<leader>Di", function() require("dap").step_into() end, desc = "Step Into" },
+      { "<leader>DO", function() require("dap").step_out() end, desc = "Step Out" },
+      { "<leader>Dr", function() require("dap").repl.toggle() end, desc = "Toggle REPL" },
+      { "<leader>Dl", function() require("dap").run_last() end, desc = "Run Last" },
+      { "<leader>Dt", function() require("dap").terminate() end, desc = "Terminate" },
+      { "<leader>Du", function() require("dapui").toggle() end, desc = "Toggle DAP UI" },
     },
     config = function()
       local dap = require("dap")
