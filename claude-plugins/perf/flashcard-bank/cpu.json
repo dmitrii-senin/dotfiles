@@ -1,0 +1,702 @@
+[
+  {
+    "id": "cpu-001",
+    "front": "How wide is the Skylake decode pipeline?",
+    "back": "4 uops/cycle from MITE (legacy decode), up to 6 uops/cycle from DSB (uop cache). The MITE has 4 simple decoders (changed from 1 complex + 3 simple in earlier uarchs with the Skylake refresh).",
+    "tags": ["pipeline", "skylake", "decode"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-002",
+    "front": "What is the retire width on Golden Cove (Alder Lake P-core)?",
+    "back": "6 uops per cycle. This is up from 4 in Skylake and earlier. Zen 4 also retires 6 uops/cycle.",
+    "tags": ["pipeline", "golden-cove", "retire"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-003",
+    "front": "What is the approximate pipeline depth of Skylake?",
+    "back": "~14-19 stages depending on whether uops come from the DSB (shorter) or MITE legacy decode path (longer). The minimum branch misprediction penalty reflects this depth.",
+    "tags": ["pipeline", "skylake", "depth"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-004",
+    "front": "What is the approximate pipeline depth of Zen 4?",
+    "back": "~19-22 stages. Deeper than Skylake, reflecting AMD's higher-frequency design target. Branch misprediction penalty is correspondingly higher at ~13-18 cycles.",
+    "tags": ["pipeline", "zen4", "depth"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-005",
+    "front": "How many bytes can Skylake fetch per cycle from the instruction cache?",
+    "back": "16 bytes per cycle from the L1 instruction cache (MITE path). The DSB path bypasses this and delivers up to 6 uops/cycle directly.",
+    "tags": ["pipeline", "skylake", "fetch"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-006",
+    "front": "What is the issue width (dispatch to execution units) on Skylake?",
+    "back": "Up to 6 uops per cycle dispatched from the Reservation Station to execution ports (ports 0-7). In practice, limited by port contention.",
+    "tags": ["pipeline", "skylake", "issue"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-007",
+    "front": "What is the fetch width of Zen 4 from the instruction cache?",
+    "back": "32 bytes per cycle, double that of Skylake (16B). This helps with large instruction footprints and reduces frontend bottlenecks.",
+    "tags": ["pipeline", "zen4", "fetch"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-008",
+    "front": "How many uops per cycle can the Skylake allocator (renamer) handle?",
+    "back": "Up to 6 uops per cycle allocated/renamed in the backend. Matches the DSB delivery width, ensuring no bottleneck between frontend and backend.",
+    "tags": ["pipeline", "skylake", "allocator"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-009",
+    "front": "What is the decode width of Zen 4?",
+    "back": "4 uops/cycle from the traditional decoders. The op cache (analogous to Intel's DSB) can deliver up to 9 uops/cycle in Zen 4 (up from 8 in Zen 3).",
+    "tags": ["pipeline", "zen4", "decode"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-010",
+    "front": "What is the retire width on Skylake?",
+    "back": "4 uops per cycle. This was the bottleneck that Golden Cove addressed by widening to 6.",
+    "tags": ["pipeline", "skylake", "retire"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-011",
+    "front": "What is the branch misprediction penalty on Skylake?",
+    "back": "~14-17 cycles minimum (reflects the pipeline depth from fetch to execute). In practice can be higher due to pipeline refill effects.",
+    "tags": ["branch-prediction", "skylake", "penalty"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-012",
+    "front": "How many BTB (Branch Target Buffer) entries does Skylake have?",
+    "back": "Two levels: L1 BTB has ~4096 entries (direct-mapped or 4-way), L2 BTB has ~4096-8192 entries. Zen 4 has a significantly larger BTB at ~16K entries.",
+    "tags": ["branch-prediction", "skylake", "btb"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-013",
+    "front": "What is the RSB (Return Stack Buffer) and how deep is it on Skylake?",
+    "back": "The RSB predicts return addresses by maintaining a hardware stack of call targets. Skylake has 16 entries deep. When RSB underflows, Skylake falls back to the BTB (which can be a Spectre RSB vulnerability).",
+    "tags": ["branch-prediction", "skylake", "rsb"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-014",
+    "front": "What is a TAGE branch predictor?",
+    "back": "Tagged Geometric History Length predictor. Uses multiple tables indexed by different global history lengths (geometric series: e.g., 4, 8, 16, 32... branches). Longer history tables capture longer patterns. Used in Skylake and Zen 2+ (with variations). Achieves >96% accuracy on most workloads.",
+    "tags": ["branch-prediction", "tage", "concept"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-015",
+    "front": "What does the loop predictor do, and when was it notable?",
+    "back": "Detects loops with a fixed trip count and predicts the exact iteration when the loop exits. Present in Haswell through Skylake. Intel disabled it via microcode update on Skylake due to a partial-register bug causing incorrect speculation.",
+    "tags": ["branch-prediction", "loop-predictor"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-016",
+    "front": "What is the branch misprediction penalty on Zen 4?",
+    "back": "~13-18 cycles, comparable to Skylake despite a deeper pipeline, thanks to improvements in the branch predictor. AMD uses a perceptron-based predictor in addition to TAGE-like structures.",
+    "tags": ["branch-prediction", "zen4", "penalty"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-017",
+    "front": "How does indirect branch prediction work on modern x86?",
+    "back": "Uses an Indirect Target Array (ITA) or indirect branch predictor table, separate from the BTB. Indexed by branch address + global history to predict variable-target branches (e.g., virtual calls, switch-case jump tables). Skylake has ~2K-4K entries.",
+    "tags": ["branch-prediction", "indirect", "concept"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-018",
+    "front": "What is the approximate prediction accuracy of modern branch predictors (Skylake, Zen 4)?",
+    "back": ">97% for most workloads. SPEC CPU benchmarks typically see ~99%+ accuracy. Even 1% misprediction rate can matter: at 4 GHz with a 15-cycle penalty, 1% of 1 billion branches = 10 million mispredictions = 150 million wasted cycles.",
+    "tags": ["branch-prediction", "accuracy"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-019",
+    "front": "What PMC event counts branch mispredictions?",
+    "back": "`br_misp_retired.all_branches` counts mispredicted branches that actually retired. For speculative mispredicts (including on wrong path), use `br_misp_exec.all_branches`.",
+    "tags": ["branch-prediction", "pmc"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-020",
+    "front": "What is a BPU (Branch Prediction Unit) clear vs a BAC (Branch Address Calculator) clear?",
+    "back": "BPU clear: full pipeline flush from a misprediction detected at execution. ~15 cycle penalty. BAC clear: early correction in the frontend (e.g., detecting a branch the BPU missed), ~3 cycle penalty. BAC clears are much cheaper.",
+    "tags": ["branch-prediction", "bpu", "bac"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-021",
+    "front": "On Skylake, which execution ports can handle integer ADD?",
+    "back": "Ports 0, 1, 5, and 6 -- four ports total, giving throughput of 4 ADDs per cycle. This makes simple integer ALU operations rarely a bottleneck.",
+    "tags": ["execution-ports", "skylake", "integer"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-022",
+    "front": "On Skylake, which port handles integer division (DIV/IDIV)?",
+    "back": "Port 0 only. The divider unit is not pipelined, so a 64-bit IDIV can occupy port 0 for ~35-90 cycles depending on operand values.",
+    "tags": ["execution-ports", "skylake", "division"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-023",
+    "front": "On Skylake, which ports handle vector FMA (VFMADD)?",
+    "back": "Ports 0 and 1. Throughput is one 256-bit FMA per cycle (0.5c reciprocal throughput). Two FMA units give peak 2x FMAs/cycle = 32 SP FLOPs/cycle (AVX2, 256-bit).",
+    "tags": ["execution-ports", "skylake", "fma", "simd"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-024",
+    "front": "On Skylake, which ports handle loads and stores?",
+    "back": "Loads: ports 2 and 3 (AGU + load data). Stores: port 7 (store AGU) + port 4 (store data). Skylake can execute 2 loads + 1 store per cycle. Port 7 can only handle simple addressing modes (base + offset, no index register).",
+    "tags": ["execution-ports", "skylake", "load-store"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-025",
+    "front": "On Skylake, which port handles branch execution?",
+    "back": "Port 6 is the primary branch execution port. Port 0 can also execute predicted-taken branches. Throughput: typically 1-2 branches per cycle.",
+    "tags": ["execution-ports", "skylake", "branch"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-026",
+    "front": "How many execution ports does Zen 4 have, and how do they differ from Skylake?",
+    "back": "Zen 4 has separate integer and floating-point/SIMD schedulers. Integer side: 4 ALU pipes + 3 AGU pipes. FP side: 4 FP/SIMD pipes (2 FMUL/FMA + 2 FADD + store). This differs from Skylake's unified scheduler with 8 ports.",
+    "tags": ["execution-ports", "zen4", "organization"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-027",
+    "front": "What PMC event measures uops dispatched to a specific Skylake execution port?",
+    "back": "`uops_dispatched_port.port_0` through `uops_dispatched_port.port_7`. Use these to identify port contention -- if one port is at capacity while others are underutilized, rescheduling or instruction substitution may help.",
+    "tags": ["execution-ports", "pmc", "skylake"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-028",
+    "front": "On Skylake, which ports handle vector shuffles (e.g., VPSHUFB)?",
+    "back": "Port 5 only for most vector shuffles. This makes shuffle-heavy code (e.g., permutation-based algorithms) port-5 bound. Some simpler shuffles (VPSHUFD) can also use port 1.",
+    "tags": ["execution-ports", "skylake", "shuffle", "simd"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-029",
+    "front": "On Skylake, what operations execute on port 1?",
+    "back": "Integer ALU, integer MUL (IMUL), FP/SIMD ADD, FP/SIMD MUL/FMA, bit scan (BSF/BSR), POPCNT, some vector shuffles. Port 1 is heavily loaded -- often the first port to become a bottleneck.",
+    "tags": ["execution-ports", "skylake", "port1"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-030",
+    "front": "On Ice Lake and later, how did Intel change load/store port assignments?",
+    "back": "Ice Lake added a second store AGU capability: ports 2 and 3 can each handle a load OR a store AGU (in addition to port 7 for simple store AGU). This enables 2 loads + 2 stores per cycle in favorable conditions.",
+    "tags": ["execution-ports", "ice-lake", "load-store"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-031",
+    "front": "What is the latency and throughput of MOV reg,reg on Skylake?",
+    "back": "Latency: 0 cycles (handled by register renaming, eliminated at the rename stage). Throughput: effectively unlimited (does not consume an execution port). Known as move elimination.",
+    "tags": ["instruction-latency", "skylake", "mov"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-032",
+    "front": "What is the latency and throughput of IMUL r64,r64 on Skylake?",
+    "back": "Latency: 3 cycles. Throughput: 1 per cycle (port 1 only). 32-bit IMUL r32,r32 is also 3c latency, 1/cycle.",
+    "tags": ["instruction-latency", "skylake", "imul"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-033",
+    "front": "What is the latency and throughput of LEA on Skylake?",
+    "back": "Simple LEA (base + offset or base + index): 1 cycle latency, ports 1 and 5, throughput 0.5c. Complex LEA (base + index + offset, i.e., 3-component): 3 cycles latency, port 1 only, throughput 1c.",
+    "tags": ["instruction-latency", "skylake", "lea"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-034",
+    "front": "What is the latency of a 64-bit integer DIV on Skylake?",
+    "back": "Highly variable: ~35-90 cycles depending on the magnitude of the operands. Not pipelined -- blocks port 0 for the entire duration. Use multiplication by reciprocal when possible.",
+    "tags": ["instruction-latency", "skylake", "div"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-035",
+    "front": "What is the latency and throughput of VFMADD231PS (256-bit FMA) on Skylake?",
+    "back": "Latency: 4 cycles. Throughput: 0.5c (one per cycle on each of ports 0 and 1). This gives peak throughput of 2 FMAs/cycle = 16 SP FLOP/cycle per FMA = 32 SP FLOP/cycle total.",
+    "tags": ["instruction-latency", "skylake", "fma", "simd"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-036",
+    "front": "What is the latency of SQRTPS (128-bit SP sqrt) on Skylake?",
+    "back": "~12 cycles latency. VSQRTPS (256-bit): ~12 cycles. SQRTPD (128-bit DP): ~15-16 cycles. VSQRTPD (256-bit DP): ~15-16 cycles. Throughput: ~3-6 cycles (partially pipelined on Skylake).",
+    "tags": ["instruction-latency", "skylake", "sqrt", "simd"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-037",
+    "front": "What is the latency and throughput of POPCNT on Skylake?",
+    "back": "Latency: 3 cycles. Throughput: 1/cycle (port 1 only). Note: POPCNT has a false output dependency on the destination register in Skylake -- the CPU thinks it depends on the old value of the destination. Use XOR to break the dependency.",
+    "tags": ["instruction-latency", "skylake", "popcnt"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-038",
+    "front": "What is the latency of a dependent load (pointer chasing) on Skylake?",
+    "back": "L1 hit: 4 cycles for integer loads (5 cycles for SSE/AVX loads). This is the critical latency for pointer-chasing workloads (linked lists, tree traversals). L2: ~12 cycles. L3: ~42 cycles.",
+    "tags": ["instruction-latency", "skylake", "load", "memory"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-039",
+    "front": "What is the latency and throughput of CRC32 on Skylake?",
+    "back": "Latency: 3 cycles. Throughput: 1/cycle (port 1). For software CRC on a data stream, the 3-cycle latency on the dependency chain is the bottleneck -- parallelizing across multiple CRC accumulators can improve throughput ~3x.",
+    "tags": ["instruction-latency", "skylake", "crc32"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-040",
+    "front": "What is the latency of PDEP/PEXT (BMI2) on Intel Skylake vs AMD Zen 2?",
+    "back": "Intel Skylake: 3 cycles latency, 1/cycle throughput (fast, single-uop). AMD Zen 2: ~18 cycles latency (microcoded, very slow). AMD Zen 3+ improved to ~3 cycles. Always benchmark on the target uarch.",
+    "tags": ["instruction-latency", "skylake", "zen2", "bmi2"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-041",
+    "front": "What is the latency of MULPS/MULPD (SIMD multiply, non-FMA) on Skylake?",
+    "back": "Latency: 4 cycles (same as FMA). Throughput: 0.5c (ports 0 and 1). In Skylake, standalone MUL and FMA have identical latency and port assignment, so there is no penalty for using FMA.",
+    "tags": ["instruction-latency", "skylake", "simd", "multiply"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-042",
+    "front": "What is the latency of ADDPS/ADDPD (SIMD add) on Skylake vs Haswell?",
+    "back": "Skylake: 4 cycles (same as MUL/FMA, ports 0 and 1). Haswell: 3 cycles (port 1 only). Skylake unified the ADD/MUL/FMA units, increasing ADD latency by 1 cycle but doubling ADD throughput.",
+    "tags": ["instruction-latency", "skylake", "haswell", "simd", "add"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-043",
+    "front": "How many ROB (ReOrder Buffer) entries does Skylake have?",
+    "back": "224 entries. For comparison: Haswell has 192, Alder Lake P-core (Golden Cove) has 512, Zen 4 has 320. More ROB entries allow more instructions in flight and better tolerance of long-latency operations.",
+    "tags": ["ooo-resources", "skylake", "rob"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-044",
+    "front": "How many Reservation Station (RS/scheduler) entries does Skylake have?",
+    "back": "97 entries in the unified scheduler. Haswell has 60. Alder Lake P-core (Golden Cove) has 160. Zen 4 uses split schedulers: 4x24 = 96 integer + 4x32 = 128 FP entries.",
+    "tags": ["ooo-resources", "skylake", "reservation-station"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-045",
+    "front": "How many Load Buffer entries does Skylake have?",
+    "back": "72 entries. Haswell has 72. Alder Lake P-core has 128. Zen 4 has 88. Load buffer exhaustion causes backend stalls (resource_stalls.lb).",
+    "tags": ["ooo-resources", "skylake", "load-buffer"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-046",
+    "front": "How many Store Buffer entries does Skylake have?",
+    "back": "56 entries. Haswell has 42. Alder Lake P-core has 72. Zen 4 has 64. Store buffer exhaustion stalls allocation and is common in store-heavy loops.",
+    "tags": ["ooo-resources", "skylake", "store-buffer"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-047",
+    "front": "How many Line Fill Buffers (LFBs) does Skylake have?",
+    "back": "12 LFBs (also called Miss Status Holding Registers / MSHRs). Each tracks one outstanding L1D cache miss. If all 12 are occupied, subsequent cache misses stall. Alder Lake P-core has 12. Zen 4 has 22 MABs (equivalent).",
+    "tags": ["ooo-resources", "skylake", "lfb"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-048",
+    "front": "How many physical integer rename registers does Skylake have?",
+    "back": "180 physical integer registers. Haswell has 168. These limit the number of in-flight integer uops that can be renamed. Exhaustion stalls the allocator even if ROB has room.",
+    "tags": ["ooo-resources", "skylake", "rename-registers"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-049",
+    "front": "How many physical FP/SIMD rename registers does Skylake have?",
+    "back": "168 physical 256-bit vector registers. This limits in-flight FP/SIMD uops. AVX-512 on Skylake-X uses 512-bit registers, effectively halving the available rename registers.",
+    "tags": ["ooo-resources", "skylake", "rename-registers", "simd"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-050",
+    "front": "What is the ROB size of Alder Lake P-core (Golden Cove)?",
+    "back": "512 entries -- more than double Skylake's 224. This dramatically improves ability to absorb cache miss latency and extract ILP from code with long dependency chains.",
+    "tags": ["ooo-resources", "golden-cove", "rob"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-051",
+    "front": "What PMC event indicates ROB is full and stalling allocation?",
+    "back": "`resource_stalls.rob` on Intel (may not exist on all uarchs). More commonly, use TMA metrics: if Backend_Bound > Retiring, then OoO resources are likely saturated. `resource_stalls.any` is the catch-all.",
+    "tags": ["ooo-resources", "pmc", "stalls"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-052",
+    "front": "How many ROB entries does Zen 4 have?",
+    "back": "320 entries. For comparison: Zen 3 has 256, Skylake has 224, Alder Lake P-core has 512.",
+    "tags": ["ooo-resources", "zen4", "rob"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-053",
+    "front": "What are the four TMA (Top-down Microarchitecture Analysis) Level 1 categories?",
+    "back": "Frontend Bound, Backend Bound, Bad Speculation, Retiring. They sum to approximately 100% of pipeline slots. A healthy workload has high Retiring and low values for the other three.",
+    "tags": ["tma", "level1", "concept"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-054",
+    "front": "What does 'Frontend Bound' mean in TMA Level 1?",
+    "back": "Pipeline slots wasted because the frontend could not deliver uops to the backend. The backend was ready to accept work but the frontend stalled. Causes include I-cache misses, ITLB misses, DSB misses, and decode bottlenecks.",
+    "tags": ["tma", "level1", "frontend-bound"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-055",
+    "front": "What does 'Backend Bound' mean in TMA Level 1?",
+    "back": "Pipeline slots wasted because the backend could not accept uops. Subdivides into Memory Bound (waiting for data from cache/memory) and Core Bound (execution port contention, long-latency operations, dependency chains).",
+    "tags": ["tma", "level1", "backend-bound"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-056",
+    "front": "What does 'Bad Speculation' mean in TMA Level 1?",
+    "back": "Pipeline slots wasted on uops that were issued but never retired -- discarded due to branch mispredictions or machine clears. Subdivides into Branch Mispredicts and Machine Clears.",
+    "tags": ["tma", "level1", "bad-speculation"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-057",
+    "front": "What does 'Retiring' mean in TMA Level 1?",
+    "back": "Pipeline slots used by uops that actually retired (committed). High Retiring is generally good but can still indicate inefficiency if many uops are produced per high-level operation (e.g., microcoded instructions, suboptimal instruction selection).",
+    "tags": ["tma", "level1", "retiring"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-058",
+    "front": "What is the TMA default threshold for Bad Speculation to be flagged as a problem?",
+    "back": ">15% of pipeline slots (toplev.py default). For latency-sensitive code, even 5% can be worth investigating.",
+    "tags": ["tma", "bad-speculation", "threshold"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-059",
+    "front": "What are the TMA Level 2 subcategories of Frontend Bound?",
+    "back": "Frontend Latency (long stalls: I-cache miss, ITLB miss, DSB switch, LCP stall) and Frontend Bandwidth (short stalls: MITE limited throughput, DSB limited throughput). Frontend Latency is typically worse.",
+    "tags": ["tma", "level2", "frontend-bound"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-060",
+    "front": "What are the TMA Level 2 subcategories of Backend Bound?",
+    "back": "Memory Bound (data cache misses, DTLB misses, store-forwarding failures) and Core Bound (execution port saturation, long-latency arithmetic, dependency chains limiting ILP).",
+    "tags": ["tma", "level2", "backend-bound"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-061",
+    "front": "What basic PMC events does TMA Level 1 use on Intel?",
+    "back": "Key events: `topdown-retiring`, `topdown-bad-spec`, `topdown-fe-bound`, `topdown-be-bound` (available as perf slots events on Icelake+). On Skylake, uses `uops_issued.any`, `uops_retired.retire_slots`, `int_misc.recovery_cycles`, `idq_uops_not_delivered.core`.",
+    "tags": ["tma", "pmc", "level1"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-062",
+    "front": "How do you run toplev.py for TMA Level 1 analysis?",
+    "back": "`toplev.py -l1 --no-desc -- <command>` for Level 1. Use `-l2` or `-l3` for deeper analysis. Add `--nodes '+MUX'` for multiplexing info. Requires `pmu-tools` from GitHub (Andi Kleen).",
+    "tags": ["tma", "toplev", "usage"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-063",
+    "front": "What TMA Level 3 categories fall under Memory Bound?",
+    "back": "L1 Bound, L2 Bound, L3 Bound, DRAM Bound, Store Bound. These identify which level of the memory hierarchy is the primary source of stalls.",
+    "tags": ["tma", "level3", "memory-bound"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-064",
+    "front": "What does a high 'Microcode Sequencer' value under Retiring indicate in TMA?",
+    "back": "Many uops are coming from the microcode sequencer (MSROM) rather than the decoder/DSB. This means the code uses microcoded instructions (e.g., DIV, REP MOVS, CPUID). These may retire successfully but are inefficient due to high uop count.",
+    "tags": ["tma", "retiring", "microcode"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-065",
+    "front": "How many uops can one DSB (uop cache) way hold on Skylake?",
+    "back": "6 uops per way. DSB has 32 sets x 8 ways = 256 ways, totaling ~1536 uops capacity. Each way maps to a 32-byte aligned region of x86 code.",
+    "tags": ["uop-cache", "skylake", "dsb"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-066",
+    "front": "What is the MITE (Macro Instruction Translation Engine) and its throughput on Skylake?",
+    "back": "MITE is the legacy x86 decode pipeline. On Skylake it has 4 decoders that produce up to 4 uops/cycle (later revised: 1 complex + 3 simple, complex can produce up to 4 uops). It is the fallback path when the DSB (uop cache) misses.",
+    "tags": ["uop-cache", "skylake", "mite"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-067",
+    "front": "What is the LSD (Loop Stream Detector) and how large is it on Skylake?",
+    "back": "The LSD detects small loops and replays them from a uop queue, bypassing both MITE and DSB. Skylake LSD holds up to 64 uops. Intel disabled LSD on Skylake via microcode update due to an erratum. Re-enabled on some later steppings.",
+    "tags": ["uop-cache", "skylake", "lsd"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-068",
+    "front": "What is macro-fusion and which instruction pairs qualify on Skylake?",
+    "back": "Macro-fusion combines two instructions into one uop at decode. Common pairs: CMP/TEST + JCC (conditional jump). On Skylake, most CMP+JCC and TEST+JCC pairs fuse. ADD/SUB/AND/INC/DEC + JCC also fuse. NOT valid: OR+JCC, XOR+JCC (Intel-specific limitations vary by uarch).",
+    "tags": ["uop-cache", "skylake", "macro-fusion"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-069",
+    "front": "What is micro-fusion and what are its limitations on Skylake?",
+    "back": "Micro-fusion combines a load+operate (e.g., ADD rax,[mem]) into one uop in the frontend. Skylake un-laminates (breaks apart) indexed addressing modes (base+index) for many instruction types at the renamer, consuming 2 ROB entries. Simple [base+offset] stays fused.",
+    "tags": ["uop-cache", "skylake", "micro-fusion"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-070",
+    "front": "What happens when a hot loop exceeds the DSB capacity?",
+    "back": "Uops alternate between DSB hits and MITE fallback, causing DSB-to-MITE switches (~2 cycle penalty each). This shows up in TMA as Frontend Latency > DSB Switches. Solutions: reduce code size, align code, use __attribute__((hot)), or use PGO.",
+    "tags": ["uop-cache", "dsb", "performance"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-071",
+    "front": "What is the DSB (uop cache) capacity on Alder Lake P-core (Golden Cove)?",
+    "back": "4096 uops (up from 1536 on Skylake). 32 sets x 16 ways x 8 uops/way. This significantly reduces DSB thrashing for larger code footprints.",
+    "tags": ["uop-cache", "golden-cove", "dsb"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-072",
+    "front": "What is an LCP (Length-Changing Prefix) stall?",
+    "back": "Occurs when the pre-decoder encounters a length-changing prefix (e.g., 66h operand-size override on certain instructions) that changes instruction length relative to what was initially predicted. Causes a 3-6 cycle stall in the MITE. Avoided by using DSB.",
+    "tags": ["uop-cache", "lcp", "frontend"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-073",
+    "front": "What are the AVX-512 frequency license levels on Skylake-X?",
+    "back": "L0: no throttle (SSE, AVX-128). L1: light throttle (AVX-256, light AVX-512 integer). L2: heavy throttle (heavy AVX-512 on port 5, 512-bit FP). Frequency can drop by 100-300 MHz depending on the number of active cores and workload.",
+    "tags": ["simd", "avx512", "skylake-x", "throttling"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-074",
+    "front": "What are the register widths for SSE, AVX2, and AVX-512?",
+    "back": "SSE: 128-bit XMM registers (XMM0-15). AVX/AVX2: 256-bit YMM registers (YMM0-15). AVX-512: 512-bit ZMM registers (ZMM0-31, plus 8 opmask registers k0-k7). AVX-512 also extends to 32 SIMD registers (vs 16 for SSE/AVX).",
+    "tags": ["simd", "registers", "avx2", "avx512"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-075",
+    "front": "What is the FMA latency on Zen 4 vs Skylake?",
+    "back": "Zen 4: 4 cycles (256-bit or 2x128-bit). Skylake: 4 cycles (256-bit). Both have 0.5c throughput (two FMA units). Zen 4 can do full-width 256-bit natively; AVX-512 on Zen 4 uses double-pumping (2 cycles for 512-bit).",
+    "tags": ["simd", "fma", "zen4", "skylake"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-076",
+    "front": "What is the AVX-SSE transition penalty and when does it occur?",
+    "back": "On Sandy Bridge through Haswell: mixing 256-bit AVX with legacy SSE (non-VEX) instructions causes a ~70-cycle penalty for saving/restoring upper YMM halves. On Skylake+: no penalty (uses upper-zero tracking) but legacy SSE after AVX creates a false dependency. Use VZEROUPPER to avoid issues.",
+    "tags": ["simd", "avx", "sse", "transition-penalty"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-077",
+    "front": "How long does the AVX-512 frequency throttling last after the last heavy AVX-512 instruction retires?",
+    "back": "~1-2 milliseconds on Skylake-X before the core frequency recovers to the non-throttled level. The exact time depends on the power management configuration. This means sporadic AVX-512 use can still hurt overall throughput.",
+    "tags": ["simd", "avx512", "throttling", "frequency"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-078",
+    "front": "What is the throughput of 256-bit vector loads on Skylake?",
+    "back": "2 loads per cycle (ports 2 and 3), each 32 bytes = 64 bytes/cycle from L1. This matches L1 bandwidth. AVX-512 512-bit loads also 2/cycle on Skylake-X = 128 bytes/cycle from L1.",
+    "tags": ["simd", "skylake", "load", "throughput"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-079",
+    "front": "How does AVX-512 work on Zen 4?",
+    "back": "Zen 4 supports AVX-512 by double-pumping the 256-bit datapaths -- a 512-bit operation takes 2 cycles on the 256-bit units. No frequency throttling penalty like Intel. This makes AVX-512 on Zen 4 competitive: same throughput as AVX2 but with fewer instructions for 512-bit workloads.",
+    "tags": ["simd", "avx512", "zen4"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-080",
+    "front": "What is VZEROUPPER and when should you use it?",
+    "back": "VZEROUPPER zeros the upper 128 bits of all YMM registers. Required before calling functions that may use SSE (non-VEX) code to avoid transition penalties (pre-Skylake) or false dependencies (Skylake+). Compilers typically insert it automatically at function boundaries after AVX use.",
+    "tags": ["simd", "avx", "vzeroupper"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-081",
+    "front": "Under Hyperthreading (SMT), is the ROB shared or partitioned?",
+    "back": "Statically partitioned -- each thread gets exactly half. On Skylake: 112 entries per thread (224 / 2). This halving of OoO resources is a major reason SMT can hurt latency-sensitive single-threaded workloads.",
+    "tags": ["smt", "skylake", "rob", "partitioning"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-082",
+    "front": "Under Hyperthreading, is the L1 data cache shared or partitioned?",
+    "back": "Competitively shared (not partitioned). Both threads share the full 32KB L1D, 64 entries DTLB. This means one thread's cache working set can evict the other's, causing inter-thread cache thrashing.",
+    "tags": ["smt", "skylake", "l1-cache"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-083",
+    "front": "Under Hyperthreading, how are execution ports shared?",
+    "back": "Competitively shared. Both threads can issue uops to any port in any cycle. The scheduler picks from both threads based on age/readiness. No static partitioning of ports, but effective throughput per thread is reduced by contention.",
+    "tags": ["smt", "skylake", "execution-ports"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-084",
+    "front": "What are the main types of machine clears?",
+    "back": "Memory ordering (store-load conflict detected), SMC (self-modifying code), floating-point assist (denormals, etc.), memory disambiguation (load speculatively passed a store with overlapping address). Each flushes the pipeline and restarts from the offending instruction.",
+    "tags": ["smt", "machine-clear", "pipeline"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-085",
+    "front": "What triggers a microcode assist (FP assist)?",
+    "back": "Operations involving denormalized (subnormal) floating-point numbers, underflow to denormal, or special values (NaN, Inf). The hardware traps to microcode to handle the slow path. Penalty: ~100-200 cycles. Avoid with -ffast-math or _MM_SET_FLUSH_ZERO_MODE / _MM_SET_DENORMALS_ZERO_MODE.",
+    "tags": ["smt", "fp-assist", "denormals"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-086",
+    "front": "Which instructions are serializing on x86?",
+    "back": "CPUID, WRMSR, INVD, INVLPG, LGDT/LIDT/LLDT/LTR, and MFENCE (partially serializing). LFENCE is dispatch-serializing on Intel (blocks OoO execution). Serializing instructions drain the entire pipeline before the next instruction can issue.",
+    "tags": ["smt", "serializing", "instructions"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-087",
+    "front": "Under Hyperthreading, is the store buffer shared or partitioned on Skylake?",
+    "back": "Statically partitioned -- each thread gets 28 entries (56 / 2). Same for load buffers: 36 per thread (72 / 2). This is a common bottleneck when both threads are store-heavy.",
+    "tags": ["smt", "skylake", "store-buffer", "partitioning"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-088",
+    "front": "What is a memory ordering machine clear (memory nuke)?",
+    "back": "Triggered when a load speculatively executed before a prior store, and the store turns out to overlap the load's address (memory disambiguation failure). The pipeline is flushed and re-executed. PMC event: `machine_clears.memory_ordering`. Can be severe in producer-consumer patterns.",
+    "tags": ["smt", "machine-clear", "memory-ordering"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-089",
+    "front": "What PMC event measures µops delivered from the µop cache (DSB)?",
+    "back": "`idq.dsb_uops` -- counts uops delivered from the Decoded Stream Buffer to the Instruction Decode Queue. Compare with `idq.mite_uops` (legacy decode) and `idq.ms_uops` (microcode sequencer) to see frontend source breakdown.",
+    "tags": ["pmc", "dsb", "frontend"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-090",
+    "front": "What PMC event counts retired uops (pipeline slots used productively)?",
+    "back": "`uops_retired.retire_slots` -- counts the number of uop slots used by uops that actually retired. This is the numerator for TMA 'Retiring' category. Compare with `uops_issued.any` to see speculation waste.",
+    "tags": ["pmc", "retiring", "tma"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-091",
+    "front": "What PMC event counts all retired branch mispredictions?",
+    "back": "`br_misp_retired.all_branches` -- counts all branch instructions that retired and were mispredicted. Use `br_inst_retired.all_branches` for total retired branches. Misprediction rate = misp / total.",
+    "tags": ["pmc", "branch-prediction"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-092",
+    "front": "What PMC event counts machine clears?",
+    "back": "`machine_clears.count` -- counts the number of machine clears (pipeline nukes) of any type. For specific types: `machine_clears.memory_ordering`, `machine_clears.smc` (self-modifying code), `machine_clears.fp_assist`.",
+    "tags": ["pmc", "machine-clear"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-093",
+    "front": "What PMC event indicates backend resource stalls?",
+    "back": "`resource_stalls.any` -- counts cycles where allocation is stalled due to any backend resource shortage (ROB full, RS full, load/store buffer full, rename registers exhausted). Sub-events: `resource_stalls.rob`, `resource_stalls.rs`, `resource_stalls.sb`, `resource_stalls.lb`.",
+    "tags": ["pmc", "stalls", "backend"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-094",
+    "front": "What PMC event counts uops dispatched to a specific execution port?",
+    "back": "`uops_dispatched_port.port_0` through `uops_dispatched_port.port_7` on Skylake. Use to identify port saturation. For example, high port_1 count with the workload doing many multiplies confirms port 1 bottleneck.",
+    "tags": ["pmc", "execution-ports", "skylake"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-095",
+    "front": "What PMC event measures L1D cache misses?",
+    "back": "`mem_load_retired.l1_miss` -- counts retired load instructions that missed L1D. For demand loads specifically: `l1d.replacement` counts L1D cacheline fills (including prefetch). Use `mem_load_retired.l2_hit` to check if misses were caught by L2.",
+    "tags": ["pmc", "cache", "l1"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cpu-096",
+    "front": "What PMC event measures frontend stall cycles due to no uop delivery?",
+    "back": "`idq_uops_not_delivered.core` -- counts the number of uop slots per cycle where the frontend did not deliver a uop but the backend was not stalled. 4 (pipeline width) minus actual delivery = not delivered. Used in TMA Frontend Bound calculation.",
+    "tags": ["pmc", "frontend", "tma"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-097",
+    "front": "What PMC event counts cycles spent in branch misprediction recovery?",
+    "back": "`int_misc.recovery_cycles` (Intel) -- counts cycles the processor is recovering from branch mispredictions or machine clears. Directly feeds TMA Bad Speculation. Also called `int_misc.clear_resteer_cycles` on some uarchs.",
+    "tags": ["pmc", "branch-prediction", "recovery"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-098",
+    "front": "What PMC event counts DTLB misses for loads?",
+    "back": "`dtlb_load_misses.miss_causes_a_walk` -- counts load operations that caused a page walk due to DTLB miss. For stores: `dtlb_store_misses.miss_causes_a_walk`. High counts indicate working set exceeds TLB coverage; consider hugepages.",
+    "tags": ["pmc", "tlb", "memory"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cpu-099",
+    "front": "What PMC event counts store-to-load forwarding failures?",
+    "back": "`ld_blocks.store_forward` -- counts loads that were blocked because they depended on a prior store but could not be forwarded (e.g., load crosses two store boundaries, or partial overlap). Each failure incurs ~12-15 cycles penalty.",
+    "tags": ["pmc", "store-forwarding", "memory"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cpu-100",
+    "front": "How do you use `perf stat` to collect TMA Level 1 metrics on Linux?",
+    "back": "`perf stat -M TopdownL1 -- <command>` (kernel 5.x+ with JSON event support). Alternatively: `perf stat --topdown -- <command>` (kernel 4.17+). Shows Frontend Bound, Backend Bound, Bad Speculation, Retiring percentages. For deeper levels, use `perf stat -M TopdownL2` or toplev.py.",
+    "tags": ["pmc", "tma", "perf", "usage"],
+    "difficulty": "beginner"
+  }
+]

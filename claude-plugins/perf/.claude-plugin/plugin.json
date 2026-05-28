@@ -1,0 +1,11 @@
+{
+  "name": "perf",
+  "version": "1.0.0",
+  "description": "x86 performance investigation learning system — CPU microarchitecture, memory hierarchy, compiler codegen, concurrency, profiling methodology, and kernel/OS internals. 180 topics, 600 flashcards, scenario drills, and tool cheatsheets.",
+  "author": {
+    "name": "kairo5"
+  },
+  "skills": [
+    "./skills/"
+  ]
+}

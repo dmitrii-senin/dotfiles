@@ -1,0 +1,702 @@
+[
+  {
+    "id": "mem-001",
+    "front": "What is the L1 data cache size and associativity on Skylake?",
+    "back": "32 KB, 8-way set associative, 64-byte lines = 64 sets. Load-to-use latency: ~4-5 cycles.",
+    "tags": ["cache-hierarchy", "skylake", "L1"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-002",
+    "front": "What is the L2 cache size and associativity on Skylake?",
+    "back": "256 KB, 4-way set associative, 64-byte lines. Load-to-use latency: ~12 cycles.",
+    "tags": ["cache-hierarchy", "skylake", "L2"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-003",
+    "front": "What is the approximate load-to-use latency for L3 on Skylake?",
+    "back": "~42 cycles for a load that hits in L3 (11 MB shared, 16-way). Non-inclusive (victim) policy since Skylake-X.",
+    "tags": ["cache-hierarchy", "skylake", "L3"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-004",
+    "front": "What is the L1 data cache size and latency on Alder Lake P-cores (Golden Cove)?",
+    "back": "48 KB, 12-way set associative, 64-byte lines. Load-to-use latency: ~5 cycles.",
+    "tags": ["cache-hierarchy", "alder-lake", "L1"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-005",
+    "front": "What is the L2 cache size on Alder Lake P-cores vs E-cores?",
+    "back": "P-cores (Golden Cove): 1.25 MB, 10-way. E-cores (Gracemont): 2 MB shared per 4-core cluster, 16-way.",
+    "tags": ["cache-hierarchy", "alder-lake", "L2"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-006",
+    "front": "What are the L1D/L2/L3 cache sizes and latencies on Zen 4 (Ryzen 7000)?",
+    "back": "L1D: 32 KB, 8-way, ~4c. L2: 1 MB, 8-way, ~12c. L3: 32 MB per CCD (16-way), ~40-50c. L3 is victim cache.",
+    "tags": ["cache-hierarchy", "zen4", "amd"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-007",
+    "front": "What is the standard cache line size on modern x86-64 processors?",
+    "back": "64 bytes. This is universal across Intel (Skylake, Alder Lake) and AMD (Zen 2/3/4). Prefetch operates on this granularity.",
+    "tags": ["cache-hierarchy", "fundamentals"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-008",
+    "front": "What is the difference between inclusive, non-inclusive, and exclusive cache policies?",
+    "back": "Inclusive: L3 contains a superset of L2/L1 (pre-Skylake). Non-inclusive (NINE): L3 does not guarantee containment, only tracks via snoop filter. Exclusive (AMD): a line exists in exactly one level, L3 acts as victim cache.",
+    "tags": ["cache-hierarchy", "cache-policy"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-009",
+    "front": "What cache inclusion policy does Intel use from Skylake-SP/X onward?",
+    "back": "Non-Inclusive Last-Level Cache (NILLC). L3 is a victim cache with a snoop filter directory. A line evicted from L2 may go to L3, but L3 does not guarantee it holds all L1/L2 lines.",
+    "tags": ["cache-hierarchy", "skylake", "cache-policy"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-010",
+    "front": "How many sets does a 32 KB, 8-way set associative cache with 64-byte lines have?",
+    "back": "64 sets. Calculation: 32768 / (8 * 64) = 64. The set index uses bits [11:6] of the address.",
+    "tags": ["cache-hierarchy", "fundamentals"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-011",
+    "front": "What is the L1 instruction cache size on Skylake?",
+    "back": "32 KB, 8-way set associative. Decoded uop cache (DSB): 1536 uops, 6-way, 32 sets. DSB hit bypasses the decoders.",
+    "tags": ["cache-hierarchy", "skylake", "L1", "icache"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-012",
+    "front": "What is the write-back buffer size on Skylake and why does it matter?",
+    "back": "Skylake has 12 Line Fill Buffers (LFBs) for L1D. These handle outstanding misses and non-temporal stores. Exhausting LFBs stalls further misses. Alder Lake P-cores expanded to 12 as well.",
+    "tags": ["cache-hierarchy", "skylake", "LFB"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-013",
+    "front": "What is the L2 cache associativity on Zen 4 vs Skylake?",
+    "back": "Zen 4: 8-way, 1 MB. Skylake: 4-way, 256 KB. Zen 4's 4x larger L2 significantly reduces L3 traffic for many workloads.",
+    "tags": ["cache-hierarchy", "zen4", "skylake", "L2"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-014",
+    "front": "How does Intel's L3 slice architecture work on modern server CPUs?",
+    "back": "L3 is divided into slices (one per core), connected via mesh interconnect. Address hashing distributes lines across slices. Access latency depends on mesh hops: ~3 cycles per hop. A near slice may be ~30c, a far slice ~50c+.",
+    "tags": ["cache-hierarchy", "server", "mesh"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-015",
+    "front": "How many entries does the Skylake L1 dTLB have for 4KB pages?",
+    "back": "64 entries, 4-way. For 2MB pages: 32 entries, 4-way. For 1GB pages: 4 entries, fully associative.",
+    "tags": ["TLB", "skylake", "dTLB"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-016",
+    "front": "How many entries does the Skylake L1 iTLB have?",
+    "back": "128 entries for 4KB pages (8-way). 8 entries for 2MB/4MB pages (fully associative).",
+    "tags": ["TLB", "skylake", "iTLB"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-017",
+    "front": "What is the STLB (Second-Level TLB) on Skylake?",
+    "back": "1536 entries, 12-way set associative, unified (data + instruction). Supports 4KB and 2MB pages. Miss triggers a full page walk.",
+    "tags": ["TLB", "skylake", "STLB"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-018",
+    "front": "What is the approximate latency of a full 4-level page walk on x86-64?",
+    "back": "~30-50 cycles if all page table entries are in cache. If page table entries miss to DRAM, can be 200-600+ cycles (up to 4 sequential DRAM accesses).",
+    "tags": ["TLB", "page-walk", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-019",
+    "front": "How do huge pages (2MB) improve TLB performance?",
+    "back": "A single 2MB TLB entry covers 512x more memory than a 4KB entry. 32 dTLB entries for 2MB pages cover 64 MB vs 256 KB for 64 entries of 4KB pages. Also eliminates one level of page walk.",
+    "tags": ["TLB", "huge-pages"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-020",
+    "front": "What are the dTLB entry counts on Zen 4 for 4KB and 2MB pages?",
+    "back": "L1 dTLB: 72 entries for 4KB (fully associative), 72 entries for 2MB (fully associative). L2 TLB: 3072 entries unified, 12-way.",
+    "tags": ["TLB", "zen4", "amd"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-021",
+    "front": "What is a Page Walk Cache (PWC) and what levels does Intel cache?",
+    "back": "PWC caches intermediate page table entries to shortcut walks. Intel caches PML4 (PGD), PDPT, and PD entries. A PWC hit at the PD level reduces a 4-level walk to a single memory access (just the PT lookup).",
+    "tags": ["TLB", "page-walk", "PWC"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-022",
+    "front": "What perf events indicate TLB pressure?",
+    "back": "dtlb_load_misses.miss_causes_a_walk, dtlb_load_misses.walk_completed, dtlb_load_misses.stlb_hit. High walk_completed counts indicate TLB is too small for working set. Use huge pages or reduce footprint.",
+    "tags": ["TLB", "perf-events"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-023",
+    "front": "How does PCID (Process Context Identifier) improve TLB performance?",
+    "back": "PCID tags TLB entries with a 12-bit process ID, avoiding full TLB flush on context switch. Linux uses it since kernel 4.15 (KPTI). Without PCID, every context switch or CR3 write flushes the entire TLB.",
+    "tags": ["TLB", "PCID", "context-switch"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-024",
+    "front": "What is the total memory coverage of the Skylake L1 dTLB with 4KB pages?",
+    "back": "64 entries * 4 KB = 256 KB. With 2MB huge pages: 32 entries * 2 MB = 64 MB. This is why huge pages are critical for large working sets.",
+    "tags": ["TLB", "skylake", "coverage"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-025",
+    "front": "Name the four hardware prefetchers on Intel Skylake.",
+    "back": "1) L1 DCU prefetcher (next-line). 2) L1 IP-based stride prefetcher. 3) L2 adjacent-line prefetcher (fetches the other half of a 128B-aligned pair). 4) L2 streamer (detects streams up to +/- stride, trains on L2 misses).",
+    "tags": ["prefetching", "skylake", "hardware"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-026",
+    "front": "What is the formula for optimal software prefetch distance?",
+    "back": "D = Memory_Latency * Throughput. If latency is 200 cycles and you process 1 element/cycle with 8-byte elements, prefetch ~200 elements (1600 bytes) ahead. Too short: data not yet arrived. Too far: evicted before use.",
+    "tags": ["prefetching", "software", "formula"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-027",
+    "front": "What is the syntax and meaning of __builtin_prefetch(addr, rw, locality)?",
+    "back": "__builtin_prefetch(ptr, 0, 3): prefetch for read, high temporal locality (keep in all cache levels). rw: 0=read, 1=write. locality: 0=no temporal (NTA), 1=L3, 2=L2+L3, 3=all levels (T0).",
+    "tags": ["prefetching", "software", "builtin"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-028",
+    "front": "How does the Intel L2 streamer prefetcher work?",
+    "back": "Detects sequential access patterns from L2 misses. Can track up to 32 streams. Prefetches up to 20 lines ahead. Supports forward and backward streams. Can be trained with 2 consecutive L2 misses to the same page.",
+    "tags": ["prefetching", "skylake", "L2-streamer"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-029",
+    "front": "How can you disable individual Intel hardware prefetchers?",
+    "back": "Via MSR 0x1A4. Bit 0: L2 streamer. Bit 1: L2 adjacent line. Bit 2: L1 DCU. Bit 3: L1 IP. Set bit = disable. Use wrmsr. Useful for benchmarking prefetcher impact.",
+    "tags": ["prefetching", "MSR", "tuning"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-030",
+    "front": "When is software prefetching harmful rather than helpful?",
+    "back": "When: (1) working set fits in cache, (2) HW prefetchers already handle the pattern, (3) prefetch distance is wrong, (4) prefetch instructions consume dispatch bandwidth (~1 uop each), (5) prefetched data evicts useful lines. Profile first.",
+    "tags": ["prefetching", "software", "pitfalls"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-031",
+    "front": "What does the prefetchnta instruction do differently from prefetcht0?",
+    "back": "prefetchnta (Non-Temporal Aligned) fetches into L1 but limits L2/L3 pollution. On Skylake, it fills only one way of L3 (reducing evictions). prefetcht0 fills all levels normally. Use NTA for streaming data accessed once.",
+    "tags": ["prefetching", "NTA", "instructions"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-032",
+    "front": "How does AMD Zen 4's prefetching differ from Intel Skylake?",
+    "back": "Zen 4 has: L1 stream prefetcher (up to 16 streams), L2 stream prefetcher, L1 stride prefetcher, and L2 prefetch from L1 misses. Zen 4 also added a region prefetcher. Generally more aggressive than Intel for sequential patterns.",
+    "tags": ["prefetching", "zen4", "amd"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-033",
+    "front": "What perf events detect useless or excessive prefetching?",
+    "back": "l2_rqsts.pf_miss (L2 prefetch misses) and l2_lines_out.useless_hwpf (HW prefetch lines evicted before use). High useless counts mean prefetcher is polluting cache. Consider disabling adjacent-line prefetcher.",
+    "tags": ["prefetching", "perf-events"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-034",
+    "front": "What is the x86 prefetchw instruction?",
+    "back": "prefetchw prefetches a line with intent to write (exclusive ownership). Avoids the later RFO on first write. Supported since AMD K6, Intel Broadwell. Maps to PREFETCHWT1 on some Intel. Useful for write-heavy patterns.",
+    "tags": ["prefetching", "instructions", "write"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-035",
+    "front": "What are the four states in the MESI cache coherence protocol?",
+    "back": "Modified: dirty, exclusive. Exclusive: clean, sole copy. Shared: clean, may have copies. Invalid: not valid. Intel extends to MESIF (F=Forward: one Shared copy responds to snoops).",
+    "tags": ["cache-coherence", "MESI"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-036",
+    "front": "In MESI, what happens when Core A writes to a line in Shared state?",
+    "back": "Core A sends RFO (Read For Ownership). All other copies are invalidated via snoops/directory. Line transitions to Modified on Core A. RFO costs ~40 cycles local socket, ~100+ cycles cross-socket.",
+    "tags": ["cache-coherence", "MESI", "RFO"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-037",
+    "front": "What is an RFO (Read For Ownership) and what is its typical latency?",
+    "back": "RFO is a bus transaction to gain exclusive cache line ownership before writing. Local socket (same LLC): ~40 cycles. Cross-socket (QPI/UPI): ~100-200 cycles. False sharing causes unnecessary RFOs.",
+    "tags": ["cache-coherence", "RFO", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-038",
+    "front": "What is false sharing and how do you detect it?",
+    "back": "False sharing: two cores write to different variables on the same cache line, causing repeated RFOs. Detect with: perf c2c record/report (look at HITM). Fix: align hot variables to cache line boundaries (__attribute__((aligned(64)))).",
+    "tags": ["cache-coherence", "false-sharing", "perf-c2c"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-039",
+    "front": "What do HITM and HITR mean in perf c2c output?",
+    "back": "HITM (Hit Modified): a load hits a line modified on another core, requiring snoop + data transfer + invalidation. Very expensive (~60-100c). HITR (Hit Remote): a load hits a clean remote cache. Less expensive but still cross-core. High HITM = contention.",
+    "tags": ["cache-coherence", "perf-c2c", "HITM"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-040",
+    "front": "What key columns should you examine in perf c2c report output?",
+    "back": "Shared Data Cache Line Table: Rmt HITM (remote cross-socket), Lcl HITM (local cross-core), Store count. Source line with highest HITM is the contention hotspot. Also check cacheline offset to identify the specific variable.",
+    "tags": ["cache-coherence", "perf-c2c", "analysis"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-041",
+    "front": "What is the MESIF protocol extension used by Intel?",
+    "back": "MESIF adds Forward state: one Shared copy is designated as the forwarder that responds to snoop requests. Without F, all Shared copies or memory must respond. F reduces interconnect traffic for widely-shared read-only data.",
+    "tags": ["cache-coherence", "MESIF", "intel"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-042",
+    "front": "What is the MOESI protocol used by AMD?",
+    "back": "MOESI adds Owned state: a modified line can be shared without writing back to memory. Owner holds dirty data and responds to snoops. Other cores hold Shared copies. Reduces write-back traffic on read sharing of dirty data.",
+    "tags": ["cache-coherence", "MOESI", "amd"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-043",
+    "front": "How does a directory-based coherence protocol differ from snooping?",
+    "back": "Snooping: broadcasts RFO/invalidations to all cores. O(N) traffic, doesn't scale beyond ~8 cores. Directory: central directory tracks which cores cache each line, sends targeted messages. O(1) per request. Intel mesh uses directory+snoop filter.",
+    "tags": ["cache-coherence", "directory", "scalability"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-044",
+    "front": "What perf events detect cache line contention?",
+    "back": "mem_load_l3_hit_retired.xsnp_hitm (HITM from remote cache), mem_load_l3_hit_retired.xsnp_hit (snoop hit clean), offcore_response with SNOOP_HITM filter. High xsnp_hitm indicates heavy cross-core write sharing.",
+    "tags": ["cache-coherence", "perf-events", "contention"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-045",
+    "front": "What is typical local vs remote DRAM access latency on a 2-socket Intel system?",
+    "back": "Local: ~80-100ns. Remote (cross-socket via UPI): ~140-200ns. ~1.5-2x penalty. Intel UPI link latency adds ~60-100ns per hop. AMD Infinity Fabric cross-CCD adds ~30-40ns, cross-socket ~100ns+.",
+    "tags": ["NUMA", "latency", "UPI"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-046",
+    "front": "What is the first-touch NUMA page placement policy in Linux?",
+    "back": "Pages are allocated on the NUMA node of the first thread to fault on them. If thread 0 on node 0 initializes all data, all pages land on node 0, even if thread N on node 1 later accesses them. Fix: parallel initialization or numactl --interleave.",
+    "tags": ["NUMA", "first-touch", "linux"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-047",
+    "front": "What are the key numactl flags for controlling memory placement?",
+    "back": "--membind=N: strict allocation on node N. --interleave=all: round-robin pages across nodes. --preferred=N: prefer node N, fallback to others. --cpunodebind=N: run threads on node N. --localalloc: allocate on local node only.",
+    "tags": ["NUMA", "numactl", "linux"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-048",
+    "front": "What are the mbind() memory policy constants?",
+    "back": "MPOL_BIND: strict, allocate only on specified nodes (OOM if full). MPOL_INTERLEAVE: round-robin across nodes. MPOL_PREFERRED: soft preference, falls back. MPOL_LOCAL: allocate on local node. Applied per-VMA via mbind() or per-process via set_mempolicy().",
+    "tags": ["NUMA", "mbind", "syscall"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-049",
+    "front": "How do you check the NUMA topology of a system?",
+    "back": "numactl --hardware (shows nodes, CPUs, memory). lscpu (shows NUMA node to CPU mapping). lstopo from hwloc (visual topology). /sys/devices/system/node/nodeN/ for programmatic access. Also: numastat -m for per-node memory stats.",
+    "tags": ["NUMA", "topology", "tools"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-050",
+    "front": "What is the numastat command and what key metrics does it show?",
+    "back": "numastat shows per-node memory allocation stats: numa_hit (allocated on intended node), numa_miss (allocated on wrong node), numa_foreign (intended for this node but allocated elsewhere), local_node, other_node. High numa_miss = poor placement.",
+    "tags": ["NUMA", "numastat", "diagnostics"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-051",
+    "front": "How does AutoNUMA (NUMA balancing) work in Linux?",
+    "back": "Kernel periodically unmaps pages (PROT_NONE) to trigger faults. On fault, kernel records which node accessed the page. If a page is consistently accessed from a remote node, kernel migrates it closer. Enabled via /proc/sys/kernel/numa_balancing.",
+    "tags": ["NUMA", "autonuma", "linux"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-052",
+    "front": "When is MPOL_INTERLEAVE better than first-touch?",
+    "back": "When all threads uniformly access all data (e.g., hash tables, shared lookup structures). Interleaving distributes bandwidth load across memory controllers. First-touch is better when data access has strong affinity to the initializing thread.",
+    "tags": ["NUMA", "interleave", "policy"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-053",
+    "front": "What is the AMD Infinity Fabric impact on NUMA latency?",
+    "back": "Zen 3/4 desktop: single CCD has uniform access. Multi-CCD (e.g., Zen 4 Ryzen 9): cross-CCD L3 miss adds ~30-40ns. Server (EPYC): 4 NUMA nodes per socket (NPS4 mode) or 1 (NPS1). Cross-socket: ~100-130ns extra.",
+    "tags": ["NUMA", "amd", "infinity-fabric"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-054",
+    "front": "What is the move_pages() system call used for?",
+    "back": "move_pages() migrates specific pages between NUMA nodes at runtime without remapping. Takes an array of page addresses and target nodes. Can also query current node of pages (pass NULL for nodes). Useful for dynamic rebalancing.",
+    "tags": ["NUMA", "move_pages", "syscall"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-055",
+    "front": "What is the theoretical peak bandwidth of a single DDR4-3200 channel?",
+    "back": "25.6 GB/s per channel. Dual channel = 51.2 GB/s. Practical (STREAM Triad) is ~80-85% of theoretical. Calculation: 3200 MT/s * 8 bytes = 25.6 GB/s.",
+    "tags": ["bandwidth", "DDR4", "theoretical"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-056",
+    "front": "What is the theoretical peak bandwidth of a single DDR5-4800 channel?",
+    "back": "38.4 GB/s per channel. DDR5 DIMMs have two independent 32-bit sub-channels (vs one 64-bit channel in DDR4). Dual channel DDR5-4800 = 76.8 GB/s theoretical. DDR5-5600 = 44.8 GB/s per channel.",
+    "tags": ["bandwidth", "DDR5", "theoretical"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-057",
+    "front": "What are typical STREAM Triad benchmark results for a modern desktop (DDR4-3200, dual channel)?",
+    "back": "~40-45 GB/s for STREAM Triad (vs 51.2 GB/s theoretical). ~78-88% efficiency. Triad: a[i] = b[i] + s*c[i]. Bottleneck is typically memory controller scheduling overhead and refresh interference.",
+    "tags": ["bandwidth", "STREAM", "benchmark"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-058",
+    "front": "How do you detect memory bandwidth saturation?",
+    "back": "Use perf stat with uncore_imc/data_reads/ and uncore_imc/data_writes/ events, or Intel PCM (pcm-memory). Intel VTune shows bandwidth utilization %. Also: compare STREAM numbers to observed traffic. >70% of peak = likely saturated.",
+    "tags": ["bandwidth", "saturation", "tools"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-059",
+    "front": "What is the bandwidth difference between sequential and random access for DRAM?",
+    "back": "Sequential: can reach ~90% of theoretical peak (e.g., 23 GB/s per DDR4-3200 channel). Random (pointer chasing): limited by latency, not bandwidth. With 100ns latency and 64B per access, effective BW = 640 MB/s (~3% of peak).",
+    "tags": ["bandwidth", "access-pattern", "random"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-060",
+    "front": "How does multi-channel memory configuration affect bandwidth?",
+    "back": "Bandwidth scales linearly with channels. DDR4-3200: 1 ch = 25.6, 2 ch = 51.2, 4 ch = 102.4, 6 ch = 153.6 GB/s. Server platforms (Xeon): up to 8 channels. HEDT: 4 channels. Desktop: 2 channels. Must populate all channels for full BW.",
+    "tags": ["bandwidth", "multi-channel", "configuration"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-061",
+    "front": "What is the bandwidth impact of non-temporal (streaming) stores?",
+    "back": "Non-temporal stores (movntps/movntdq) bypass cache, write-combining in WC buffers, and write full 64-byte lines directly to DRAM. Avoids RFO for write-miss lines. Can increase write BW by ~50-100% for streaming writes vs normal stores.",
+    "tags": ["bandwidth", "non-temporal", "streaming"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-062",
+    "front": "What is the STREAM benchmark and its four kernels?",
+    "back": "STREAM measures sustainable memory bandwidth. Copy: c[i]=a[i]. Scale: b[i]=s*c[i]. Add: c[i]=a[i]+b[i]. Triad: a[i]=b[i]+s*c[i]. Each uses arrays larger than LLC. Triad is most commonly reported. Use -DSTREAM_ARRAY_SIZE for sizing.",
+    "tags": ["bandwidth", "STREAM", "benchmark"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-063",
+    "front": "What is the read:write bandwidth ratio on Intel memory controllers?",
+    "back": "Intel IMC supports roughly 1:1 read:write ratio at full bandwidth. But mixed workloads suffer: ~70% of peak when mixing reads and writes due to bus turnaround penalties. Pure reads or pure writes achieve higher throughput than mixed.",
+    "tags": ["bandwidth", "read-write-ratio", "intel"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-064",
+    "front": "How does DDR5's sub-channel architecture affect bandwidth and latency?",
+    "back": "DDR5 splits one 64-bit channel into two 32-bit sub-channels. Each sub-channel operates independently, doubling burst efficiency. Same total data width but better bank-level parallelism. Slightly higher latency (CAS ~40 vs DDR4 ~22 in clocks, but higher clock speed).",
+    "tags": ["bandwidth", "DDR5", "sub-channel"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-065",
+    "front": "What is the store buffer size on Skylake?",
+    "back": "56 entries. Stores execute speculatively into the store buffer and drain to cache after retirement. If the store buffer is full, the pipeline stalls. Alder Lake P-cores: 72 entries. Zen 4: 64 entries.",
+    "tags": ["store-buffer", "skylake", "size"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-066",
+    "front": "What are the requirements for successful store-to-load forwarding on Intel?",
+    "back": "The load must be fully contained within the most recent store to the same address. Same or narrower size. Naturally aligned within the store's bytes. Mismatches in size, alignment, or partial overlap cause forwarding failure (~13 cycle penalty).",
+    "tags": ["store-buffer", "forwarding", "rules"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-067",
+    "front": "What PMC event detects store-to-load forwarding failures?",
+    "back": "`ld_blocks.store_forward` -- counts loads blocked by store forwarding restrictions (size mismatch, partial overlap, unaligned). High count indicates code is doing mismatched-size store/load pairs (e.g., store int, load char from same address).",
+    "tags": ["store-buffer", "perf-events", "forwarding"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-068",
+    "front": "What is the latency of a successful store-to-load forward vs a forwarding failure?",
+    "back": "Successful forward: ~4-5 cycles (data comes from store buffer, no cache access needed). Forwarding failure: ~13 cycles on Skylake -- the load must wait for the store to drain to L1 cache, then re-read from L1.",
+    "tags": ["store-buffer", "forwarding", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-069",
+    "front": "What happens when the store buffer is full?",
+    "back": "The pipeline stalls -- no new stores can be dispatched until an entry drains to L1D cache. Visible as resource_stalls.sb in perf. Common causes: many stores in flight, L1D cache misses blocking store commits, non-temporal stores filling WC buffers.",
+    "tags": ["store-buffer", "stall", "perf-events"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-070",
+    "front": "Can a load be forwarded from a store that wrote a wider value?",
+    "back": "Yes, if the load is fully contained within the stored bytes and properly aligned. E.g., a 4-byte load from offset 0 of an 8-byte store succeeds. But a 4-byte load spanning two 4-byte stores fails (cross-store boundary).",
+    "tags": ["store-buffer", "forwarding", "partial"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-071",
+    "front": "How does the store buffer interact with memory ordering on x86?",
+    "back": "x86 TSO: stores are buffered and become visible in program order. Loads can pass stores (to different addresses) but not loads. Store buffer enables this: stores commit in order but loads can speculatively read from cache before older stores drain. MFENCE drains the store buffer.",
+    "tags": ["store-buffer", "memory-ordering", "TSO"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-072",
+    "front": "What is a 4KB aliasing conflict in the store buffer?",
+    "back": "When a load and a store have the same lower 12 bits of virtual address (same page offset) but different pages, the CPU conservatively assumes they may alias. This causes a ~5 cycle penalty while it verifies they are distinct addresses. Detected via ld_blocks_partial.address_alias.",
+    "tags": ["store-buffer", "aliasing", "4KB"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-073",
+    "front": "How many levels does x86-64 page translation have (without LA57)?",
+    "back": "4 levels: PML4 -> PDPT -> PD -> PT. Each level is indexed by 9 bits of the virtual address. Bits [47:39]=PML4, [38:30]=PDPT, [29:21]=PD, [20:12]=PT, [11:0]=page offset. Total addressable: 2^48 = 256 TB.",
+    "tags": ["virtual-memory", "page-table", "x86-64"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-074",
+    "front": "What are the key bits in an x86-64 Page Table Entry (PTE)?",
+    "back": "Bit 0: Present. Bit 1: R/W. Bit 2: U/S (user/supervisor). Bit 5: Accessed. Bit 6: Dirty. Bit 7: Page Size (for 2MB/1GB). Bits [51:12]: Physical page frame number. Bit 63: NX (No Execute). Bits 9-11: available for OS use.",
+    "tags": ["virtual-memory", "PTE", "bits"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-075",
+    "front": "What is the CR3 register and what happens when it is loaded?",
+    "back": "CR3 holds the physical address of the PML4 table (top-level page table). Loading CR3 (context switch) flushes TLBs unless PCID is used. With PCID (bit 63 of CR3 = no-flush), TLB entries for other PCIDs are preserved.",
+    "tags": ["virtual-memory", "CR3", "context-switch"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-076",
+    "front": "What is 5-level paging (LA57) and when is it used?",
+    "back": "LA57 adds a 5th level (PML5) above PML4, extending virtual address space from 48 bits (256 TB) to 57 bits (128 PB). Page walks cost one extra memory access. Needed for systems with >64 TB physical RAM. Linux supports it since 4.14.",
+    "tags": ["virtual-memory", "LA57", "5-level"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-077",
+    "front": "What is KPTI (Kernel Page Table Isolation) and its performance impact?",
+    "back": "KPTI separates kernel/user page tables to mitigate Meltdown. On syscall/interrupt, CR3 switches to kernel page tables. Without PCID: full TLB flush (~1-5% overhead). With PCID: minimal TLB impact (~0.5-1%). Biggest impact on syscall-heavy workloads.",
+    "tags": ["virtual-memory", "KPTI", "security"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-078",
+    "front": "How does the Linux kernel use the Accessed and Dirty bits in PTEs?",
+    "back": "Accessed bit: set by HW on any read/write. Used by page reclaim (LRU approximation) -- kernel periodically clears it and checks later. Dirty bit: set on write. Used to determine if a page needs write-back before eviction. Both are managed in hardware, cleared by kernel.",
+    "tags": ["virtual-memory", "PTE", "linux"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-079",
+    "front": "What are Transparent Huge Pages (THP) in Linux and their trade-offs?",
+    "back": "THP automatically promotes 4KB pages to 2MB pages without application changes. Benefits: fewer TLB misses, fewer page table entries. Drawbacks: compaction overhead (khugepaged), memory waste for sparse access, latency spikes during defragmentation. Control: /sys/kernel/mm/transparent_hugepage/enabled (always/madvise/never).",
+    "tags": ["virtual-memory", "THP", "huge-pages"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-080",
+    "front": "What is the madvise(MADV_HUGEPAGE) system call used for?",
+    "back": "Tells the kernel a VMA is eligible for THP promotion. Used when THP is set to 'madvise' mode (not 'always'). Pair with mmap + madvise for controlled huge page use. Also: MADV_NOHUGEPAGE to prevent promotion for specific regions.",
+    "tags": ["virtual-memory", "madvise", "huge-pages"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-081",
+    "front": "Approximately how much slower is a random access pattern vs sequential for a large array?",
+    "back": "~50-100x. Sequential benefits from HW prefetching (~4c effective latency per access). Random hits DRAM (~200c+ per access) with no prefetching benefit. At 100ns per random access, throughput is ~10M accesses/sec vs ~1B+/sec sequential.",
+    "tags": ["access-patterns", "sequential-vs-random"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-082",
+    "front": "What is pointer chasing and why is it slow?",
+    "back": "Accessing linked data structures (linked lists, trees) where each access depends on the previous (next = node->next). Each dereference is a dependent load -- no prefetching, no memory-level parallelism. Latency: L1=4c, L2=12c, L3=42c, DRAM=200c+ per hop.",
+    "tags": ["access-patterns", "pointer-chasing", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-083",
+    "front": "What are the working set size thresholds for L1/L2/L3 on Skylake?",
+    "back": "L1: ~32 KB (below this, ~4c/access). L2: ~256 KB (~12c). L3: ~8-11 MB (~42c). Beyond L3: DRAM (~200c). Performance cliff at each boundary is dramatic. Profile with increasing array sizes to find your application's working set.",
+    "tags": ["access-patterns", "working-set", "skylake"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-084",
+    "front": "What is spatial locality vs temporal locality?",
+    "back": "Spatial: accessing nearby addresses soon (benefits from cache lines, prefetching). Temporal: re-accessing the same address soon (benefits from cache retention). Array traversal = spatial. Hash table with hot keys = temporal. Best code has both.",
+    "tags": ["access-patterns", "locality"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-085",
+    "front": "What is Memory-Level Parallelism (MLP) and how do you maximize it?",
+    "back": "MLP: number of outstanding cache misses the CPU can handle simultaneously. Skylake: 12 LFBs allow 12 outstanding L1 misses. Maximize by: independent loads (no data dependency chains), loop unrolling, software pipelining. Pointer chasing has MLP=1.",
+    "tags": ["access-patterns", "MLP", "parallelism"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-086",
+    "front": "What is the performance difference between row-major and column-major traversal of a 2D array in C?",
+    "back": "C uses row-major layout. Row-major traversal (a[i][j], inner loop over j) is sequential -- gets full prefetcher benefit. Column-major (a[j][i]) strides by row size, causing cache misses every N elements. For large arrays: ~10-50x slower due to TLB and cache misses.",
+    "tags": ["access-patterns", "array-traversal", "row-major"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-087",
+    "front": "What is loop tiling (blocking) and how does it improve cache performance?",
+    "back": "Divide loops into blocks (tiles) that fit in cache. Instead of processing an entire row then next row, process a BxB tile before moving on. Improves temporal locality for matrix operations. Optimal tile size: sqrt(cache_size / element_size) for matrix multiply.",
+    "tags": ["access-patterns", "tiling", "optimization"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-088",
+    "front": "How does branch-free code improve memory access patterns?",
+    "back": "Branches can prevent prefetcher training and cause icache misses on mispredicts. Converting branches to cmov/conditional-select eliminates: (1) icache pollution from cold paths, (2) prefetcher disruption, (3) speculative loads to wrong addresses. Most impactful for data-dependent access patterns.",
+    "tags": ["access-patterns", "branch-free", "optimization"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-089",
+    "front": "What is the alignment requirement for a struct member of type double on x86-64 System V ABI?",
+    "back": "8 bytes. The struct is padded to align each member to its natural alignment. sizeof(struct { char a; double b; }) = 16 (1 byte char + 7 padding + 8 byte double). Use __attribute__((packed)) to remove padding (risks unaligned access penalties).",
+    "tags": ["data-layout", "alignment", "struct-padding"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-090",
+    "front": "What is the performance benefit of AoS to SoA conversion?",
+    "back": "Typically 2-5x for streaming/SIMD workloads. AoS (Array of Structs): struct { x, y, z }[N] -- loads unused fields. SoA (Struct of Arrays): { x[N], y[N], z[N] } -- contiguous access enables vectorization and prefetching. Most impactful when processing one field at a time.",
+    "tags": ["data-layout", "AoS-SoA", "SIMD"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-091",
+    "front": "What is hot/cold splitting and when should you use it?",
+    "back": "Separate frequently-accessed (hot) fields from rarely-accessed (cold) fields into different structs/regions. Hot data stays in cache. Example: struct Order { price, qty /* hot */; char name[256] /* cold */ } -> split into OrderHot + OrderCold. Use when sizeof(hot fields) << sizeof(full struct).",
+    "tags": ["data-layout", "hot-cold", "optimization"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-092",
+    "front": "How does padding a struct to cache line size prevent false sharing?",
+    "back": "alignas(64) struct { int counter; char pad[60]; } -- ensures each instance occupies its own cache line. Without padding, adjacent counters updated by different threads share a line, causing RFO storms. Cost: wastes memory. Alternative: use thread-local counters and aggregate.",
+    "tags": ["data-layout", "false-sharing", "padding"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-093",
+    "front": "What is the impact of struct field ordering on size due to padding?",
+    "back": "Ordering matters. struct { char a; double b; char c; } = 24 bytes (1+7pad+8+1+7pad). Reordered: struct { double b; char a; char c; } = 16 bytes (8+1+1+6pad). Rule: sort members by decreasing alignment requirement. Use -Wpadded to detect.",
+    "tags": ["data-layout", "struct-padding", "optimization"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "mem-094",
+    "front": "What are the advantages of using std::vector<SoA> vs std::vector<AoS> for SIMD?",
+    "back": "SoA layout allows loading N consecutive x-values into a SIMD register with a single aligned load. AoS requires gather instructions (vpgatherdd) which are 3-5x slower than contiguous loads. SoA also enables auto-vectorization by the compiler.",
+    "tags": ["data-layout", "SoA", "SIMD"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-095",
+    "front": "What memory type should be used for MMIO device registers?",
+    "back": "UC (Uncacheable). Prevents caching and ensures every read/write reaches the device. Side-effect-free reordering is not allowed. No speculative reads. No write combining. Every access is exactly the programmed size and order.",
+    "tags": ["memory-types", "UC", "MMIO"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-096",
+    "front": "What are the five x86 memory types (UC, WC, WT, WB, WP)?",
+    "back": "UC: Uncacheable, no caching/reordering. WC: Write Combining, uncached reads, writes batched in WC buffers. WT: Write Through, cached reads, writes go to cache AND memory. WB: Write Back, full caching, writes only to cache until eviction. WP: Write Protected, cached reads, writes go to bus (no cache update).",
+    "tags": ["memory-types", "x86", "overview"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-097",
+    "front": "What is the purpose of MTRRs (Memory Type Range Registers)?",
+    "back": "MTRRs define the memory type (UC/WC/WT/WB/WP) for physical address ranges. Fixed MTRRs cover the first 1MB. Variable MTRRs (typically 8-10 pairs) cover arbitrary ranges using base+mask. Largely superseded by PAT for fine-grained control. Set by BIOS/firmware.",
+    "tags": ["memory-types", "MTRR", "hardware"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-098",
+    "front": "What is the PAT (Page Attribute Table) and how does it interact with MTRRs?",
+    "back": "PAT allows per-page memory type control via PTE bits (PAT, PCD, PWT = 3 bits = 8 entries in the PAT MSR). Effective type = combination of MTRR and PAT types, with most restrictive winning. PAT enables WC for framebuffers without MTRR entries.",
+    "tags": ["memory-types", "PAT", "PTE"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-099",
+    "front": "How do non-temporal stores interact with WB (Write Back) memory?",
+    "back": "Non-temporal stores (movntps, movntdq, movnti) to WB memory bypass cache and use WC buffers. Data is write-combined and flushed in full cache-line writes to DRAM. Avoids RFO and cache pollution. Requires SFENCE to ensure ordering. Only beneficial for streaming writes.",
+    "tags": ["memory-types", "non-temporal", "WB"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-100",
+    "front": "What is WC (Write Combining) memory type and when is it used?",
+    "back": "WC batches writes in WC buffers (4 entries, 64 bytes each on Skylake) and flushes as full-line writes. No caching of reads. Weak ordering (writes can be reordered). Used for GPU framebuffers, DMA buffers. Much higher write throughput than UC but reads are always uncached (~DRAM latency).",
+    "tags": ["memory-types", "WC", "write-combining"],
+    "difficulty": "advanced"
+  }
+]

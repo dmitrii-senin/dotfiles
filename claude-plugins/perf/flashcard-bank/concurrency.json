@@ -1,0 +1,702 @@
+[
+  {
+    "id": "conc-001",
+    "front": "On x86-TSO, can two stores from the same thread be observed out of order by another thread?",
+    "back": "No. Stores from the same thread are observed in program order by all other threads. This is the Total Store Order guarantee.",
+    "tags": ["x86-TSO", "store-ordering"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "conc-002",
+    "front": "What reordering DOES x86-TSO allow?",
+    "back": "A store followed by a load to a different address can be reordered (the load may execute before the store becomes globally visible). This is the only reordering x86-TSO permits.",
+    "tags": ["x86-TSO", "store-buffer"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-003",
+    "front": "Explain the store-buffer litmus test and its outcome on x86-TSO.",
+    "back": "Thread 0: x=1; r0=y. Thread 1: y=1; r1=x. On x86-TSO, r0=0 AND r1=0 is possible because each thread's store sits in its local store buffer and has not become globally visible when the loads execute.",
+    "tags": ["x86-TSO", "litmus-test", "store-buffer"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-004",
+    "front": "In the message-passing litmus test (Thread 0: data=42; flag=1. Thread 1: if flag==1, read data), can Thread 1 see flag=1 but data=0 on x86-TSO?",
+    "back": "No. x86-TSO guarantees store-store ordering, so if Thread 1 sees flag=1, it will also see data=42. This litmus test only fails on weaker models (e.g., ARM, POWER) without proper barriers.",
+    "tags": ["x86-TSO", "litmus-test", "message-passing"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-005",
+    "front": "What is the x86 store buffer and why does it exist?",
+    "back": "A per-core FIFO queue that holds committed stores before they become globally visible in the cache hierarchy. It exists to hide store latency -- the core does not stall waiting for cache coherence to complete.",
+    "tags": ["x86-TSO", "store-buffer", "microarchitecture"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-006",
+    "front": "Can a core read its own recent store from the store buffer on x86-TSO before it is globally visible?",
+    "back": "Yes. Store-buffer forwarding allows a load to see the most recent store to the same address from the same core's store buffer. Other cores cannot see it yet.",
+    "tags": ["x86-TSO", "store-buffer", "forwarding"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-007",
+    "front": "How does x86-TSO differ from Sequential Consistency (SC)?",
+    "back": "SC forbids all reorderings. x86-TSO allows store-load reordering (a younger load can pass an older store to a different address via the store buffer). All other orderings (store-store, load-load, load-store) are preserved.",
+    "tags": ["x86-TSO", "sequential-consistency", "memory-model"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-008",
+    "front": "How does x86-TSO compare to ARM's memory model?",
+    "back": "ARM has a much weaker model: it allows load-load, load-store, store-store, and store-load reorderings. Programmers must use explicit barriers (DMB, DSB) or acquire/release instructions. x86-TSO only allows store-load reordering.",
+    "tags": ["x86-TSO", "ARM", "weak-ordering"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-009",
+    "front": "Does IRIW (Independent Reads of Independent Writes) litmus test ever fail on x86-TSO?",
+    "back": "No. x86-TSO provides a total order on all stores (multi-copy atomic). Two readers will agree on the order of two independent writes. IRIW can fail on POWER, which is not multi-copy atomic.",
+    "tags": ["x86-TSO", "litmus-test", "IRIW"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-010",
+    "front": "What x86 instruction drains the store buffer and prevents store-load reordering?",
+    "back": "MFENCE. It serializes all loads and stores, ensuring that all preceding stores are globally visible before any subsequent loads execute. LOCK-prefixed instructions also have this effect.",
+    "tags": ["x86-TSO", "mfence", "store-buffer"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-011",
+    "front": "What x86 instruction does std::atomic<int>::fetch_add(1, relaxed) compile to?",
+    "back": "LOCK XADD. On x86, all atomic RMW operations use the LOCK prefix regardless of memory order.",
+    "tags": ["atomics-codegen", "LOCK-prefix", "fetch_add"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-012",
+    "front": "What is the approximate latency of an uncontended LOCK-prefixed instruction on modern x86?",
+    "back": "Approximately 15-25 cycles. The cost comes from locking the cache line and draining the store buffer, not from a bus lock (which would be far more expensive).",
+    "tags": ["atomics-codegen", "LOCK-prefix", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-013",
+    "front": "What happens to LOCK-prefixed instruction latency under contention?",
+    "back": "It rises to 100+ cycles due to cache-line bouncing between cores. Each execution requires an RFO to obtain exclusive ownership, which involves cross-core coherence traffic.",
+    "tags": ["atomics-codegen", "LOCK-prefix", "contention"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-014",
+    "front": "What x86 instruction does std::atomic<int>::exchange(val) compile to?",
+    "back": "XCHG reg, [mem]. XCHG with a memory operand has an implicit LOCK prefix -- no explicit LOCK is needed.",
+    "tags": ["atomics-codegen", "XCHG"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-015",
+    "front": "What x86 instruction does compare_exchange_strong compile to for a 4-byte or 8-byte atomic?",
+    "back": "LOCK CMPXCHG. The expected value is in EAX/RAX; if [mem] matches, the desired value is stored. The ZF flag indicates success/failure.",
+    "tags": ["atomics-codegen", "CAS", "CMPXCHG"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-016",
+    "front": "What does a std::atomic<int>::store(val, memory_order_seq_cst) compile to on x86 with GCC/Clang?",
+    "back": "MOV [mem], val followed by MFENCE (GCC), or XCHG [mem], val (Clang). Both ensure the store is sequentially consistent by preventing subsequent loads from being reordered before the store becomes globally visible.",
+    "tags": ["atomics-codegen", "seq_cst", "store"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-017",
+    "front": "What does std::atomic<int>::load(memory_order_seq_cst) compile to on x86?",
+    "back": "Just a plain MOV. On x86-TSO, loads already have acquire semantics and seq_cst loads don't need extra barriers. The seq_cst fence cost is paid on the store side instead.",
+    "tags": ["atomics-codegen", "seq_cst", "load"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-018",
+    "front": "Why does x86 use LOCK XADD instead of plain ADD for atomic increments?",
+    "back": "Plain ADD is not atomic -- it performs a non-atomic read-modify-write. Another core could modify the cache line between the read and write phases. LOCK ensures the cache line is held exclusively for the entire RMW cycle.",
+    "tags": ["atomics-codegen", "LOCK-prefix", "atomicity"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "conc-019",
+    "front": "What does a std::atomic store with memory_order_release compile to on x86?",
+    "back": "Just a plain MOV. x86-TSO already provides store-release semantics because stores are not reordered with older stores.",
+    "tags": ["memory_order", "release", "x86-codegen"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-020",
+    "front": "What does a std::atomic load with memory_order_acquire compile to on x86?",
+    "back": "Just a plain MOV. x86-TSO already provides load-acquire semantics because loads are not reordered with older loads.",
+    "tags": ["memory_order", "acquire", "x86-codegen"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-021",
+    "front": "Which C++ memory orders are 'free' (no extra instructions) on x86?",
+    "back": "relaxed, acquire, release, and acq_rel all compile to plain MOV for loads/stores. Only seq_cst stores require extra instructions (MFENCE or XCHG).",
+    "tags": ["memory_order", "x86-codegen", "cost"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-022",
+    "front": "What does memory_order_relaxed guarantee?",
+    "back": "Only atomicity (no torn reads/writes). No ordering guarantees with respect to other memory operations. On x86, it still compiles to plain MOV since x86-TSO is stronger than relaxed.",
+    "tags": ["memory_order", "relaxed"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "conc-023",
+    "front": "Why does memory_order_seq_cst exist if acq_rel is sufficient for most patterns?",
+    "back": "seq_cst provides a single total order agreed upon by all threads. acq_rel only provides pairwise ordering. The classic case where seq_cst is needed is Dekker's algorithm / the store-buffer litmus test, where two threads each store then load different variables.",
+    "tags": ["memory_order", "seq_cst", "total-order"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-024",
+    "front": "On ARM/POWER, what extra instructions does memory_order_acquire require compared to x86?",
+    "back": "On ARM, acquire loads use LDAR (load-acquire) which adds a barrier after the load. On POWER, an isync or lwsync barrier is needed after the load. On x86, acquire is free.",
+    "tags": ["memory_order", "ARM", "cross-platform"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-025",
+    "front": "What does std::atomic_thread_fence(memory_order_seq_cst) compile to on x86?",
+    "back": "MFENCE. It provides a full fence preventing all reorderings across it, including the store-load reordering that x86-TSO normally allows.",
+    "tags": ["memory_order", "fence", "mfence"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-026",
+    "front": "Can you use memory_order_release on an atomic load?",
+    "back": "No. Release only applies to stores and the store part of RMW operations. Similarly, acquire only applies to loads and the load part of RMW operations. Using release on a load is undefined behavior / compile error in practice.",
+    "tags": ["memory_order", "release", "acquire"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "conc-027",
+    "front": "What are the four states in the MESI cache coherence protocol?",
+    "back": "Modified (dirty, exclusive), Exclusive (clean, exclusive), Shared (clean, possibly in other caches), Invalid (not valid). M and E mean only this core has the line; S means multiple cores may have it.",
+    "tags": ["MESI", "cache-coherence"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "conc-028",
+    "front": "What does RFO stand for and when does it happen?",
+    "back": "Read For Ownership. Issued when a core wants to write to a cache line in Shared or Invalid state. The line must transition to Modified/Exclusive, requiring invalidation of other copies.",
+    "tags": ["MESI", "RFO", "cache-coherence"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-029",
+    "front": "What triggers a transition from Shared to Invalid in MESI?",
+    "back": "Another core issues an RFO (write) for that cache line. The core that had the line in Shared state receives an invalidation snoop and transitions to Invalid.",
+    "tags": ["MESI", "state-transition"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-030",
+    "front": "What is the difference between Modified and Exclusive in MESI?",
+    "back": "Both mean the core has the only copy. Modified means the line has been written to and is dirty (differs from memory). Exclusive means the line is clean (matches memory). Writing to an Exclusive line transitions it to Modified without bus traffic.",
+    "tags": ["MESI", "state-transition"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-031",
+    "front": "What is a snoop in cache coherence?",
+    "back": "A message broadcast on the bus (or sent via a directory) to query other caches about a cache line's state. Snoops let cores discover whether they need to provide data or invalidate their copies.",
+    "tags": ["MESI", "snoop", "cache-coherence"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "conc-032",
+    "front": "What is a snoop filter and why is it important for scalability?",
+    "back": "A directory-like structure at the last-level cache or interconnect that tracks which cores have which cache lines. It avoids broadcasting snoops to all cores, reducing coherence traffic as core count grows.",
+    "tags": ["MESI", "snoop-filter", "scalability"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-033",
+    "front": "How does MOESI differ from MESI?",
+    "back": "MOESI adds the Owned state: the cache line is dirty but may also be in Shared state in other caches. The owning core is responsible for supplying data on snoops, avoiding a writeback to memory. Used by AMD processors.",
+    "tags": ["MESI", "MOESI", "AMD"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-034",
+    "front": "What is the approximate cost of a cache-to-cache transfer (HITM) vs an L1 hit?",
+    "back": "L1 hit is ~4-5 cycles. Cache-to-cache transfer across cores on the same socket is ~30-70 cycles. Cross-socket (NUMA) is ~100-300 cycles. This is why contention on shared cache lines is expensive.",
+    "tags": ["MESI", "latency", "cache-transfer"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-035",
+    "front": "What is the futex fast path?",
+    "back": "An atomic CAS in userspace that acquires the lock without entering the kernel. Only on contention does the thread call futex(FUTEX_WAIT) to sleep in the kernel.",
+    "tags": ["locks", "futex", "fast-path"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-036",
+    "front": "What is the futex slow path?",
+    "back": "When the userspace CAS fails (lock is contended), the thread calls futex(FUTEX_WAIT, addr, expected). The kernel puts the thread on a wait queue keyed by the futex address. On unlock, futex(FUTEX_WAKE) wakes one waiter.",
+    "tags": ["locks", "futex", "slow-path", "kernel"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-037",
+    "front": "What is an adaptive mutex and what problem does it solve?",
+    "back": "It spins briefly before sleeping in the kernel. If the lock holder is running on another core, spinning avoids the expensive context switch. If the holder is not running, it falls back to sleeping. PTHREAD_MUTEX_ADAPTIVE_NP in glibc.",
+    "tags": ["locks", "adaptive", "spinning"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-038",
+    "front": "What are the four glibc pthread mutex types?",
+    "back": "PTHREAD_MUTEX_NORMAL (no error checking, UB on double lock), ERRORCHECK (returns EDEADLK on double lock), RECURSIVE (allows re-locking, keeps count), ADAPTIVE_NP (spins before sleeping, non-portable).",
+    "tags": ["locks", "pthread", "mutex-types"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-039",
+    "front": "Why is a test-and-test-and-set spinlock better than a simple test-and-set spinlock?",
+    "back": "TAS spins with atomic writes (XCHG), which generate RFOs and cache-line bouncing on every attempt. TTAS first reads (test) with a plain load; only when the lock appears free does it attempt the atomic set. This keeps the line in Shared state while spinning.",
+    "tags": ["locks", "spinlock", "TTAS"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-040",
+    "front": "How does a ticket spinlock work and what advantage does it have?",
+    "back": "It uses two counters: 'next' (ticket dispenser) and 'owner' (now serving). Lock: atomically fetch-and-increment 'next', spin until 'owner' equals your ticket. Unlock: increment 'owner'. Guarantees FIFO fairness, unlike TAS/TTAS.",
+    "tags": ["locks", "spinlock", "ticket-lock", "fairness"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-041",
+    "front": "What is a MCS lock and what problem does it solve?",
+    "back": "Each thread spins on its own cache-line-aligned node in a linked list. Lock: append your node, spin on your node's flag. Unlock: set the next node's flag. Solves the scalability problem of ticket locks where all waiters spin on the same cache line.",
+    "tags": ["locks", "MCS", "scalability"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-042",
+    "front": "What is the cost of an uncontended pthread_mutex_lock/unlock round trip?",
+    "back": "Approximately 15-25ns on modern x86 (dominated by the atomic CAS in userspace). No kernel transition occurs on the fast path.",
+    "tags": ["locks", "futex", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-043",
+    "front": "In a lock-free SPSC queue, why must the head and tail pointers be on separate cache lines?",
+    "back": "To avoid false sharing. The producer writes tail, the consumer writes head. If on the same 64B line, every write invalidates the other core's cache line.",
+    "tags": ["lock-free", "SPSC", "false-sharing"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-044",
+    "front": "What memory ordering does a lock-free SPSC ring buffer require?",
+    "back": "The producer must use a release store on the tail pointer (after writing data). The consumer must use an acquire load on the tail pointer (before reading data). On x86, these are just plain MOVs.",
+    "tags": ["lock-free", "SPSC", "memory_order"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-045",
+    "front": "What is a Treiber stack?",
+    "back": "A lock-free stack using a CAS loop. Push: create node, set node->next = top, CAS(&top, node->next, node). Pop: read top, read top->next, CAS(&top, top, top->next). Simple but susceptible to ABA and contention on the top pointer.",
+    "tags": ["lock-free", "Treiber-stack", "CAS"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-046",
+    "front": "What is the Michael-Scott queue?",
+    "back": "A lock-free MPMC queue using two CAS pointers (head and tail) with a sentinel node. Enqueue CASes the tail's next pointer, then advances tail. Dequeue CASes head. It separates producer and consumer contention to different pointers.",
+    "tags": ["lock-free", "Michael-Scott", "MPMC"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-047",
+    "front": "What is a FAA (fetch-and-add) queue and why is it faster than CAS-based queues?",
+    "back": "Producers and consumers use fetch_add on head/tail indices to claim slots in a bounded array. FAA never spuriously fails (unlike CAS), so there is no retry loop. Each thread gets a unique slot in one atomic operation.",
+    "tags": ["lock-free", "FAA-queue", "MPMC"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-048",
+    "front": "What is the key challenge in implementing a lock-free MPMC bounded queue?",
+    "back": "Detecting full/empty conditions and ensuring that a producer's write is complete before a consumer reads the slot. Common solution: per-slot sequence counter or state flag to coordinate producers and consumers.",
+    "tags": ["lock-free", "MPMC", "bounded-queue"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-049",
+    "front": "Why can't you simply use a Treiber stack with raw pointers in a lock-free system?",
+    "back": "The ABA problem: a popped node can be freed and reallocated at the same address, causing a CAS to succeed incorrectly. You need safe memory reclamation (hazard pointers, epoch-based, RCU) or tagged pointers.",
+    "tags": ["lock-free", "ABA", "memory-reclamation"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-050",
+    "front": "What is a lock-free SPSC ring buffer's throughput advantage over a mutex-protected queue?",
+    "back": "Typically 10-100x higher throughput. No atomic RMW on the critical path (just release stores and acquire loads), no syscalls, no context switches, and producer/consumer operate on different cache lines.",
+    "tags": ["lock-free", "SPSC", "throughput"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-051",
+    "front": "In a lock-free SPSC queue, why should the buffer size be a power of two?",
+    "back": "So index wrapping can use bitwise AND (idx & (size-1)) instead of modulo, which is much cheaper. It also avoids branch mispredictions from conditional wrapping.",
+    "tags": ["lock-free", "SPSC", "optimization"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "conc-052",
+    "front": "What is the typical pattern for a wait-free SPSC queue?",
+    "back": "Producer owns the write index (tail), consumer owns the read index (head). Each reads the other's index with acquire semantics to check full/empty. No CAS loop needed because each index has exactly one writer, making it naturally wait-free.",
+    "tags": ["lock-free", "SPSC", "wait-free"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-053",
+    "front": "What is false sharing?",
+    "back": "When two threads access different variables that happen to reside on the same cache line (64 bytes on x86). Writes by one thread invalidate the line for the other, causing expensive cache coherence traffic despite no logical data sharing.",
+    "tags": ["false-sharing", "cache-line"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "conc-054",
+    "front": "How do you detect false sharing with Linux perf?",
+    "back": "Use 'perf c2c record' then 'perf c2c report'. It identifies cache lines with high HITM (cache-to-cache transfer) counts and shows which variables on those lines are accessed by which threads/cores.",
+    "tags": ["false-sharing", "perf-c2c", "detection"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-055",
+    "front": "What does HITM mean in perf c2c output?",
+    "back": "Hit In Modified -- a load found the data in another core's cache in Modified state, requiring a cache-to-cache transfer. High HITM counts indicate contention (possibly false sharing).",
+    "tags": ["false-sharing", "perf-c2c", "HITM"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-056",
+    "front": "How do you prevent false sharing in C++?",
+    "back": "Pad or align variables to cache-line boundaries: alignas(64) or alignas(std::hardware_destructive_interference_size). In Linux kernel code, use __cacheline_aligned or ____cacheline_aligned_in_smp.",
+    "tags": ["false-sharing", "padding", "alignas"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-057",
+    "front": "What is std::hardware_destructive_interference_size?",
+    "back": "A C++17 constant equal to the minimum offset between two objects to avoid false sharing (typically 64 on x86). Use alignas(std::hardware_destructive_interference_size) to pad. Note: some compilers don't define it due to ABI concerns.",
+    "tags": ["false-sharing", "C++17", "padding"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-058",
+    "front": "What is the typical cost of false sharing compared to accessing a private cache line?",
+    "back": "A private L1 access is ~4-5 cycles. False sharing forces cache-to-cache transfers at ~30-70 cycles per access (same socket), or 100-300 cycles (cross-socket). This can degrade throughput by 10-100x.",
+    "tags": ["false-sharing", "latency", "performance"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-059",
+    "front": "Give an example of a common false sharing bug in a multi-threaded counter array.",
+    "back": "int counters[N_THREADS]; -- each thread increments counters[thread_id]. Adjacent counters share a 64B cache line. Fix: struct alignas(64) PaddedCounter { int value; }; PaddedCounter counters[N_THREADS];",
+    "tags": ["false-sharing", "example", "padding"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "conc-060",
+    "front": "Can false sharing occur between a read-only variable and a frequently-written variable on the same cache line?",
+    "back": "Yes. Even though the reader never writes, it keeps loading the line into Shared state. The writer's stores invalidate it, forcing the reader to re-fetch from the writer's cache on every read.",
+    "tags": ["false-sharing", "read-write", "invalidation"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-061",
+    "front": "What is a compiler barrier and how do you express one in GCC/Clang?",
+    "back": "asm volatile(\"\" ::: \"memory\"). Prevents the compiler from reordering memory accesses across the barrier. Generates no instructions -- it only constrains the compiler's optimizer.",
+    "tags": ["barriers", "compiler-barrier", "GCC"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-062",
+    "front": "When is SFENCE needed on x86?",
+    "back": "Only after non-temporal (streaming) stores (_mm_stream_*). Regular stores are ordered by TSO and don't need SFENCE. SFENCE ensures NT stores are visible before subsequent stores.",
+    "tags": ["barriers", "SFENCE", "non-temporal"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-063",
+    "front": "When is LFENCE needed on x86?",
+    "back": "Rarely for memory ordering (loads are already ordered). Its main use is serializing instruction execution (e.g., after RDTSC for precise timing, or as a speculation barrier for Spectre mitigation).",
+    "tags": ["barriers", "LFENCE", "serialization"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-064",
+    "front": "What is the difference between MFENCE and a LOCK-prefixed instruction as a memory barrier?",
+    "back": "Both provide a full barrier. MFENCE is a standalone fence instruction. LOCK ADD [rsp], 0 achieves the same effect and is sometimes cheaper on certain microarchitectures because it piggybacks on the store pipeline.",
+    "tags": ["barriers", "MFENCE", "LOCK-prefix"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-065",
+    "front": "What are non-temporal stores and why do they bypass TSO ordering?",
+    "back": "NT stores (_mm_stream_*) write directly to memory, bypassing the cache. Since they skip the store buffer and cache, TSO ordering does not apply. SFENCE is required to order them with respect to regular stores.",
+    "tags": ["barriers", "non-temporal", "streaming-stores"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-066",
+    "front": "Why is a compiler barrier insufficient on ARM/POWER but sufficient on x86 for acquire/release?",
+    "back": "x86-TSO hardware already enforces acquire/release ordering. On ARM/POWER, the hardware may reorder loads and stores, so hardware barriers (DMB, lwsync) are also needed. On x86, only the compiler needs to be constrained.",
+    "tags": ["barriers", "ARM", "x86-TSO", "cross-platform"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-067",
+    "front": "What does std::atomic_thread_fence(memory_order_release) compile to on x86?",
+    "back": "Nothing (a compiler barrier only). x86 hardware already prevents store-store and load-store reorderings that release fences prohibit.",
+    "tags": ["barriers", "fence", "release"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-068",
+    "front": "Can the compiler reorder a std::atomic relaxed load past a mutex unlock?",
+    "back": "No. The mutex unlock is a release operation, which is a compiler barrier. The compiler cannot move the relaxed load below the release. However, the hardware could reorder them on weak architectures (not x86).",
+    "tags": ["barriers", "relaxed", "mutex", "compiler-barrier"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-069",
+    "front": "What is the approximate cost of pthread_create on Linux?",
+    "back": "~10-50us including stack allocation, kernel task_struct creation, and TLS setup. Thread pools amortize this cost.",
+    "tags": ["threads", "pthread_create", "latency"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "conc-070",
+    "front": "What is the initial-exec TLS access model and how does it perform?",
+    "back": "Uses a fixed offset from the thread pointer (FS segment register on x86-64). Compiles to ~2 instructions (e.g., mov rax, fs:[offset]). Fastest model but only works for TLS in the main executable and libraries loaded at startup.",
+    "tags": ["threads", "TLS", "initial-exec"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-071",
+    "front": "What is the general-dynamic TLS access model?",
+    "back": "Calls __tls_get_addr() at runtime to resolve the TLS address. Required for TLS in dynamically loaded libraries (dlopen). Much slower than initial-exec (~function call overhead per access).",
+    "tags": ["threads", "TLS", "general-dynamic"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-072",
+    "front": "What does the thread_local keyword compile to on x86-64 Linux?",
+    "back": "Depends on the TLS model. In the main executable with -ftls-model=initial-exec: a simple FS-segment offset load. In a shared library with general-dynamic: a call to __tls_get_addr(). The compiler may optimize with local-exec or local-dynamic models.",
+    "tags": ["threads", "thread_local", "codegen"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-073",
+    "front": "How large is the default thread stack on Linux?",
+    "back": "Typically 8MB (ulimit -s). Only pages actually touched are allocated (demand paging). For thread pools with many threads, reduce with pthread_attr_setstacksize to save virtual address space.",
+    "tags": ["threads", "stack-size", "Linux"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "conc-074",
+    "front": "What is the cost of a context switch between threads on Linux?",
+    "back": "Approximately 1-10us including saving/restoring registers, TLB flush (if crossing address spaces), scheduler overhead, and cache/TLB warmup. Switching between threads in the same process avoids full TLB flush.",
+    "tags": ["threads", "context-switch", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-075",
+    "front": "What is thread affinity and why does it matter for performance?",
+    "back": "Binding a thread to a specific CPU core (pthread_setaffinity_np or sched_setaffinity). Prevents migration between cores, which avoids cold cache/TLB misses and cross-socket memory access in NUMA systems.",
+    "tags": ["threads", "affinity", "NUMA"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-076",
+    "front": "What is the overhead of accessing thread_local variables compared to regular globals?",
+    "back": "With initial-exec model: negligible (one extra segment-register-relative load, ~1 cycle). With general-dynamic model: significant (~10-20ns for __tls_get_addr call, though glibc caches the result).",
+    "tags": ["threads", "TLS", "overhead"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-077",
+    "front": "What is the ABA problem in lock-free programming?",
+    "back": "Thread reads pointer A, gets preempted. Another thread frees A, allocates B at same address, updates pointer to B then back to A. Original thread's CAS succeeds incorrectly because it sees A again.",
+    "tags": ["reclamation", "ABA", "lock-free"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-078",
+    "front": "How do hazard pointers solve the reclamation problem?",
+    "back": "Before accessing a node, a thread publishes a hazard pointer to it. Before freeing a node, the retiring thread scans all hazard pointers -- if any thread has a hazard pointer to the node, it defers freeing. Each thread maintains a small fixed-size array of hazard pointers.",
+    "tags": ["reclamation", "hazard-pointers"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-079",
+    "front": "How does epoch-based reclamation (EBR) work?",
+    "back": "Threads enter/exit critical sections and track a global epoch counter. Retired nodes are placed in per-epoch retire lists. When all threads have observed the current epoch, nodes from two epochs ago are safe to free. Simpler than hazard pointers but blocks reclamation if any thread stalls.",
+    "tags": ["reclamation", "epoch-based", "EBR"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-080",
+    "front": "What is RCU (Read-Copy-Update) and when is it used?",
+    "back": "A synchronization mechanism optimized for read-heavy workloads. Readers access data without locks or atomic ops. Writers create a new version and wait for a grace period (all pre-existing readers to finish) before freeing the old version. Used extensively in the Linux kernel.",
+    "tags": ["reclamation", "RCU", "grace-period"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-081",
+    "front": "How does the ABA counter technique prevent ABA?",
+    "back": "Pair the pointer with a monotonically increasing counter in a double-width CAS (CMPXCHG16B on x86-64). Each CAS increments the counter. Even if the pointer value recycles, the counter will differ, causing the CAS to fail.",
+    "tags": ["reclamation", "ABA", "tagged-pointer"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-082",
+    "front": "What is a grace period in RCU?",
+    "back": "The time interval after a writer publishes an update during which pre-existing readers may still hold references to the old data. Once all such readers complete, the grace period ends and the old data can be freed.",
+    "tags": ["reclamation", "RCU", "grace-period"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-083",
+    "front": "What is the main disadvantage of epoch-based reclamation compared to hazard pointers?",
+    "back": "If one thread stalls in a critical section (e.g., page fault, preemption), the global epoch cannot advance and no memory can be reclaimed, potentially causing unbounded memory growth.",
+    "tags": ["reclamation", "epoch-based", "hazard-pointers", "tradeoff"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-084",
+    "front": "In hazard pointer reclamation, when can a retired node be freed?",
+    "back": "When a scan of all threads' hazard pointer arrays shows that no thread currently holds a hazard pointer to that node. The retiring thread periodically scans and frees nodes not in any hazard pointer set.",
+    "tags": ["reclamation", "hazard-pointers", "freeing"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-085",
+    "front": "What is the difference between lock-free and wait-free?",
+    "back": "Lock-free: at least one thread makes progress in finite steps (some threads may starve). Wait-free: every thread completes in bounded steps (no starvation possible).",
+    "tags": ["progress-guarantees", "lock-free", "wait-free"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "conc-086",
+    "front": "What is obstruction-free?",
+    "back": "A thread makes progress if it runs in isolation (no other threads are concurrently modifying shared data). Weaker than lock-free -- with contention, threads may livelock. Requires a contention manager to guarantee progress in practice.",
+    "tags": ["progress-guarantees", "obstruction-free"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-087",
+    "front": "Why are wait-free algorithms rare in practice?",
+    "back": "They are complex to design, require helping mechanisms (fast threads help slow threads complete), and often have higher constant overhead than lock-free alternatives. Lock-free is usually sufficient since starvation is rare in practice.",
+    "tags": ["progress-guarantees", "wait-free", "practicality"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-088",
+    "front": "Is a CAS retry loop lock-free or wait-free?",
+    "back": "Lock-free. A CAS failure means another thread succeeded (made progress), satisfying the lock-free guarantee. But a single thread could theoretically retry indefinitely (starve), so it is not wait-free.",
+    "tags": ["progress-guarantees", "CAS", "lock-free"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-089",
+    "front": "What is the difference between bounded and unbounded wait-free?",
+    "back": "Bounded wait-free: the number of steps is bounded by a known function of the number of threads (e.g., O(N)). Unbounded wait-free: every thread finishes in finite steps, but no fixed upper bound is specified. Bounded is a stronger guarantee.",
+    "tags": ["progress-guarantees", "wait-free", "bounded"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-090",
+    "front": "Can a program using mutexes be lock-free?",
+    "back": "No. If the thread holding the mutex is suspended (preempted, killed), no other thread can make progress. Mutexes are blocking by definition. Lock-free requires progress even if arbitrary threads are suspended.",
+    "tags": ["progress-guarantees", "mutex", "blocking"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "conc-091",
+    "front": "What is a condition variable and how does it differ from busy-waiting?",
+    "back": "A synchronization primitive that allows threads to sleep (block) until a condition is signaled. Unlike busy-waiting/spinning, a waiting thread releases the associated mutex and is descheduled, consuming no CPU cycles.",
+    "tags": ["sync-primitives", "condition-variable"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "conc-092",
+    "front": "Why must condition variables be used with a mutex and a while loop for the predicate check?",
+    "back": "The mutex protects the shared state that the predicate checks. The while loop handles spurious wakeups (the OS may wake the thread even if no signal was sent) and ensures the condition is still true after re-acquiring the mutex.",
+    "tags": ["sync-primitives", "condition-variable", "spurious-wakeup"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-093",
+    "front": "What is a seqlock and when is it preferred over a rwlock?",
+    "back": "Writer increments a sequence counter before and after updating data. Readers check the counter: if odd or changed, retry. Preferred when writes are rare and reads must be zero-overhead (no atomic ops on the read path).",
+    "tags": ["sync-primitives", "seqlock"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-094",
+    "front": "What is the disadvantage of a seqlock?",
+    "back": "Readers may starve if writes are frequent (constant retries). The data being protected must be copyable (readers copy it locally to validate). Readers may read partially-updated (torn) data, which must not cause side effects.",
+    "tags": ["sync-primitives", "seqlock", "tradeoff"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-095",
+    "front": "What is a reader-writer lock and when is it beneficial?",
+    "back": "Allows multiple concurrent readers OR one exclusive writer. Beneficial when reads vastly outnumber writes. However, the atomic operations on the reader count can become a bottleneck if reads are very frequent due to cache-line contention.",
+    "tags": ["sync-primitives", "rwlock"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "conc-096",
+    "front": "What is std::latch in C++20?",
+    "back": "A single-use downward counter. Threads call count_down() to decrement and wait() or arrive_and_wait() to block until the counter reaches zero. Cannot be reset. Useful for one-time synchronization like 'wait for N tasks to complete'.",
+    "tags": ["sync-primitives", "latch", "C++20"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "conc-097",
+    "front": "What is std::barrier in C++20 and how does it differ from std::latch?",
+    "back": "A reusable synchronization point. All participating threads call arrive_and_wait(); once all arrive, an optional completion function runs and the barrier resets for the next phase. Unlike latch, it can be used across multiple phases.",
+    "tags": ["sync-primitives", "barrier", "C++20"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-098",
+    "front": "What is std::counting_semaphore in C++20?",
+    "back": "A semaphore with a maximum count. acquire() decrements (blocks if zero), release() increments. Unlike a mutex, it is not tied to a specific thread -- any thread can release. Useful for limiting concurrent access to a resource pool.",
+    "tags": ["sync-primitives", "semaphore", "C++20"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "conc-099",
+    "front": "Why might a rwlock perform worse than a plain mutex under moderate read contention?",
+    "back": "The rwlock's reader count is a shared atomic variable. Under moderate read contention, every reader's atomic increment/decrement causes cache-line bouncing, which can cost more than the serialization overhead of a plain mutex.",
+    "tags": ["sync-primitives", "rwlock", "contention"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "conc-100",
+    "front": "What is a pthread_barrier and how does it work?",
+    "back": "Blocks all threads until a specified count of threads have called pthread_barrier_wait(). Once the count is reached, all threads are released simultaneously. One thread receives PTHREAD_BARRIER_SERIAL_THREAD as the return value.",
+    "tags": ["sync-primitives", "barrier", "pthread"],
+    "difficulty": "intermediate"
+  }
+]

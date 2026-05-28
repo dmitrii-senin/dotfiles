@@ -11,9 +11,18 @@ return {
   config = function()
     local telescope = require("telescope")
 
+    local actions = require("telescope.actions")
     telescope.setup({
       defaults = {
         path_display = { "smart" },
+        mappings = {
+          i = {
+            ["<C-s>"] = actions.select_horizontal,
+          },
+          n = {
+            ["<C-s>"] = actions.select_horizontal,
+          },
+        },
       },
       extensions = {
         fzf = {

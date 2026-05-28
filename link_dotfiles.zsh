@@ -72,10 +72,29 @@ function make_claude_skill_links() {
 	done
 }
 
+function make_claude_marketplace_link() {
+	local marketplace_dir="$repo/claude-plugins"
+	[ -d "$marketplace_dir" ] || return
+	local src_path="$marketplace_dir"
+	local dst_path="$HOME/.claude/local-plugins"
+	if [ -L "$dst_path" -a "$dst_path" -ef "$src_path" ]; then
+		dbg "Link exists: '$dst_path' => '$src_path'"
+	elif [ -L "$dst_path" -a ! "$dst_path" -ef "$src_path" ]; then
+		wrn "Incorrect link: '$dst_path' => '$(ls -ld $dst_path | rev | cut -d' ' -f1 | rev)' (expected: '$src_path')"
+		ln -si "$src_path" "$dst_path" || err "Cannot create link '$dst_path' => '$src_path'"
+	elif [ ! -e "$dst_path" ]; then
+		inf "Creating link '$dst_path' => '$src_path' ..."
+		ln -s "$src_path" "$dst_path" || err "Cannot create link '$dst_path' => '$src_path'"
+	else
+		err "Path '$dst_path' exists and is not a symlink"
+	fi
+}
+
 function main() {
 	make_xdg_dirs
 	make_links
 	make_claude_skill_links
+	make_claude_marketplace_link
 }
 
 main "$@"

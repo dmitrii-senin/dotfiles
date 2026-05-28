@@ -16,3 +16,5 @@ zsh-meta/
 .claude/skills/claude/data/audit-log.md
 
 *.epub
+
+claude-plugins/*/data/

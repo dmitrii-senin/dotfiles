@@ -1,0 +1,702 @@
+[
+  {
+    "id": "comp-001",
+    "front": "What does LEA rax, [rbx+rcx*4+8] do?",
+    "back": "Loads the effective address rbx + rcx*4 + 8 into rax WITHOUT accessing memory. Commonly used for arithmetic (multiply-and-add) rather than actual address computation.",
+    "tags": ["x86", "instructions", "addressing-modes"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-002",
+    "front": "Name the four x86-64 addressing modes with examples.",
+    "back": "1) Direct/Immediate: mov rax, 42. 2) Register indirect: mov rax, [rbx]. 3) Base+displacement: mov rax, [rbx+16]. 4) Base+index*scale+displacement: mov rax, [rbx+rcx*8+32]. Scale must be 1, 2, 4, or 8.",
+    "tags": ["x86", "addressing-modes"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-003",
+    "front": "What are the 16 general-purpose registers in x86-64?",
+    "back": "rax, rbx, rcx, rdx, rsi, rdi, rbp, rsp, r8-r15. The lower 32/16/8 bits are accessible as eax/ax/al etc. Writing to a 32-bit sub-register (e.g., eax) zero-extends into the full 64-bit register.",
+    "tags": ["x86", "registers"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-004",
+    "front": "How many XMM, YMM, and ZMM registers are available, and what SIMD extensions use them?",
+    "back": "XMM0-15 (128-bit, SSE). YMM0-15 (256-bit, AVX/AVX2 -- upper half of XMM). ZMM0-31 (512-bit, AVX-512). AVX-512 also extends XMM/YMM to 32 registers (XMM16-31, YMM16-31).",
+    "tags": ["x86", "registers", "simd"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-005",
+    "front": "What is the EFLAGS register and which flags are most commonly tested?",
+    "back": "EFLAGS holds status/control flags set by arithmetic and comparison instructions. Key flags: ZF (zero), CF (carry/unsigned overflow), SF (sign/negative), OF (signed overflow), PF (parity). Conditional jumps (jz, jc, js, jo) and CMOV test these.",
+    "tags": ["x86", "registers", "eflags"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-006",
+    "front": "What does CPUID do and how is it invoked?",
+    "back": "CPUID queries CPU feature information. Set eax (and sometimes ecx) to select a leaf, then execute CPUID. Results returned in eax, ebx, ecx, edx. Leaf 0: vendor string. Leaf 1: family/model/stepping + feature bits (SSE, AVX). Leaf 7: extended features (AVX2, AVX-512).",
+    "tags": ["x86", "instructions", "cpuid"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-007",
+    "front": "What does RDTSC return and what are its caveats?",
+    "back": "RDTSC reads the Time Stamp Counter into edx:eax (high:low 32 bits). Caveats: not serializing (use RDTSCP or LFENCE;RDTSC for ordering), frequency may vary with power states (use invariant TSC / constant_tsc), counts reference cycles not core cycles.",
+    "tags": ["x86", "instructions", "timing"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-008",
+    "front": "What is the difference between MFENCE, LFENCE, and SFENCE?",
+    "back": "MFENCE: full memory barrier -- all prior loads and stores complete before any subsequent loads or stores. SFENCE: store barrier only -- prior stores visible before later stores. LFENCE: load barrier + serializing -- prior loads complete before later loads. On Intel, LFENCE is also a dispatch serializing instruction.",
+    "tags": ["x86", "instructions", "memory-ordering"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "comp-009",
+    "front": "What does the REP prefix do with MOVSB and how does ERMS improve it?",
+    "back": "REP MOVSB copies rcx bytes from [rsi] to [rdi], decrementing rcx each iteration. Enhanced REP MOVSB (ERMS, CPUID leaf 7 bit 9) provides hardware-optimized implementation that rivals or beats explicit SIMD loops for large copies, with lower code-size overhead.",
+    "tags": ["x86", "instructions"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-010",
+    "front": "What is the encoding difference between a near JMP and a short JMP in x86?",
+    "back": "Short JMP (EB + rel8): 2 bytes, offset -128 to +127 from next instruction. Near JMP (E9 + rel32): 5 bytes, offset +/-2 GiB. The assembler picks the shortest encoding that reaches the target. This affects alignment and code size optimization.",
+    "tags": ["x86", "instructions", "encoding"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-011",
+    "front": "What is the LOCK prefix and when is it required?",
+    "back": "LOCK makes a read-modify-write instruction atomic (e.g., LOCK XADD, LOCK CMPXCHG, LOCK INC). Required for correct multi-threaded updates to shared memory. Implies a full memory barrier on x86. Only valid on memory-destination instructions; LOCK on a register-only op causes #UD.",
+    "tags": ["x86", "instructions", "concurrency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-012",
+    "front": "What does MOVNTI do and when should it be used?",
+    "back": "MOVNTI is a non-temporal store: writes a 32/64-bit integer directly to memory, bypassing the cache (write-combining). Used for large streaming writes where the data won't be re-read soon (e.g., zeroing pages, memset). Requires SFENCE afterward to ensure visibility.",
+    "tags": ["x86", "instructions", "cache"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "comp-013",
+    "front": "How does the x86-64 instruction encoding of ModR/M byte work?",
+    "back": "ModR/M byte (8 bits): Mod (bits 7-6) selects addressing mode (00=indirect, 01=disp8, 10=disp32, 11=register). Reg (bits 5-3) specifies register operand or opcode extension. R/M (bits 2-0) specifies second register or base for memory. SIB byte follows when R/M=100 and Mod!=11.",
+    "tags": ["x86", "encoding"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "comp-014",
+    "front": "What does the TZCNT instruction do and how does it differ from BSF?",
+    "back": "TZCNT counts trailing zero bits (lowest set bit position). For input 0: TZCNT returns operand size (e.g., 64), while BSF behavior is undefined (though on Intel it leaves dest unchanged). TZCNT sets CF if input is 0, ZF if result is 0. Requires BMI1; encoded as REP BSF.",
+    "tags": ["x86", "instructions", "bit-manipulation"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "comp-015",
+    "front": "What does -O0 vs -O1 vs -O2 vs -O3 vs -Os vs -Oz do in Clang/GCC?",
+    "back": "-O0: no optimization (fast compile, debuggable). -O1: basic opts (DCE, mem2reg, simple inlining). -O2: standard opts (vectorization, inlining, scheduling). -O3: aggressive (loop unrolling, more vectorization, -ftree-vectorize). -Os: optimize for size (-O2 minus size-increasing passes). -Oz: minimize size aggressively (Clang-specific).",
+    "tags": ["optimization-flags", "compiler-options"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-016",
+    "front": "What does -ffast-math enable that can change program behavior?",
+    "back": "Enables -fno-math-errno, -ffinite-math-only (assumes no NaN/Inf), -fassociative-math (allows reassociation), -freciprocal-math, -fno-signed-zeros, -fno-trapping-math. Can reorder FP operations, breaking IEEE 754 compliance.",
+    "tags": ["optimization-flags", "floating-point"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-017",
+    "front": "What is the difference between -march and -mtune?",
+    "back": "-march=X sets the target architecture: enables instructions available on X (e.g., AVX2 for haswell), and the binary may not run on older CPUs. -mtune=X only optimizes scheduling/costs for X without restricting instruction set. Use -march=native -mtune=native for the build machine.",
+    "tags": ["optimization-flags", "target-architecture"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-018",
+    "front": "What does -fno-omit-frame-pointer do and why is it important for profiling?",
+    "back": "Preserves the rbp frame pointer in every function, creating a linked list of stack frames. Without it (-O2 default omits it), tools like perf cannot do frame-pointer-based stack unwinding. Cost: one fewer GPR (rbp) and a few extra instructions per function. Essential for production profiling.",
+    "tags": ["optimization-flags", "profiling", "debugging"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-019",
+    "front": "What does -ffinite-math-only assume and what can it break?",
+    "back": "Assumes no NaN or Inf values ever occur. Enables optimizations like removing isnan()/isinf() checks (they become constant false), reordering comparisons. Breaks code that relies on NaN propagation, NaN checks, or Inf arithmetic. Part of -ffast-math.",
+    "tags": ["optimization-flags", "floating-point"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-020",
+    "front": "What does -fno-math-errno do?",
+    "back": "Disables setting errno after math library calls (e.g., sqrt, log). Allows the compiler to use faster hardware instructions (e.g., sqrtsd) instead of calling the C library function that sets errno. Safe if you don't check errno after math calls.",
+    "tags": ["optimization-flags", "floating-point"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-021",
+    "front": "What does -fno-trapping-math allow the compiler to do?",
+    "back": "Assumes FP operations do not generate traps/exceptions (invalid, divide-by-zero, overflow, underflow, inexact). Allows the compiler to speculate FP instructions, reorder them across potential exception points, and remove exception-related ordering constraints.",
+    "tags": ["optimization-flags", "floating-point"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-022",
+    "front": "What does -fassociative-math permit and why is it dangerous?",
+    "back": "Permits reassociation of FP operations: (a+b)+c can become a+(b+c). Enables vectorization of reductions and algebraic simplifications. Dangerous because FP addition is not associative: different evaluation orders produce different rounding errors, which can accumulate significantly.",
+    "tags": ["optimization-flags", "floating-point"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-023",
+    "front": "What does -freciprocal-math do?",
+    "back": "Allows the compiler to replace a/b with a*(1/b), and to reuse the reciprocal across multiple divisions by the same value. Faster because multiplication is cheaper than division (e.g., ~4 cycles vs ~20 cycles), but introduces an extra rounding step.",
+    "tags": ["optimization-flags", "floating-point"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-024",
+    "front": "What common -march values are used and what do they enable?",
+    "back": "x86-64: baseline SSE2. x86-64-v2: SSE4.2, POPCNT, CMPXCHG16B. x86-64-v3: AVX2, FMA, BMI1/2, MOVBE. x86-64-v4: AVX-512 (F, BW, CD, DQ, VL). Also: haswell (~v3), skylake (adds AVX-512 for server), znver3 (AMD Zen 3). native: auto-detect build machine.",
+    "tags": ["optimization-flags", "target-architecture"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-025",
+    "front": "What does -fno-signed-zeros do?",
+    "back": "Treats +0.0 and -0.0 as identical. Enables simplifications like x+0.0 -> x (normally invalid because -0.0+0.0 = +0.0, changing the sign). Also allows x*0.0 -> 0.0. Part of -ffast-math.",
+    "tags": ["optimization-flags", "floating-point"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-026",
+    "front": "What does -funroll-loops do and when is it counterproductive?",
+    "back": "Unrolls loops with known trip counts, reducing branch overhead and enabling more ILP. Counterproductive when: code size increase causes I-cache pressure, trip count is very large (partial unroll better), or the loop body is already large. -O3 enables it in GCC; Clang is more conservative.",
+    "tags": ["optimization-flags", "loop-transformations"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-027",
+    "front": "What are the main reasons a compiler fails to auto-vectorize a loop?",
+    "back": "1) Unknown trip count at compile time. 2) Loop-carried data dependencies. 3) Non-contiguous memory access. 4) Function calls without SIMD versions. 5) Complex control flow (early exits).",
+    "tags": ["vectorization", "auto-vectorization"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-028",
+    "front": "How do you tell the compiler the trip count is sufficient for vectorization?",
+    "back": "Use #pragma clang loop vectorize(enable) or __attribute__((optimize(\"tree-vectorize\"))). For minimum trip count hints: #pragma clang loop vectorize_width(N) or GCC's #pragma GCC ivdep. Also ensure the trip count variable is unsigned or use __builtin_assume(n >= 16).",
+    "tags": ["vectorization", "pragmas"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-029",
+    "front": "What is a loop-carried dependency and why does it prevent vectorization?",
+    "back": "A loop-carried dependency is when iteration i depends on a result from iteration i-k (k>0). Example: a[i] = a[i-1] + 1 -- each element depends on the previous. Prevents vectorization because SIMD processes multiple iterations simultaneously, requiring independence between lanes.",
+    "tags": ["vectorization", "dependencies"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-030",
+    "front": "What is the vectorization width and how does the compiler choose it?",
+    "back": "Vectorization width = number of elements processed per SIMD instruction. Determined by: register width / element size. E.g., AVX2 (256-bit) with float (32-bit) = 8-wide. Compiler may choose narrower if cost model predicts overhead (gather/scatter, epilogue) outweighs gains.",
+    "tags": ["vectorization", "simd"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-031",
+    "front": "What is FMA and why does it matter for vectorized code?",
+    "back": "Fused Multiply-Add computes a*b+c in one instruction with a single rounding (not two). Doubles peak FLOPS (one FMA = 2 FP ops). Available via FMA3 (since Haswell/Piledriver). Compiler emits FMA only with -ffp-contract=fast (Clang) or -O2+ (GCC). -ffast-math also enables it.",
+    "tags": ["vectorization", "fma", "floating-point"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-032",
+    "front": "What are masked SIMD operations and when are they needed?",
+    "back": "Masked operations use a bitmask to selectively process vector lanes. Needed for: 1) Tail loops (trip count not a multiple of vector width). 2) Conditional operations in vectorized code (if/else in loop body). AVX-512 has native mask registers (k0-k7); AVX2 uses blend instructions.",
+    "tags": ["vectorization", "simd", "avx-512"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "comp-033",
+    "front": "How do you use -Rpass=loop-vectorize to get vectorization reports?",
+    "back": "Clang: -Rpass=loop-vectorize shows successfully vectorized loops with vector width. -Rpass-missed=loop-vectorize shows loops that failed. -Rpass-analysis=loop-vectorize explains why. All emit remarks with source location. Use -fsave-optimization-record for machine-readable YAML output.",
+    "tags": ["vectorization", "diagnostics"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-034",
+    "front": "What is SLP (Superword-Level Parallelism) vectorization?",
+    "back": "SLP vectorization packs independent scalar operations on adjacent memory locations into SIMD instructions. Unlike loop vectorization, it works on straight-line code. Example: four independent float assignments to consecutive array elements become one SIMD store. Enabled at -O2+.",
+    "tags": ["vectorization", "slp"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-035",
+    "front": "How does memory alignment affect vectorization performance?",
+    "back": "Aligned loads/stores (e.g., vmovaps) require 16/32/64-byte alignment and are faster. Unaligned (vmovups) may split across cache lines, causing 2x latency. Use alignas(32) on arrays, or posix_memalign/aligned_alloc. Modern CPUs (Haswell+) have minimal penalty for unaligned accesses that don't cross cache lines.",
+    "tags": ["vectorization", "alignment", "performance"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-036",
+    "front": "What is a gather/scatter operation in SIMD and why is it slow?",
+    "back": "Gather loads elements from non-contiguous addresses into a vector (e.g., VGATHERDPS). Scatter stores vector elements to non-contiguous addresses (AVX-512 VSCATTERDPS). Slow because each element may be a separate cache line access. AVX2 gather is ~2-4x slower than contiguous load. Often makes vectorization unprofitable.",
+    "tags": ["vectorization", "simd", "memory-access"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "comp-037",
+    "front": "What does #pragma omp simd do?",
+    "back": "Requests the compiler to vectorize the following loop, overriding its cost model. Implies no loop-carried dependencies (like ivdep). Can specify clauses: simdlen(N), aligned(ptr:N), reduction(+:sum). Stronger hint than #pragma clang loop vectorize(enable) -- compiler must attempt vectorization.",
+    "tags": ["vectorization", "openmp", "pragmas"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-038",
+    "front": "What is the difference between horizontal and vertical SIMD operations?",
+    "back": "Vertical: same operation applied lane-wise across corresponding elements of two vectors (e.g., vaddps ymm0, ymm1, ymm2). Fast, natural SIMD. Horizontal: operates across lanes within a single vector (e.g., HADDPS adds adjacent pairs). Slow due to in-register shuffling. Reductions require horizontal ops.",
+    "tags": ["vectorization", "simd"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-039",
+    "front": "What are the three steps of Profile-Guided Optimization with Clang?",
+    "back": "1) Build with -fprofile-generate. 2) Run representative workload to collect .profraw files. 3) Merge with llvm-profdata merge, rebuild with -fprofile-use=default.profdata.",
+    "tags": ["pgo", "lto", "workflow"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-040",
+    "front": "What is the difference between ThinLTO and Full LTO?",
+    "back": "Full LTO merges all bitcode into one module, enabling global optimization but requiring huge memory and serial compilation. ThinLTO keeps modules separate, imports only needed function summaries, and parallelizes optimization. ThinLTO is 2-5x faster to build with ~90-95% of Full LTO's performance benefit.",
+    "tags": ["lto", "build-performance"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-041",
+    "front": "How do you enable ThinLTO with Clang?",
+    "back": "Compile and link with -flto=thin. Optionally set -Wl,--thinlto-cache-dir=<path> for incremental builds (caches optimized object files). Use -Wl,--thinlto-jobs=N to control parallelism. Requires the LLD linker or Gold with LTO plugin.",
+    "tags": ["lto", "build-commands"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-042",
+    "front": "What is the overhead of PGO instrumentation on the binary?",
+    "back": "PGO instrumented builds (-fprofile-generate) add ~15-30% runtime overhead and ~2-3x code size increase. Counters for every edge/block are incremented atomically. The profile data (.profraw) can be large. Instrumented builds must run representative workloads -- biased profiles degrade non-hot paths.",
+    "tags": ["pgo", "overhead"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-043",
+    "front": "How do you merge multiple PGO profile files?",
+    "back": "llvm-profdata merge -output=default.profdata *.profraw. For weighted merging: llvm-profdata merge -weighted-input=3,prof1.profraw -weighted-input=1,prof2.profraw -output=merged.profdata. This combines profiles from multiple runs, improving coverage of different code paths.",
+    "tags": ["pgo", "build-commands"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-044",
+    "front": "What optimizations does PGO enable that static compilation cannot?",
+    "back": "1) Hot/cold function splitting and layout. 2) Accurate branch prediction hints. 3) Inlining guided by call frequency. 4) Register allocation priority for hot paths. 5) Loop unrolling based on actual trip counts. 6) Virtual call devirtualization from profile data. 7) Basic block reordering to minimize taken branches.",
+    "tags": ["pgo", "optimization"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-045",
+    "front": "What is BOLT and how does it relate to PGO?",
+    "back": "BOLT (Binary Optimization and Layout Tool) is a post-link optimizer that reorders functions and basic blocks using perf profile data. Unlike compiler PGO, it works on the final binary. Provides 5-15% speedup on top of PGO by optimizing I-cache/I-TLB usage. Uses perf record -b (LBR) data.",
+    "tags": ["pgo", "lto", "bolt"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "comp-046",
+    "front": "What are the LTO build steps for GCC?",
+    "back": "Compile each file with -flto (produces GIMPLE bytecode instead of object code). Link with -flto=N (N = parallel jobs) using the same optimization flags. GCC merges all GIMPLE into whole-program representation, runs IPO passes, then generates final object code. Requires the GCC LTO plugin for ar/ranlib.",
+    "tags": ["lto", "gcc", "build-commands"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-047",
+    "front": "What is __builtin_expect and how does it affect code generation?",
+    "back": "__builtin_expect(expr, value) hints that expr is likely to equal value. The compiler rearranges basic blocks so the expected path is fall-through (no taken branch). Example: if (__builtin_expect(x == 0, 0)) -- tells compiler x==0 is unlikely. Superseded by C++20 [[likely]]/[[unlikely]].",
+    "tags": ["builtins", "branch-prediction"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-048",
+    "front": "What do [[likely]] and [[unlikely]] attributes do in C++20?",
+    "back": "Placed on branches to hint expected execution path: if (cond) [[likely]] { ... }. Compiler puts the likely path as fall-through, improving branch prediction for cold starts. Unlike __builtin_expect, they apply to statements, not expressions. Supported by GCC 9+ and Clang 12+.",
+    "tags": ["builtins", "attributes", "cpp20"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-049",
+    "front": "What does __restrict__ (or restrict) tell the compiler?",
+    "back": "Promises that the pointer is the only way to access the pointed-to memory (no aliasing). Enables optimizations: the compiler can reorder loads/stores, keep values in registers, and vectorize without alias checks. C99 restrict keyword; C++ uses __restrict__ (compiler extension). Misuse causes undefined behavior.",
+    "tags": ["builtins", "aliasing", "optimization"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-050",
+    "front": "What is the difference between __attribute__((pure)) and __attribute__((const))?",
+    "back": "pure: function has no side effects but may read global memory (result can vary between calls with same args if globals change). const: function depends ONLY on its arguments, reads no global memory. const is stricter -- enables more aggressive CSE/hoisting.",
+    "tags": ["builtins", "attributes", "optimization"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-051",
+    "front": "What does __attribute__((hot)) do?",
+    "back": "Hints that the function is called frequently. Effects: 1) Places the function in .text.hot section for better I-cache locality. 2) Increases inlining threshold. 3) Optimizes the function more aggressively. Opposite: __attribute__((cold)) -- placed in .text.unlikely, lower inline priority.",
+    "tags": ["builtins", "attributes", "optimization"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-052",
+    "front": "What does __attribute__((noinline)) do and when should you use it?",
+    "back": "Prevents the compiler from inlining the function at any call site. Use cases: 1) Keeping cold error-handling paths out of hot code. 2) Making functions visible in profiler output. 3) Reducing code size. 4) Preventing inlining from hiding bugs during debugging.",
+    "tags": ["builtins", "attributes", "inlining"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-053",
+    "front": "What does __attribute__((always_inline)) do?",
+    "back": "Forces the compiler to inline the function at every call site, even at -O0 (requires the inline keyword as well in some compilers). Ignores the cost model entirely. Overuse causes code bloat and I-cache pressure. Use for small, performance-critical helpers only.",
+    "tags": ["builtins", "attributes", "inlining"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-054",
+    "front": "What does __attribute__((flatten)) do?",
+    "back": "Inlines ALL function calls within the attributed function (recursively, one level). Unlike always_inline (which applies to the callee), flatten applies to the caller. Useful for top-level dispatch functions where you want full inlining of the call tree without marking every callee.",
+    "tags": ["builtins", "attributes", "inlining"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-055",
+    "front": "What does alignas(N) do and how does it interact with SIMD?",
+    "back": "Requests N-byte alignment for a variable or struct member. alignas(32) aligns to AVX boundary, alignas(64) to AVX-512/cache-line boundary. Enables aligned SIMD loads (vmovaps vs vmovups) and prevents cache-line splits. Can increase struct size due to padding.",
+    "tags": ["builtins", "alignment", "simd"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-056",
+    "front": "What does __builtin_prefetch(addr, rw, locality) do?",
+    "back": "Emits a prefetch instruction. addr: address to prefetch. rw: 0=read, 1=write. locality: 0-3 (0=non-temporal/T2, 3=keep in all cache levels/T0). Use to hide memory latency by prefetching data ~200-400 cycles before use. Overuse pollutes caches. Effect is a hint -- CPU may ignore it.",
+    "tags": ["builtins", "cache", "performance"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "comp-057",
+    "front": "How do you see why Clang failed to vectorize a specific loop?",
+    "back": "Use -Rpass-missed=loop-vectorize for the failure message, and -Rpass-analysis=loop-vectorize for detailed analysis of what blocked vectorization.",
+    "tags": ["diagnostics", "vectorization"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-058",
+    "front": "What does -Rpass=<pass-name> do in Clang?",
+    "back": "Emits optimization remarks for successfully applied transformations by the named pass. Examples: -Rpass=inline (shows inlined calls), -Rpass=loop-vectorize (shows vectorized loops), -Rpass=loop-unroll. Reports include source location, vector width, and unroll factor. Use regex: -Rpass='.*' for all passes.",
+    "tags": ["diagnostics", "clang"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-059",
+    "front": "What does -Rpass-missed=<pass-name> show?",
+    "back": "Reports transformations that the compiler attempted but could not apply. E.g., -Rpass-missed=loop-vectorize shows loops the vectorizer tried but failed to vectorize, with the reason (e.g., 'cannot identify array bounds' or 'loop-carried dependency'). Essential for diagnosing missed optimizations.",
+    "tags": ["diagnostics", "clang"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-060",
+    "front": "What does -fsave-optimization-record do in Clang?",
+    "back": "Generates a .opt.yaml file alongside each object file, containing machine-readable optimization remarks (pass name, function, source location, arguments). Can be visualized with opt-viewer.py or optview2. Enables systematic analysis of optimization decisions across the entire codebase.",
+    "tags": ["diagnostics", "clang"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-061",
+    "front": "How do you get GCC's vectorization diagnostics?",
+    "back": "Use -fopt-info-vec-all (all vectorization info), -fopt-info-vec-optimized (successful), -fopt-info-vec-missed (failed). More detail: -fdump-tree-vect-details produces a per-function dump file showing the vectorizer's analysis. For all optimizations: -fopt-info-all-optall.",
+    "tags": ["diagnostics", "gcc"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-062",
+    "front": "What does -Rpass-analysis=<pass-name> provide beyond -Rpass-missed?",
+    "back": "Provides the compiler's internal analysis and reasoning for its decisions. For vectorization: shows dependency analysis, cost model calculations, alias checks. More verbose than -Rpass-missed, which only states the failure. Example: explains which memory accesses may alias and prevent vectorization.",
+    "tags": ["diagnostics", "clang"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-063",
+    "front": "How do you use -ftime-report to profile compilation?",
+    "back": "Pass -ftime-report to the compiler. It prints a table of time spent in each optimization pass after compilation. Useful for identifying slow passes (e.g., instruction selection, register allocation). In Clang, also try -ftime-trace for a Chrome trace viewer (chrome://tracing) JSON output.",
+    "tags": ["diagnostics", "build-performance"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-064",
+    "front": "What does -ftime-trace generate and how do you view it?",
+    "back": "Clang-only: generates a .json trace file showing time spent in each compilation phase (frontend, optimizer, codegen) per function. Open in chrome://tracing or Perfetto (ui.perfetto.dev). Identifies functions that are slow to compile (template-heavy, large inlines).",
+    "tags": ["diagnostics", "clang", "build-performance"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-065",
+    "front": "What is loop unrolling and what are full vs partial unrolling?",
+    "back": "Full unrolling: replaces loop with N copies of the body (only if trip count is known and small). Eliminates all loop overhead. Partial unrolling: replicates the body K times per iteration, reducing branch overhead by K while keeping the loop. K is chosen to balance ILP gains vs I-cache cost.",
+    "tags": ["loop-transformations", "unrolling"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-066",
+    "front": "What is loop tiling (blocking) and when does the compiler apply it?",
+    "back": "Divides iteration space into tiles that fit in cache. Applied when inner loops access arrays with large strides. Improves temporal locality by processing a cache-sized chunk completely before moving on.",
+    "tags": ["loop-transformations", "tiling", "cache"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-067",
+    "front": "What is loop interchange and when is it profitable?",
+    "back": "Swaps the nesting order of two loops (e.g., for i { for j } becomes for j { for i }). Profitable when the inner loop has poor spatial locality (column-major access in row-major storage). After interchange, the inner loop accesses contiguous memory. Requires independence between iterations.",
+    "tags": ["loop-transformations", "interchange", "cache"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-068",
+    "front": "What is Loop-Invariant Code Motion (LICM)?",
+    "back": "Moves computations whose operands don't change across loop iterations out of the loop (hoists them to the preheader). Example: if x = a*b doesn't depend on i, LICM moves it before the loop. Reduces redundant computation. Requires proving the computation has no side effects and dominates all loop exits.",
+    "tags": ["loop-transformations", "licm"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-069",
+    "front": "What is strength reduction in loop optimization?",
+    "back": "Replaces expensive operations with cheaper equivalent ones that accumulate. Classic example: replacing i*stride with an induction variable that adds stride each iteration. Also: replacing pow(x,2) with x*x, division by constant with multiply-shift. Applied during SCEV (Scalar Evolution) analysis.",
+    "tags": ["loop-transformations", "strength-reduction"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-070",
+    "front": "What is loop fusion and when is it beneficial?",
+    "back": "Merges two adjacent loops with the same iteration space into one. Benefits: 1) Reduces loop overhead (one branch instead of two). 2) Improves temporal locality (data loaded in first loop is reused in second). Requires: no dependencies between loops that would be violated by merging.",
+    "tags": ["loop-transformations", "fusion"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-071",
+    "front": "What is loop fission (distribution) and when is it applied?",
+    "back": "Splits one loop into multiple loops over the same range. Benefits: 1) Separates vectorizable statements from non-vectorizable ones. 2) Reduces register pressure. 3) Improves cache behavior when different statements access different data sets. Opposite of loop fusion.",
+    "tags": ["loop-transformations", "fission"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-072",
+    "front": "How do you control loop unrolling with pragmas?",
+    "back": "Clang: #pragma clang loop unroll_count(N) or unroll(full/disable). GCC: #pragma GCC unroll N. OpenMP: not directly. Also: #pragma clang loop interleave_count(N) controls interleaving (software pipelining, distinct from unrolling). Pragmas override the cost model for the immediately following loop.",
+    "tags": ["loop-transformations", "pragmas", "unrolling"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-073",
+    "front": "What factors does the compiler consider when deciding whether to inline a function?",
+    "back": "1) Function size (instruction count). 2) Call frequency (PGO hot/cold). 3) Number of call sites. 4) Optimization opportunities after inlining (constant propagation, dead code elimination). 5) Code size budget (-Os penalizes large inlines).",
+    "tags": ["inlining", "cost-model"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-074",
+    "front": "How do you control the inlining threshold in Clang?",
+    "back": "-mllvm -inline-threshold=N (default ~225 at -O2, ~275 at -O3). Higher values inline more aggressively. Also: -mllvm -inlinehint-threshold=N for functions marked inline. With PGO, hot call sites get a boosted threshold. -Oz uses a very low threshold (~5).",
+    "tags": ["inlining", "clang", "tuning"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-075",
+    "front": "How does GCC control inlining limits?",
+    "back": "--param inline-unit-growth=N (max % code size growth per compilation unit, default 20-40). --param large-function-growth=N. -finline-limit=N (max insn count for inlining, default 600). --param max-inline-insns-auto=N for auto-inlined functions. -fno-inline disables all inlining.",
+    "tags": ["inlining", "gcc", "tuning"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-076",
+    "front": "What is recursive inlining and how deep does the compiler go?",
+    "back": "Inlining a function into itself (or mutual recursion). Clang/GCC limit recursive inline depth (typically 1-4 levels). Controlled by --param max-inline-recursive-depth=N (GCC). Effective for small recursive functions with known shallow depth (e.g., tree traversal of bounded depth). Rare in practice.",
+    "tags": ["inlining", "recursion"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "comp-077",
+    "front": "What is partial inlining?",
+    "back": "Inlines only the hot path of a function, leaving the cold path (error handling, unlikely branches) as a separate outlined function. Reduces code size impact while capturing the benefit of inlining the common case. Clang: -mllvm -enable-partial-inlining. GCC: -fpartial-inlining (on by default at -O2+).",
+    "tags": ["inlining", "optimization"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "comp-078",
+    "front": "Why can excessive inlining hurt performance?",
+    "back": "1) Increased code size causes I-cache misses and I-TLB misses. 2) Longer functions increase register pressure, causing more spills to stack. 3) Compile time grows. 4) Branch predictor has more entries to track. The tipping point depends on working set size vs cache size.",
+    "tags": ["inlining", "performance"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-079",
+    "front": "How does the compiler decide to inline across translation units?",
+    "back": "Without LTO: impossible -- the compiler only sees one TU. With LTO: the linker provides all function bodies to the optimizer, enabling cross-TU inlining. ThinLTO: imports function summaries and bodies of hot callees on demand without merging all modules.",
+    "tags": ["inlining", "lto"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-080",
+    "front": "Why does the compiler use 'xor eax, eax' instead of 'mov eax, 0' to zero a register?",
+    "back": "XOR zeroing is a recognized zeroing idiom: it's shorter (2 bytes vs 5), breaks dependencies (the CPU knows the result is 0 without waiting for inputs), and on modern x86 it doesn't even use an execution port.",
+    "tags": ["assembly-patterns", "x86", "zeroing"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-081",
+    "front": "How does the compiler use LEA for multiplication?",
+    "back": "LEA can compute x*3 as lea rax,[rax+rax*2], x*5 as lea rax,[rax+rax*4], x*9 as lea rax,[rax+rax*8]. For x*6: lea rax,[rax+rax*2] then add rax,rax. Avoids the slower IMUL instruction and uses the AGU (Address Generation Unit) instead of ALU.",
+    "tags": ["assembly-patterns", "x86", "lea"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-082",
+    "front": "When does the compiler emit CMOV instead of a branch?",
+    "back": "CMOV (conditional move) avoids branch misprediction penalty but always executes both paths. Compiler uses CMOV when: 1) Both paths are cheap (no memory access or side effects). 2) The branch is unpredictable (50/50). 3) With PGO, if branch prediction rate is poor. Branches are better when highly predictable.",
+    "tags": ["assembly-patterns", "x86", "branching"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-083",
+    "front": "What is the difference between TEST and CMP in x86?",
+    "back": "TEST performs bitwise AND and discards the result, setting flags. CMP performs subtraction and discards the result, setting flags. Use TEST for zero-check (test rax, rax; jz) or bit-testing. Use CMP for comparison (cmp rax, rbx; jl). TEST is preferred for zero-check because it's shorter and faster.",
+    "tags": ["assembly-patterns", "x86"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-084",
+    "front": "Why does the compiler insert NOP instructions?",
+    "back": "NOPs align branch targets and function entries to 16/32-byte boundaries. Aligned targets avoid I-cache line splits and improve fetch bandwidth. Multi-byte NOPs (0x66 0x90 etc., up to 15 bytes) are used to minimize wasted decode slots. Also used for hot-patching (leaving space for a JMP).",
+    "tags": ["assembly-patterns", "x86", "alignment"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-085",
+    "front": "What assembly pattern does the compiler generate for integer division by a constant?",
+    "back": "Replaces div with multiply-shift: x/d becomes (x * magic) >> shift, where magic is a fixed-point reciprocal. Example: x/10 becomes x * 0xCCCCCCCCCCCCCCCD >> 67. Uses MULHI (upper 64 bits of 128-bit multiply). Avoids the slow div instruction (~20-40 cycles).",
+    "tags": ["assembly-patterns", "x86", "strength-reduction"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-086",
+    "front": "How does the compiler implement switch statements with many cases?",
+    "back": "Strategies by density: 1) Dense cases: jump table (array of addresses, O(1) lookup). 2) Sparse cases: binary search on case values. 3) Few cases: linear chain of cmp/je. 4) Clustered: combination of the above. -fjump-tables controls whether jump tables are emitted.",
+    "tags": ["assembly-patterns", "control-flow"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-087",
+    "front": "What is the 'SETcc + MOVZX' pattern in compiled code?",
+    "back": "SETcc (e.g., SETE) stores 1 or 0 in a byte register based on flags. MOVZX zero-extends it to 32/64 bits. Used to convert a condition to an integer without branching. Example: bool result = (a == b) compiles to cmp + sete al + movzx eax, al. Branchless and predictable.",
+    "tags": ["assembly-patterns", "x86"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-088",
+    "front": "What are the integer argument-passing registers in System V AMD64 ABI?",
+    "back": "rdi, rsi, rdx, rcx, r8, r9 -- in that order for the first six integer/pointer arguments. Additional arguments go on the stack (right-to-left push order). Return value in rax (and rdx for 128-bit values).",
+    "tags": ["calling-conventions", "abi", "system-v"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-089",
+    "front": "How are floating-point arguments passed in System V AMD64?",
+    "back": "First 8 FP/vector arguments in xmm0-xmm7. Return value in xmm0 (and xmm1 for complex or pair). If a struct contains a float+int, they may be split between a GPR and an XMM register. al must hold the count of XMM registers used for variadic functions.",
+    "tags": ["calling-conventions", "abi", "floating-point"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-090",
+    "front": "Which registers are callee-saved in the System V AMD64 ABI?",
+    "back": "rbx, rbp, r12, r13, r14, r15. These must be preserved across function calls. The caller can rely on their values being unchanged after a call.",
+    "tags": ["calling-conventions", "abi", "registers"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-091",
+    "front": "What is the red zone in System V AMD64?",
+    "back": "128 bytes below rsp that are reserved and not clobbered by signal handlers or interrupts. Leaf functions (no calls) can use this space without adjusting rsp, saving the sub rsp/add rsp instructions. Not available on Windows (no red zone) or in kernel code (-mno-red-zone).",
+    "tags": ["calling-conventions", "abi", "stack"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-092",
+    "front": "How does the Windows x64 calling convention differ from System V AMD64?",
+    "back": "Windows uses rcx, rdx, r8, r9 for first four integer args (not rdi/rsi). Requires 32 bytes of shadow space on stack for all calls. No red zone. Fewer callee-saved XMM regs (xmm6-xmm15 are callee-saved, unlike System V where none are). Only 4 register args vs 6.",
+    "tags": ["calling-conventions", "abi", "windows"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-093",
+    "front": "How are structs passed by value in System V AMD64?",
+    "back": "Structs <= 16 bytes: classified field-by-field into INTEGER or SSE classes, passed in up to 2 registers (e.g., struct {int a; double b;} passes a in a GPR, b in xmm). Structs > 16 bytes: passed by hidden pointer (caller allocates, callee gets address in rdi). Alignment matters for classification.",
+    "tags": ["calling-conventions", "abi", "structs"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "comp-094",
+    "front": "What is the stack alignment requirement in System V AMD64?",
+    "back": "rsp must be 16-byte aligned BEFORE the call instruction (which pushes 8 bytes for return address, making rsp 16-byte aligned at function entry minus 8). Functions adjust rsp to maintain 16-byte alignment for SIMD instructions. Misalignment causes SIGSEGV on aligned SSE loads.",
+    "tags": ["calling-conventions", "abi", "alignment"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-095",
+    "front": "What is the runtime overhead of AddressSanitizer (ASan)?",
+    "back": "~2x slowdown, ~3x memory overhead. It instruments every memory access with shadow memory checks. Not suitable for production, but invaluable for testing.",
+    "tags": ["sanitizers", "asan", "testing"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-096",
+    "front": "What is the runtime overhead of ThreadSanitizer (TSan)?",
+    "back": "~5-15x slowdown, ~5-10x memory overhead. Instruments every memory access and synchronization operation to detect data races. Maintains a vector clock per thread and shadow state per memory location. High overhead means it's typically used on targeted test suites, not full integration tests.",
+    "tags": ["sanitizers", "tsan", "concurrency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-097",
+    "front": "What does UndefinedBehaviorSanitizer (UBSan) check and what is its overhead?",
+    "back": "Checks for: signed integer overflow, null pointer dereference, misaligned access, out-of-bounds array index, float-to-int overflow, division by zero, unreachable code, shift by too many bits. Overhead is nearly negligible (~5-20% slowdown). Can be used in production with -fsanitize-minimal-runtime.",
+    "tags": ["sanitizers", "ubsan"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "comp-098",
+    "front": "What does MemorySanitizer (MSan) detect and what is its overhead?",
+    "back": "Detects reads of uninitialized memory. Tracks initialization status via shadow memory (1 bit per byte). ~3x slowdown, ~2-3x memory overhead. Requires the entire program (including libraries) to be built with MSan -- uninstrumented code causes false positives. Clang-only (no GCC support).",
+    "tags": ["sanitizers", "msan"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-099",
+    "front": "What does -fsanitize-recover do?",
+    "back": "Makes sanitizer errors non-fatal: prints the error but continues execution. Default for UBSan (recoverable). Not default for ASan/MSan (halt on first error). Usage: -fsanitize-recover=undefined,address. Useful for finding multiple issues in a single run but may cause cascading false positives after the first real error.",
+    "tags": ["sanitizers", "diagnostics"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "comp-100",
+    "front": "Which sanitizers can be used together and which conflict?",
+    "back": "Compatible: ASan + UBSan (commonly combined). TSan + UBSan. Conflicting: ASan + TSan (both use shadow memory at the same base address). ASan + MSan (same conflict). MSan + TSan. In practice, maintain separate build configurations: one with ASan+UBSan, one with TSan+UBSan, one with MSan.",
+    "tags": ["sanitizers", "build-configuration"],
+    "difficulty": "intermediate"
+  }
+]

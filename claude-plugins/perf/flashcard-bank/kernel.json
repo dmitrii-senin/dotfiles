@@ -1,0 +1,702 @@
+[
+  {
+    "id": "kern-001",
+    "front": "What is the typical overhead of a Linux syscall on modern x86-64?",
+    "back": "~100-200ns. This includes the user-to-kernel mode switch (SYSCALL instruction), kernel entry code, and return (SYSRET). Meltdown mitigations (KPTI) add ~50-100ns due to page table switching.",
+    "tags": ["syscalls", "latency"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "kern-002",
+    "front": "Which syscalls are accelerated by the vDSO on Linux x86-64?",
+    "back": "clock_gettime, gettimeofday, time, getcpu. These are implemented in user space via the vDSO page mapped by the kernel, avoiding the ~100-200ns syscall overhead.",
+    "tags": ["syscalls", "vdso"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-003",
+    "front": "How does the vDSO mechanism work?",
+    "back": "The kernel maps a special page (virtual Dynamic Shared Object) into every process's address space at load time. It contains user-space implementations of selected syscalls that read kernel-maintained shared memory (e.g., time data), avoiding the user-to-kernel transition entirely.",
+    "tags": ["syscalls", "vdso"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-004",
+    "front": "What fields does strace -c output show?",
+    "back": "% time, seconds (total wall time), usecs/call (avg per call), calls (count), errors (failed count), and syscall name. Use strace -c -S time to sort by cumulative time.",
+    "tags": ["syscalls", "tracing"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "kern-005",
+    "front": "What is seccomp and what overhead does it add?",
+    "back": "Secure Computing mode — a kernel facility to restrict which syscalls a process may invoke. seccomp-bpf filters add ~10-50ns per syscall for BPF program evaluation. SECCOMP_MODE_STRICT allows only read, write, _exit, sigreturn.",
+    "tags": ["syscalls", "security"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-006",
+    "front": "What is the difference between strace -e trace=network and strace -e trace=file?",
+    "back": "trace=network traces socket/connect/accept/send/recv/etc. trace=file traces open/stat/access/chmod/etc. Other categories: trace=process (fork/exec/exit), trace=memory (mmap/mprotect/brk), trace=signal.",
+    "tags": ["syscalls", "tracing"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "kern-007",
+    "front": "What does strace -T show and how does it differ from strace -r?",
+    "back": "-T prints time spent inside each syscall (shown at the end of each line). -r prints relative timestamp between consecutive syscalls (shown at the start). Use both together to distinguish kernel time from user-space compute time.",
+    "tags": ["syscalls", "tracing"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-008",
+    "front": "How can you confirm that clock_gettime is using the vDSO and not a real syscall?",
+    "back": "Run strace on the process — vDSO calls do NOT appear in strace output because they never enter the kernel. If clock_gettime appears in strace, it's falling back to a real syscall (e.g., unsupported clock ID or broken vDSO).",
+    "tags": ["syscalls", "vdso"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-009",
+    "front": "What is the SYSCALL/SYSRET instruction pair and why did it replace INT 0x80/IRET?",
+    "back": "SYSCALL/SYSRET (AMD64) is the fast syscall mechanism. It directly loads kernel CS/RIP from MSRs without pushing a full interrupt frame. INT 0x80 required a full IDT lookup, stack frame push, and privilege-level transition — roughly 2-3x slower.",
+    "tags": ["syscalls", "x86"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-010",
+    "front": "What does the ltrace tool trace compared to strace?",
+    "back": "ltrace traces dynamic library (shared object) function calls (e.g., malloc, printf, pthread_mutex_lock). strace traces kernel syscalls (e.g., mmap, write, futex). Use both together to correlate library calls with their underlying syscalls.",
+    "tags": ["syscalls", "tracing"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "kern-011",
+    "front": "What is CFS and how does it calculate vruntime?",
+    "back": "Completely Fair Scheduler. vruntime = actual_runtime * (NICE_0_weight / task_weight). Lower nice values → higher weight → vruntime grows slower → gets more CPU. CFS always picks the task with the smallest vruntime from a red-black tree.",
+    "tags": ["scheduling", "cfs"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-012",
+    "front": "What scheduling policy should a latency-critical market data thread use?",
+    "back": "SCHED_FIFO with a high priority (e.g., 90). This gives the thread preemptive priority over all SCHED_OTHER (CFS) threads and avoids time-slicing with other RT threads at the same priority.",
+    "tags": ["scheduling", "real-time", "market-data"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-013",
+    "front": "What is the difference between SCHED_FIFO and SCHED_RR?",
+    "back": "Both are real-time policies with priorities 1-99. SCHED_FIFO: a thread runs until it blocks or is preempted by a higher-priority thread (no time-slicing). SCHED_RR: like FIFO but adds round-robin time-slicing among threads at the same priority (default slice ~100ms).",
+    "tags": ["scheduling", "real-time"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-014",
+    "front": "What is SCHED_DEADLINE and when would you use it?",
+    "back": "Earliest Deadline First policy. Each task declares runtime/deadline/period (in ns). Kernel guarantees the task gets 'runtime' ns of CPU within each 'period' ns. Highest priority in the system — preempts even SCHED_FIFO. Use for hard-RT tasks with known compute budgets.",
+    "tags": ["scheduling", "real-time"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-015",
+    "front": "What is the range of nice values and how do they map to scheduling priority?",
+    "back": "Nice values range from -20 (highest priority) to 19 (lowest priority). Default is 0. Each nice level changes CPU weight by ~1.25x. Nice -20 gets ~28x more CPU share than nice 19. Only root (or CAP_SYS_NICE) can set negative nice values.",
+    "tags": ["scheduling", "cfs"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "kern-016",
+    "front": "How do you set a thread to SCHED_FIFO priority 90 using chrt?",
+    "back": "chrt -f 90 ./my_program (launch with FIFO priority 90). For a running process: chrt -f -p 90 <pid>. Use chrt -m to display min/max valid priorities. Requires CAP_SYS_NICE or root.",
+    "tags": ["scheduling", "real-time", "tools"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "kern-017",
+    "front": "What is the default CFS timeslice and how is it calculated?",
+    "back": "CFS doesn't have a fixed timeslice. It targets a scheduling period (sysctl_sched_latency, default ~6ms for ≤8 tasks) divided equally by runnable tasks, with a minimum granularity of ~0.75ms (sched_min_granularity_ns). Effective slice ≈ max(period/nr_running, min_granularity).",
+    "tags": ["scheduling", "cfs"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-018",
+    "front": "What is priority inversion and how does Linux mitigate it?",
+    "back": "When a high-priority thread blocks on a lock held by a low-priority thread, which is preempted by a medium-priority thread. Linux mitigates this via priority inheritance (PI) futexes: the low-priority lock holder temporarily inherits the high-priority waiter's priority.",
+    "tags": ["scheduling", "real-time", "locking"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-019",
+    "front": "What is a PI futex and how do you use one?",
+    "back": "Priority Inheritance futex. Created via FUTEX_LOCK_PI/FUTEX_UNLOCK_PI ops. In pthreads: set PTHREAD_PRIO_INHERIT attribute on a mutex. When a high-priority thread blocks on the mutex, the holder's priority is boosted to prevent priority inversion.",
+    "tags": ["scheduling", "real-time", "locking"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-020",
+    "front": "What is EEVDF and how does it differ from CFS?",
+    "back": "Earliest Eligible Virtual Deadline First — replaced CFS in Linux 6.6. Like CFS, it uses vruntime for fairness, but adds a virtual deadline concept. It picks the eligible task (vruntime ≤ server's eligible time) with the earliest virtual deadline, improving latency for short-running tasks without the need for separate latency-nice tuning.",
+    "tags": ["scheduling", "eevdf"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-021",
+    "front": "How do you pin a thread to a specific CPU core on Linux?",
+    "back": "Use taskset -c 3 ./program to pin to core 3, or taskset -c 2-5 for cores 2-5. Programmatically: sched_setaffinity() or pthread_setaffinity_np(). For running process: taskset -pc 3 <pid>.",
+    "tags": ["scheduling", "cpu-affinity"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "kern-022",
+    "front": "What is the isolcpus boot parameter and how does it relate to CPU isolation?",
+    "back": "isolcpus=2-7 removes CPUs 2-7 from the general scheduler domain. No CFS tasks are scheduled on them unless explicitly pinned via taskset/sched_setaffinity. Combine with nohz_full= and rcu_nocbs= for full isolation. Modern alternative: cpuset cgroup or cset shield.",
+    "tags": ["scheduling", "cpu-isolation"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-023",
+    "front": "What are the three Linux page sizes on x86-64?",
+    "back": "4KB (base page), 2MB (huge page), 1GB (gigantic page). 2MB pages require HugePages or THP. 1GB pages must be allocated at boot (hugepagesz=1G hugepages=4 on kernel cmdline). Larger pages reduce TLB misses but increase internal fragmentation.",
+    "tags": ["memory", "hugepages"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "kern-024",
+    "front": "How do you lock all current and future memory pages using mlockall?",
+    "back": "mlockall(MCL_CURRENT | MCL_FUTURE). MCL_CURRENT locks all currently mapped pages. MCL_FUTURE locks pages mapped in the future (mmap, stack growth, heap). Prevents page faults on the hot path. Requires CAP_IPC_LOCK or sufficient RLIMIT_MEMLOCK.",
+    "tags": ["memory", "mlock", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-025",
+    "front": "What are the three vm.overcommit_memory modes?",
+    "back": "0: heuristic (default, allows some overcommit). 1: always permit (never fail malloc). 2: strict (commit limit = swap + RAM * overcommit_ratio). For market data systems, 2 prevents OOM surprises.",
+    "tags": ["memory", "overcommit", "tuning"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-026",
+    "front": "How does the OOM killer select which process to kill?",
+    "back": "The kernel computes an OOM score (0-1000) based on memory usage, child memory, and oom_score_adj. The process with the highest score is killed. Set /proc/<pid>/oom_score_adj to -1000 to make a process immune from OOM killing, or +1000 to make it a preferred target.",
+    "tags": ["memory", "oom"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-027",
+    "front": "What is the difference between the buddy allocator and the slab allocator?",
+    "back": "Buddy allocator: manages physical page frames in power-of-2 blocks (1, 2, 4, 8... pages). Handles large allocations. Slab allocator (SLUB): sits on top of buddy, provides fixed-size object caches for small kernel objects (inodes, dentry, task_struct). Reduces fragmentation and initialization overhead.",
+    "tags": ["memory", "kernel-internals"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-028",
+    "front": "What is the difference between vmalloc and kmalloc?",
+    "back": "kmalloc: allocates physically contiguous memory from slab caches. Fast, suitable for DMA. Limited to ~4MB. vmalloc: allocates virtually contiguous but physically non-contiguous memory via page tables. Slower due to TLB pressure. Use kmalloc for small/DMA buffers, vmalloc for large allocations.",
+    "tags": ["memory", "kernel-internals"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-029",
+    "front": "How do you allocate and use 2MB huge pages explicitly (not THP)?",
+    "back": "1. Reserve: echo 512 > /proc/sys/vm/nr_hugepages (or sysctl vm.nr_hugepages=512). 2. Mount: mount -t hugetlbfs none /mnt/huge. 3. mmap with MAP_HUGETLB flag, or use mmap on a hugetlbfs file. Check /proc/meminfo for HugePages_Total/Free.",
+    "tags": ["memory", "hugepages"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-030",
+    "front": "What is Transparent Huge Pages (THP) and why might you disable it for latency-sensitive apps?",
+    "back": "THP automatically promotes 4KB pages to 2MB pages via khugepaged background thread. Problem: compaction and promotion cause unpredictable latency spikes (stalls of 1-100ms). Disable: echo never > /sys/kernel/mm/transparent_hugepage/enabled. Use explicit hugetlbfs instead.",
+    "tags": ["memory", "hugepages", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-031",
+    "front": "How do you check if a process's memory is actually resident (not just mapped)?",
+    "back": "Read /proc/<pid>/smaps or smaps_rollup. Key fields: Rss (resident), Pss (proportional share), Referenced, Anonymous, Locked. For a quick summary: cat /proc/<pid>/status | grep -E 'VmRSS|VmLck|VmSize'.",
+    "tags": ["memory", "diagnostics"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "kern-032",
+    "front": "What is the difference between mlock() and MAP_LOCKED?",
+    "back": "mlock() locks existing mapped pages into RAM after mmap. MAP_LOCKED is an mmap flag that locks pages as they're faulted in — it does NOT prefault. Combine MAP_LOCKED|MAP_POPULATE to both prefault and lock pages at mmap time. Both prevent swapping.",
+    "tags": ["memory", "mlock"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-033",
+    "front": "What is NUMA and how does it affect memory allocation latency?",
+    "back": "Non-Uniform Memory Access: each CPU socket has local memory (fast, ~80ns) and can access remote memory (slow, ~140ns). Use numactl --membind=0 to force allocation on node 0. Check topology: numactl -H. Policy options: default, bind, interleave, preferred.",
+    "tags": ["memory", "numa", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-034",
+    "front": "What does MAP_POPULATE do when passed to mmap()?",
+    "back": "Pre-faults all pages in the mapping, triggering physical page allocation and page table setup immediately. Without it, pages are allocated lazily on first access (demand paging), causing page faults on the hot path. Essential for latency-critical pre-allocation.",
+    "tags": ["memory", "mmap", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-035",
+    "front": "What is the format of /proc/interrupts?",
+    "back": "Each row: IRQ number, per-CPU interrupt counts (one column per CPU), interrupt controller name (e.g., IR-PCI-MSI), device name(s). First column is IRQ number or special name (LOC, NMI, RES, etc.). Use to identify which CPUs are handling which device interrupts.",
+    "tags": ["interrupts", "diagnostics"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "kern-036",
+    "front": "What is irqbalance and when should you disable it?",
+    "back": "irqbalance is a daemon that distributes hardware interrupts across CPUs to balance load. Disable it for latency-critical systems where you want explicit interrupt affinity control. Stop: systemctl stop irqbalance. Then manually set IRQ affinity via /proc/irq/<N>/smp_affinity.",
+    "tags": ["interrupts", "tuning"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-037",
+    "front": "How do you pin a specific IRQ to CPU core 3 using smp_affinity?",
+    "back": "echo 8 > /proc/irq/<N>/smp_affinity (8 = bit 3 set = CPU 3). The value is a hex bitmask: CPU 0 = 1, CPU 1 = 2, CPU 2 = 4, CPU 3 = 8. Or use smp_affinity_list: echo 3 > /proc/irq/<N>/smp_affinity_list.",
+    "tags": ["interrupts", "cpu-affinity"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-038",
+    "front": "What are the main softirq types in Linux?",
+    "back": "HI (high-priority tasklets), TIMER, NET_TX, NET_RX, BLOCK, IRQ_POLL, TASKLET, SCHED, HRTIMER, RCU. NET_RX is most relevant for market data — it processes incoming network packets.",
+    "tags": ["interrupts", "softirq"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-039",
+    "front": "What is NAPI and how does it reduce interrupt overhead?",
+    "back": "New API for network drivers. Under low load, uses interrupt-driven processing. When packet rate is high, switches to polling mode: the driver disables its interrupt and the kernel polls for packets in softirq context. This prevents interrupt livelock at high packet rates (millions of pps).",
+    "tags": ["interrupts", "networking"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-040",
+    "front": "What is interrupt coalescing and how do you configure it?",
+    "back": "NIC feature that batches multiple packets before raising a single interrupt, reducing interrupt rate. Configure with ethtool -C <iface> rx-usecs <N> rx-frames <N>. Lower values = lower latency but more interrupts. For ultra-low latency, set rx-usecs=0 and use busy-polling instead.",
+    "tags": ["interrupts", "networking", "tuning"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-041",
+    "front": "What is the difference between hardirq and softirq context?",
+    "back": "Hardirq: runs immediately when hardware interrupt fires, preempts everything (including other softirqs). Must be very fast, can't sleep. Softirq: deferred work scheduled by hardirq, runs with interrupts enabled. Can be preempted by hardirqs. ksoftirqd kernel thread handles overload.",
+    "tags": ["interrupts", "kernel-internals"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-042",
+    "front": "How do you monitor softirq activity and identify NET_RX bottlenecks?",
+    "back": "Watch /proc/softirqs for per-CPU softirq counts. If NET_RX is concentrated on one CPU, packets queue up. Fix: use RSS (Receive Side Scaling) or RFS (Receive Flow Steering) to spread across CPUs. Also check /proc/net/softnet_stat for dropped packets (column 2).",
+    "tags": ["interrupts", "networking", "diagnostics"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-043",
+    "front": "What are MSI and MSI-X interrupts?",
+    "back": "Message Signaled Interrupts. Instead of dedicated IRQ lines, the device writes to a special memory address to signal the CPU. MSI: up to 32 vectors per device. MSI-X: up to 2048 vectors, each independently configurable (different CPUs). MSI-X enables per-queue interrupts for multi-queue NICs.",
+    "tags": ["interrupts", "pcie"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-044",
+    "front": "What is NMI and when does it fire?",
+    "back": "Non-Maskable Interrupt — cannot be disabled by the CPU. Used for hardware watchdog (detect hard lockups), performance monitoring (perf NMI), and critical hardware errors. The kernel's NMI watchdog uses periodic NMIs to detect CPUs stuck with interrupts disabled for >N seconds.",
+    "tags": ["interrupts", "diagnostics"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-045",
+    "front": "What is the TSC and why is it important for low-latency timing?",
+    "back": "Time Stamp Counter — a per-CPU register that increments at a fixed rate (CPU base frequency). Read via rdtsc/rdtscp instructions in ~20-25ns from user space, no syscall needed. On modern CPUs (invariant TSC), the rate is constant regardless of frequency scaling.",
+    "tags": ["timing", "tsc"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-046",
+    "front": "What is the difference between rdtsc and rdtscp?",
+    "back": "rdtsc reads the TSC but is not serializing — it can be reordered with surrounding instructions. rdtscp is partially serializing (waits for prior instructions to complete) and also returns IA32_TSC_AUX in ECX, which typically contains the CPU core ID. Use rdtscp for reliable per-core timestamps.",
+    "tags": ["timing", "tsc", "x86"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-047",
+    "front": "What is the difference between CLOCK_MONOTONIC and CLOCK_MONOTONIC_RAW?",
+    "back": "CLOCK_MONOTONIC is adjusted by NTP (may be slewed/stepped). CLOCK_MONOTONIC_RAW is raw hardware clock, never adjusted. For latency measurement, MONOTONIC_RAW avoids NTP jitter.",
+    "tags": ["timing", "clocks"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-048",
+    "front": "What are the main clock IDs for clock_gettime() and when to use each?",
+    "back": "CLOCK_REALTIME: wall clock, affected by NTP/settimeofday (for timestamps). CLOCK_MONOTONIC: monotonic, NTP-slewed (for durations). CLOCK_MONOTONIC_RAW: no NTP adjustment (for precise measurement). CLOCK_BOOTTIME: like MONOTONIC but includes suspend time. CLOCK_PROCESS/THREAD_CPUTIME_ID: CPU time consumed.",
+    "tags": ["timing", "clocks"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-049",
+    "front": "What is HPET and why is it slower than TSC?",
+    "back": "High Precision Event Timer — a chipset timer accessed via MMIO reads. Each read takes ~500-1000ns (requires I/O bus transaction). TSC is a CPU register readable in ~20ns. HPET is a fallback when TSC is unreliable (older/virtual CPUs). Check current source: cat /sys/devices/system/clocksource/clocksource0/current_clocksource.",
+    "tags": ["timing", "hpet"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-050",
+    "front": "What is the invariant TSC and how do you verify it's available?",
+    "back": "Invariant TSC runs at a constant rate regardless of CPU frequency scaling (C-states, turbo boost). Check: grep constant_tsc /proc/cpuinfo. Also look for nonstop_tsc (TSC doesn't stop in deep C-states). Both flags required for reliable TSC-based timing.",
+    "tags": ["timing", "tsc"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-051",
+    "front": "How do you convert TSC ticks to nanoseconds?",
+    "back": "ns = ticks * (1e9 / tsc_frequency). Get TSC frequency from: journalctl | grep 'tsc:' (kernel boot message), or /sys/devices/system/cpu/cpu0/tsc_freq_khz (if available), or calibrate by comparing rdtsc with clock_gettime over a known interval.",
+    "tags": ["timing", "tsc"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-052",
+    "front": "How do you use lfence to serialize rdtsc for accurate measurements?",
+    "back": "Place lfence before rdtsc to prevent instruction reordering: lfence; rdtsc (start); ... code ...; lfence; rdtsc (end). lfence ensures all prior loads complete. Alternative: use rdtscp which is inherently partially serializing. lfence+rdtsc is ~5ns slower but more precise than bare rdtsc.",
+    "tags": ["timing", "tsc", "x86"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-053",
+    "front": "What is the SQE/CQE ring structure in io_uring?",
+    "back": "Two shared memory ring buffers between user and kernel. SQ (Submission Queue): user writes SQEs (Submission Queue Entries) describing I/O ops. CQ (Completion Queue): kernel writes CQEs (Completion Queue Entries) with results. Both are lock-free, using memory barriers and head/tail pointers.",
+    "tags": ["io_uring", "async-io"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-054",
+    "front": "What does IORING_SETUP_SQPOLL do?",
+    "back": "Creates a kernel thread that polls the submission queue, eliminating the io_uring_enter() syscall overhead. The kernel thread spins for a configurable idle period before sleeping.",
+    "tags": ["io_uring", "async-io"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-055",
+    "front": "What does IORING_SETUP_IOPOLL do?",
+    "back": "Enables kernel-side I/O polling instead of interrupt-driven completion. The kernel busy-polls the block device for completions. Only works with O_DIRECT on devices that support polling (NVMe). Reduces latency by avoiding interrupt overhead but consumes CPU.",
+    "tags": ["io_uring", "async-io"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-056",
+    "front": "What are registered buffers and files in io_uring?",
+    "back": "io_uring_register() pre-registers buffers (IORING_REGISTER_BUFFERS) and file descriptors (IORING_REGISTER_FILES) with the kernel. Avoids per-I/O fd lookup and buffer mapping overhead. Use IOSQE_FIXED_FILE flag and buf_index in SQEs to reference them. Can save ~1µs per I/O.",
+    "tags": ["io_uring", "async-io"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-057",
+    "front": "What are the key IORING_OP types for networking?",
+    "back": "IORING_OP_SEND, IORING_OP_RECV (basic send/recv), IORING_OP_SENDMSG, IORING_OP_RECVMSG (with msghdr), IORING_OP_ACCEPT, IORING_OP_CONNECT, IORING_OP_POLL_ADD (event monitoring). Also IORING_OP_SEND_ZC for zero-copy send (kernel 6.0+).",
+    "tags": ["io_uring", "networking"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-058",
+    "front": "How does io_uring compare to epoll for latency and throughput?",
+    "back": "io_uring eliminates per-I/O syscalls via shared ring buffers (vs epoll_wait per batch). With SQPOLL, zero syscalls in steady state. Benchmarks show 10-30% higher throughput and ~1-5µs lower per-op latency vs epoll for high-frequency I/O. Biggest gains at high IOPS counts.",
+    "tags": ["io_uring", "epoll", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-059",
+    "front": "What is io_uring's linked SQE feature?",
+    "back": "Setting IOSQE_IO_LINK flag on an SQE creates a dependency chain: the next SQE only starts after the current one completes. Useful for ordered sequences like read-then-write. If a linked SQE fails, subsequent linked SQEs are cancelled (unless IOSQE_IO_HARDLINK is used).",
+    "tags": ["io_uring", "async-io"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-060",
+    "front": "What is the io_uring multishot feature?",
+    "back": "A single SQE generates multiple CQEs. Supported for IORING_OP_ACCEPT (accept multiple connections) and IORING_OP_RECV (receive multiple messages). Set IOSQE_BUFFER_SELECT with a provided buffer ring. Reduces SQ submissions for repetitive operations. CQE has IORING_CQE_F_MORE flag if more completions follow.",
+    "tags": ["io_uring", "async-io"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-061",
+    "front": "What does vm.swappiness control and what should you set it to for latency-sensitive workloads?",
+    "back": "Controls the kernel's tendency to swap out anonymous pages vs dropping file cache. Range 0-200 (default 60). 0: only swap to avoid OOM. For latency-critical systems: set to 0 or 1 and use mlock to prevent any swapping. With swappiness=0, the kernel still swaps under extreme memory pressure.",
+    "tags": ["tuning", "memory"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "kern-062",
+    "front": "What does the nohz_full= boot parameter do?",
+    "back": "Removes periodic timer ticks from specified CPUs when they have a single runnable task. Reduces jitter from ~4ms timer interrupts to near zero. Usage: nohz_full=2-7 (isolate cores 2-7).",
+    "tags": ["tuning", "cpu-isolation", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-063",
+    "front": "What does the rcu_nocbs= boot parameter do?",
+    "back": "Offloads RCU callback processing from specified CPUs to dedicated rcuo* kthreads on other CPUs. Without it, RCU callbacks (memory reclamation) can cause ~10-50µs latency spikes. Usage: rcu_nocbs=2-7. Combine with nohz_full and isolcpus for full jitter reduction.",
+    "tags": ["tuning", "cpu-isolation", "rcu"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-064",
+    "front": "What is kernel.sched_min_granularity_ns and what is its default?",
+    "back": "Minimum preemption granularity for CFS. Default ~750,000ns (0.75ms). A task won't be preempted until it has run for at least this long. Lower values improve latency for competing tasks but increase context switch overhead. Typical range: 100,000 to 4,000,000.",
+    "tags": ["tuning", "scheduling"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-065",
+    "front": "How do you set the CPU frequency governor to 'performance' mode?",
+    "back": "echo performance | tee /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor. Or: cpupower frequency-set -g performance. This locks CPUs at maximum frequency, avoiding ~5-20µs latency spikes from frequency transitions (P-state changes). Also set intel_pstate=disable for full control.",
+    "tags": ["tuning", "cpu", "latency"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "kern-066",
+    "front": "What does net.core.busy_read sysctl do?",
+    "back": "Sets the default timeout (in µs) for busy-polling on socket receive. The kernel polls the NIC driver for incoming packets instead of sleeping for an interrupt. Reduces latency by ~5-10µs but burns CPU. Typical value: 50. Also set net.core.busy_poll for select/poll/epoll.",
+    "tags": ["tuning", "networking", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-067",
+    "front": "How do you configure the number of 2MB huge pages via sysctl?",
+    "back": "sysctl vm.nr_hugepages=1024 (allocate 1024 x 2MB = 2GB of huge pages). For NUMA: echo 512 > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages. Check allocation: grep HugePages /proc/meminfo. Must be done early — fragmented memory prevents allocation.",
+    "tags": ["tuning", "hugepages", "memory"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-068",
+    "front": "What is the transparent_hugepage/enabled setting and what are its options?",
+    "back": "Controls THP: echo always|madvise|never > /sys/kernel/mm/transparent_hugepage/enabled. always: kernel auto-promotes. madvise: only for regions marked with madvise(MADV_HUGEPAGE). never: fully disabled. For latency-critical apps: use 'never' or 'madvise' to avoid compaction stalls.",
+    "tags": ["tuning", "hugepages", "memory"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "kern-069",
+    "front": "What is kernel.sched_rt_runtime_us and why does it default to 950000?",
+    "back": "RT throttling safety valve. Default: RT tasks get at most 950,000µs out of every 1,000,000µs period (95% CPU). Prevents a buggy RT task from starving the entire system. For dedicated RT systems: set to -1 to disable throttling (dangerous — a RT spin loop will hang the system).",
+    "tags": ["tuning", "scheduling", "real-time"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-070",
+    "front": "What kernel boot parameters should you set for a jitter-free isolated core?",
+    "back": "isolcpus=2-7 nohz_full=2-7 rcu_nocbs=2-7 nosoftlockup intel_pstate=disable processor.max_cstate=0 idle=poll. Also: disable irqbalance, pin NIC IRQs away from isolated cores, set performance governor, disable THP. This minimizes kernel interference on cores 2-7.",
+    "tags": ["tuning", "cpu-isolation", "latency"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-071",
+    "front": "What does idle=poll boot parameter do?",
+    "back": "Prevents isolated CPUs from entering C-states (power-saving idle states). The CPU busy-spins in a tight loop when idle instead of executing HLT/MWAIT. Eliminates ~2-10µs C-state exit latency but wastes power. Only useful on isolated cores running latency-critical tasks.",
+    "tags": ["tuning", "cpu", "latency"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-072",
+    "front": "What is processor.max_cstate=0 and how does it differ from idle=poll?",
+    "back": "processor.max_cstate=0 tells the ACPI processor driver to limit C-states to C0 (active). idle=poll goes further — it replaces the entire idle loop with a busy-poll, never calling into the idle driver at all. Both prevent deep C-state exit latency. Use together for maximum effect.",
+    "tags": ["tuning", "cpu", "latency"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-073",
+    "front": "What are the default and maximum SO_RCVBUF socket buffer sizes?",
+    "back": "Default: net.core.rmem_default (usually 212992 = 208KB). Maximum: net.core.rmem_max (usually 212992). setsockopt(SO_RCVBUF) is capped at rmem_max. SO_RCVBUFFORCE bypasses the limit (requires CAP_NET_ADMIN). The kernel doubles the value set via setsockopt (half is overhead).",
+    "tags": ["networking", "sockets"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-074",
+    "front": "What is SO_BUSY_POLL and when should you use it?",
+    "back": "Socket option that tells the kernel to busy-poll the NIC driver for incoming packets instead of waiting for an interrupt. Reduces latency by ~5-10µs but burns CPU. Set via setsockopt or net.core.busy_read sysctl.",
+    "tags": ["networking", "sockets", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-075",
+    "front": "What is AF_XDP and how does it achieve kernel bypass?",
+    "back": "AF_XDP (XDP sockets) provides a raw packet interface using shared UMEM ring buffers between user space and kernel. An XDP program redirects packets (XDP_REDIRECT) to the AF_XDP socket, bypassing the full network stack. Latency: ~2-5µs per packet. Requires XDP-capable NIC driver.",
+    "tags": ["networking", "kernel-bypass"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-076",
+    "front": "What are the core components of DPDK?",
+    "back": "EAL (Environment Abstraction Layer): core init, memory, CPU. PMD (Poll Mode Drivers): user-space NIC drivers, busy-poll for packets. rte_eth_rx_burst/rte_eth_tx_burst: batch packet I/O. rte_mbuf: packet buffer structure. rte_ring: lock-free FIFO. Hugepage-backed memory pools.",
+    "tags": ["networking", "dpdk", "kernel-bypass"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-077",
+    "front": "What are the three XDP modes?",
+    "back": "Native (driver): XDP program runs in NIC driver's NAPI context, before sk_buff allocation. Best performance. Generic: runs later in the stack on any NIC (slower, for testing). Offload: XDP program is loaded onto the NIC hardware itself (SmartNIC). Check support: ip link show.",
+    "tags": ["networking", "xdp"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-078",
+    "front": "What is RSS (Receive Side Scaling) and how do you configure it?",
+    "back": "NIC hashes incoming packets (by IP/port tuple) to distribute across multiple RX queues, each with its own interrupt → CPU. Configure: ethtool -L <iface> combined <N> (set queue count). View hash: ethtool -x <iface>. Pin queue interrupts: set /proc/irq/<N>/smp_affinity.",
+    "tags": ["networking", "nic", "tuning"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-079",
+    "front": "How do you check for packet drops due to socket buffer overflow?",
+    "back": "ss -nump shows Recv-Q (current queue depth) and Drop count per socket. Also: cat /proc/net/udp column 'drops'. netstat -su shows 'packet receive errors'. /proc/net/softnet_stat column 2 shows per-CPU backlog drops. nstat -az TcpExtListenDrops for TCP.",
+    "tags": ["networking", "diagnostics"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-080",
+    "front": "What is SO_TIMESTAMPING and how does it help measure NIC-to-application latency?",
+    "back": "Socket option to capture hardware and software timestamps at various points: SOF_TIMESTAMPING_RX_HARDWARE (NIC timestamp), SOF_TIMESTAMPING_RX_SOFTWARE (kernel receive). Compare HW timestamp to application time to measure kernel stack latency. Requires NIC PTP support. Access via recvmsg() cmsg.",
+    "tags": ["networking", "timing", "latency"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-081",
+    "front": "How do you limit a cgroup v2 process to 50% of one CPU?",
+    "back": "Write '50000 100000' to cpu.max. First number is quota (µs), second is period (µs). 50000/100000 = 50% of one CPU core.",
+    "tags": ["cgroups", "cpu"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "kern-082",
+    "front": "What is the cgroup v2 unified hierarchy?",
+    "back": "In cgroup v2, each process belongs to exactly one cgroup, and all controllers (cpu, memory, io, cpuset, pids) share a single hierarchy. Unlike v1, no duplicate hierarchies per controller. Enable: mount -t cgroup2 none /sys/fs/cgroup. Controllers managed via cgroup.subtree_control.",
+    "tags": ["cgroups"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-083",
+    "front": "How do you restrict a cgroup to specific CPU cores using cpuset?",
+    "back": "Write to cpuset.cpus: echo '2-5' > /sys/fs/cgroup/mygroup/cpuset.cpus. Also set cpuset.mems for NUMA nodes: echo '0' > cpuset.mems. The cgroup's processes can only run on CPUs 2-5. Requires cpuset controller in cgroup.subtree_control.",
+    "tags": ["cgroups", "cpuset", "cpu-affinity"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-084",
+    "front": "How do you set a memory limit in cgroup v2?",
+    "back": "echo 1G > /sys/fs/cgroup/mygroup/memory.max (hard limit — OOM killed if exceeded). echo 512M > memory.high (throttle/reclaim pressure point). echo 256M > memory.low (best-effort protection from reclaim). memory.min provides hard protection guarantee.",
+    "tags": ["cgroups", "memory"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-085",
+    "front": "How do you throttle I/O bandwidth in cgroup v2?",
+    "back": "Write to io.max: echo '8:0 rbps=100000000 wbps=50000000' > /sys/fs/cgroup/mygroup/io.max. Format: major:minor [rbps|wbps|riops|wiops]=value. Use 'max' for unlimited. Find device major:minor via lsblk or stat.",
+    "tags": ["cgroups", "io"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-086",
+    "front": "What is BTF and why does it matter for BPF programs?",
+    "back": "BPF Type Format — embedded type information in the kernel binary. Enables CO-RE: BPF programs compiled once can run on different kernel versions by relocating struct field accesses at load time.",
+    "tags": ["bpf", "btf"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-087",
+    "front": "What is CO-RE in the BPF context?",
+    "back": "Compile Once, Run Everywhere. BPF programs include BTF-based relocation records. At load time, libbpf adjusts struct field offsets to match the running kernel's layout. Eliminates the need to compile BPF programs per-kernel. Requires CONFIG_DEBUG_INFO_BTF in the kernel.",
+    "tags": ["bpf", "co-re"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-088",
+    "front": "How is vmlinux.h generated and what does it contain?",
+    "back": "Generated via: bpftool btf dump file /sys/kernel/btf/vmlinux format c > vmlinux.h. Contains C struct definitions for all kernel types, derived from the kernel's BTF. Replaces the need to include individual kernel headers in BPF programs. Enables CO-RE without kernel-headers package.",
+    "tags": ["bpf", "btf"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-089",
+    "front": "What are the main libbpf map types?",
+    "back": "BPF_MAP_TYPE_HASH: key-value hash table. BPF_MAP_TYPE_ARRAY: fixed-size array indexed by u32. BPF_MAP_TYPE_PERF_EVENT_ARRAY: per-CPU event output to user space. BPF_MAP_TYPE_RINGBUF: single-producer multi-consumer ring buffer (preferred over perf buffer for new code).",
+    "tags": ["bpf", "maps"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-090",
+    "front": "What are the advantages of BPF ring buffer over perf buffer?",
+    "back": "Ring buffer: shared across all CPUs (single buffer), supports variable-length records, preserves event ordering, uses memory-mapped region (no copy), allows reserving and committing separately. Perf buffer: per-CPU (wastes memory), fixed record size, no cross-CPU ordering. Ring buffer introduced in kernel 5.8.",
+    "tags": ["bpf", "maps", "performance"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-091",
+    "front": "What BPF program types are used for network observability?",
+    "back": "BPF_PROG_TYPE_XDP: runs at NIC driver level (fastest). BPF_PROG_TYPE_SCHED_CLS: TC classifier (after sk_buff allocation). BPF_PROG_TYPE_SOCK_OPS: socket-level events. BPF_PROG_TYPE_SK_SKB: socket buffer verdict. BPF_PROG_TYPE_CGROUP_SKB: per-cgroup packet filtering.",
+    "tags": ["bpf", "networking"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-092",
+    "front": "How do you attach a BPF program to a tracepoint?",
+    "back": "Use BPF_PROG_TYPE_TRACEPOINT or BPF_PROG_TYPE_RAW_TRACEPOINT. In libbpf: define SEC(\"tp/sched/sched_switch\") for the sched_switch tracepoint. Load with bpf_object__open_file + bpf_object__load + bpf_program__attach. Tracepoints listed in /sys/kernel/debug/tracing/available_events.",
+    "tags": ["bpf", "tracing"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-093",
+    "front": "What is the key difference between fork() and pthread_create() at the kernel level?",
+    "back": "Both use clone(). pthread_create passes CLONE_VM|CLONE_FS|CLONE_FILES|CLONE_THREAD to share address space. fork() creates a new address space with COW pages. fork() is ~10x slower due to page table copying.",
+    "tags": ["process-model", "clone"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-094",
+    "front": "What are the key clone() flags and what does each share?",
+    "back": "CLONE_VM: share memory space. CLONE_FS: share filesystem info (cwd, root). CLONE_FILES: share file descriptor table. CLONE_THREAD: same thread group (shared PID). CLONE_SIGHAND: share signal handlers. CLONE_NEWNS/NEWPID/NEWNET: create new namespaces (containers).",
+    "tags": ["process-model", "clone"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-095",
+    "front": "How does fork() Copy-On-Write (COW) work?",
+    "back": "After fork(), parent and child share the same physical pages, marked read-only in both page tables. When either process writes, a page fault triggers the kernel to copy that page and make it writable for the writer. This makes fork() fast (~100µs for small processes) since only page tables are copied, not data.",
+    "tags": ["process-model", "memory"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-096",
+    "front": "What key fields are in /proc/<pid>/status?",
+    "back": "Name (process name), State (R/S/D/Z/T), Pid, PPid, Threads, VmSize (virtual), VmRSS (resident), VmLck (locked), voluntary_ctxt_switches, nonvoluntary_ctxt_switches. High nonvoluntary switches indicate CPU contention.",
+    "tags": ["process-model", "diagnostics"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "kern-097",
+    "front": "What is the overhead of Linux namespaces?",
+    "back": "Namespace creation (unshare/clone with CLONE_NEW*) is ~1-10µs per namespace. Runtime overhead is near zero — namespaces are just indirection tables in kernel structs. The exception is network namespace: each has its own routing tables and netfilter rules, adding ~100ns per packet for lookups.",
+    "tags": ["process-model", "namespaces"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-098",
+    "front": "What is the page cache hit latency vs a disk read?",
+    "back": "Page cache hit: ~1µs (memory access + kernel overhead). NVMe SSD read: ~50-100µs. SATA SSD: ~100-200µs. HDD: ~5-10ms. The page cache is checked first for all read() calls unless O_DIRECT is used. Cache status visible in /proc/meminfo (Cached field).",
+    "tags": ["filesystems", "page-cache", "latency"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "kern-099",
+    "front": "What does O_DIRECT do and what alignment does it require?",
+    "back": "Bypasses the page cache for direct disk I/O. Requires buffer address and size to be aligned to the filesystem block size (typically 512 bytes or 4KB). Useful when the application manages its own cache.",
+    "tags": ["filesystems", "io"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-100",
+    "front": "How do you check which files are in the page cache?",
+    "back": "Use vmtouch: vmtouch -v /path/to/file shows how many pages are cached. fincore (from util-linux) lists cached page counts for files. pcstat (Go tool) gives per-file cache percentage. Programmatically: mincore() syscall checks residency of mapped pages. To drop cache: echo 3 > /proc/sys/vm/drop_caches.",
+    "tags": ["filesystems", "page-cache", "diagnostics"],
+    "difficulty": "intermediate"
+  }
+]

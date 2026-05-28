@@ -24,8 +24,7 @@ map("n", "<M-S-Right>", "<Cmd>vertical resize -2<cr>", { desc = "Decrease Window
 map("n", "[b", "<Cmd>bprevious<cr>", { desc = "Prev Buffer" })
 map("n", "]b", "<Cmd>bnext<cr>", { desc = "Next Buffer" })
 map("n", "<Leader>bb", "<Cmd>e #<cr>", { desc = "Switch to Other Buffer" })
-map("n", "<Leader>`", "<Cmd>e #<cr>", { desc = "Switch to Other Buffer" })
-map("n", "<Leader>bD", "<Cmd>:bd<cr>", { desc = "Delete Buffer and Window" })
+map("n", "<Leader>bd", "<Cmd>bp|bd #<cr>", { desc = "Delete Buffer" })
 
 -- Clear search with <esc>
 map({ "i", "n" }, "<esc>", "<Cmd>noh<cr><esc>", { desc = "Escape and Clear hlsearch" })
@@ -78,15 +77,25 @@ map("n", "<Leader>qq", "<Cmd>qa<cr>", { desc = "Quit All" })
 map("n", "<Leader>ws", "<C-W>s", { desc = "Split Window Below", remap = true })
 map("n", "<Leader>wv", "<C-W>v", { desc = "Split Window Right", remap = true })
 map("n", "<Leader>wd", "<C-W>c", { desc = "Delete Window", remap = true })
+map("n", "<Leader>wz", function()
+  if vim.t.zoom_winid then
+    vim.cmd("wincmd =")
+    vim.t.zoom_winid = nil
+  else
+    vim.t.zoom_winid = vim.api.nvim_get_current_win()
+    vim.cmd("wincmd |")
+    vim.cmd("wincmd _")
+  end
+end, { desc = "Toggle Zoom Window" })
 
 -- tabs
+map("n", "]<tab>", "<Cmd>tabnext<cr>", { desc = "Next Tab" })
+map("n", "[<tab>", "<Cmd>tabprevious<cr>", { desc = "Previous Tab" })
 map("n", "<Leader><tab>l", "<Cmd>tablast<cr>", { desc = "Last Tab" })
 map("n", "<Leader><tab>o", "<Cmd>tabonly<cr>", { desc = "Close Other Tabs" })
 map("n", "<Leader><tab>f", "<Cmd>tabfirst<cr>", { desc = "First Tab" })
 map("n", "<Leader><tab><tab>", "<Cmd>tabnew<cr>", { desc = "New Tab" })
-map("n", "<Leader><tab>]", "<Cmd>tabnext<cr>", { desc = "Next Tab" })
 map("n", "<Leader><tab>d", "<Cmd>tabclose<cr>", { desc = "Close Tab" })
-map("n", "<Leader><tab>[", "<Cmd>tabprevious<cr>", { desc = "Previous Tab" })
 
 -- Lua eval (one-line config debugging — :so % for full file)
 map("n", "<Leader>xx", "<Cmd>.lua<CR>", { desc = "E[x]ecute Line (Lua)" })

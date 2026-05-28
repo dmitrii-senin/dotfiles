@@ -1,0 +1,702 @@
+[
+  {
+    "id": "meth-001",
+    "front": "What sampling frequency does `perf record` use by default?",
+    "back": "4000 Hz (cycles event). Use -F 99 to avoid lockstep with timer interrupts, which can produce skewed samples.",
+    "tags": ["perf", "record", "sampling"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-002",
+    "front": "What does `perf stat -d` add beyond the default counters?",
+    "back": "Adds L1-dcache-loads/misses, LLC-loads/misses, dTLB-load-misses, and branch-load-misses. Use -dd and -ddd for even more detail.",
+    "tags": ["perf", "stat", "counters"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-003",
+    "front": "How do you repeat a `perf stat` measurement 5 times and get mean/stddev?",
+    "back": "`perf stat -r 5 <command>`. Perf prints the mean, stddev, and coefficient of variation for each counter across the runs.",
+    "tags": ["perf", "stat", "statistics"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-004",
+    "front": "What does `perf record -g` enable, and what is the default unwinding method?",
+    "back": "Enables call-graph (stack) recording. Default is frame-pointer unwinding (fp). Use `--call-graph dwarf` for DWARF-based unwinding when frame pointers are omitted.",
+    "tags": ["perf", "record", "call-graph"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-005",
+    "front": "What is the difference between `perf report` and `perf annotate`?",
+    "back": "`perf report` shows a symbol-level breakdown of where samples hit. `perf annotate` drills into a single function and shows per-instruction sample counts alongside the disassembly or source lines.",
+    "tags": ["perf", "report", "annotate"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-006",
+    "front": "What does `perf top` do and how does it differ from `perf record`?",
+    "back": "`perf top` is a live, system-wide profiler that shows the hottest functions updating in real time (like top for CPU profiles). `perf record` writes samples to perf.data for offline analysis.",
+    "tags": ["perf", "top"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-007",
+    "front": "What does `perf c2c` measure and when would you use it?",
+    "back": "Cache-to-cache (c2c) detects false sharing by tracking HITM (Hit Modified) cache line events across CPUs. Use it when you suspect cross-core cache contention on shared data structures.",
+    "tags": ["perf", "c2c", "false-sharing"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "meth-008",
+    "front": "How do you use `perf mem` to profile memory accesses?",
+    "back": "`perf mem record` samples load/store operations using hardware events (e.g., mem-loads on Intel). `perf mem report` shows which data addresses are hottest and their latency distribution.",
+    "tags": ["perf", "mem", "memory"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-009",
+    "front": "What does `perf probe` do?",
+    "back": "Creates dynamic tracepoints at arbitrary kernel or user-space function entry/return points. Example: `perf probe --add 'do_sys_open filename:string'` adds a probe at do_sys_open capturing the filename argument.",
+    "tags": ["perf", "probe", "tracing"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-010",
+    "front": "What does `perf trace` provide that `strace` does not?",
+    "back": "`perf trace` is a perf-based syscall tracer with significantly lower overhead than strace (which uses ptrace). It also provides summary statistics with `--summary` and can trace non-syscall events.",
+    "tags": ["perf", "trace", "syscalls"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-011",
+    "front": "What does `perf sched` analyze?",
+    "back": "Scheduler behavior: `perf sched record` captures sched events, then `perf sched latency` shows per-task scheduling latency, `perf sched map` shows CPU migration, and `perf sched timehist` shows a timeline.",
+    "tags": ["perf", "sched", "scheduling"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-012",
+    "front": "What does `perf lock` analyze?",
+    "back": "Lock contention. `perf lock record` traces lock events (acquire, acquired, contended, release) and `perf lock report` shows contention stats per lock including wait time and number of contentions.",
+    "tags": ["perf", "lock", "contention"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-013",
+    "front": "What is `perf script` used for?",
+    "back": "Dumps raw sample data from perf.data in text form. This is the primary interface for post-processing pipelines (e.g., piping into stackcollapse-perf.pl for flame graphs). Supports custom output fields via -F.",
+    "tags": ["perf", "script", "post-processing"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-014",
+    "front": "What does `perf inject` do?",
+    "back": "Merges additional data into a perf.data file, most commonly used with `perf inject --jit` to add JIT-compiled symbol information or `--buildid-all` to inject build-id mappings.",
+    "tags": ["perf", "inject"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "meth-015",
+    "front": "How do you use `perf stat` with event groups to ensure simultaneous counting?",
+    "back": "Enclose events in braces: `perf stat -e '{instructions,cycles}' <cmd>`. This forces both events onto the same PMU scheduling group so their ratio (IPC) is accurate, not multiplexed.",
+    "tags": ["perf", "stat", "event-groups"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-016",
+    "front": "What bpftrace probe type traces a user-space function entry?",
+    "back": "uprobe. Syntax: `uprobe:/path/to/binary:function_name`. For C++ mangled names, use the mangled symbol or `uprobe:/path:cpp:\"namespace::Class::method\"`.",
+    "tags": ["bpftrace", "uprobe"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-017",
+    "front": "Write a bpftrace one-liner to count syscalls by process name.",
+    "back": "`bpftrace -e 'tracepoint:raw_syscalls:sys_enter { @[comm] = count(); }'`",
+    "tags": ["bpftrace", "one-liner", "syscalls"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-018",
+    "front": "What are the six main bpftrace probe types?",
+    "back": "kprobe/kretprobe (kernel function entry/return), uprobe/uretprobe (user-space function entry/return), tracepoint (stable kernel tracepoints), software (kernel software events like page faults), hardware (PMC events), and usdt (User Statically-Defined Tracing probes).",
+    "tags": ["bpftrace", "probe-types"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-019",
+    "front": "What bpftrace builtin variable gives you the current process name?",
+    "back": "`comm` — the current task's command name (up to 16 chars). Related builtins: `pid` (PID), `tid` (TID), `uid` (UID), `cpu` (processor ID).",
+    "tags": ["bpftrace", "builtins"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-020",
+    "front": "How do you access function arguments in bpftrace kprobe and uprobe?",
+    "back": "Use `arg0`, `arg1`, ..., `argN` for the Nth argument (0-indexed). For return probes (kretprobe/uretprobe), use `retval` for the return value.",
+    "tags": ["bpftrace", "arguments"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-021",
+    "front": "How do you print a kernel stack trace in bpftrace?",
+    "back": "Use the `kstack` builtin: `printf(\"%s\", kstack)`. For user-space stacks use `ustack`. Both accept an optional limit: `kstack(5)` for 5 frames.",
+    "tags": ["bpftrace", "stacks"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-022",
+    "front": "What bpftrace map function produces a power-of-2 histogram?",
+    "back": "`hist()`. Example: `@latency = hist(nsecs - @start[tid]);` prints a log2 histogram on exit. Use `lhist(value, min, max, step)` for a linear histogram.",
+    "tags": ["bpftrace", "maps", "histogram"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-023",
+    "front": "Name six bpftrace map aggregation functions.",
+    "back": "`count()`, `sum(val)`, `avg(val)`, `min(val)`, `max(val)`, `stats(val)` (prints count/avg/total). Also: `hist(val)` and `lhist(val, min, max, step)` for histograms.",
+    "tags": ["bpftrace", "maps", "aggregations"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-024",
+    "front": "Write a bpftrace one-liner to show a histogram of read() syscall sizes.",
+    "back": "`bpftrace -e 'tracepoint:syscalls:sys_exit_read /args.ret > 0/ { @bytes = hist(args.ret); }'`",
+    "tags": ["bpftrace", "one-liner", "histogram"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-025",
+    "front": "How do you trace USDT probes with bpftrace?",
+    "back": "`usdt:/path/to/binary:provider:probe_name`. Discover available probes with `bpftrace -l 'usdt:/path/to/binary:*'` or `tplist-bpfcc -l /path/to/binary`.",
+    "tags": ["bpftrace", "usdt"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-026",
+    "front": "What does `bpftrace -l` do?",
+    "back": "Lists available probes matching a pattern. Examples: `bpftrace -l 'tracepoint:sched:*'` lists scheduler tracepoints; `bpftrace -l 'kprobe:tcp_*'` lists kernel TCP function probes.",
+    "tags": ["bpftrace", "discovery"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-027",
+    "front": "How do you access tracepoint arguments in bpftrace?",
+    "back": "Use `args.field_name` or `args->field_name`. Field names come from the tracepoint format: check with `cat /sys/kernel/debug/tracing/events/<category>/<event>/format`.",
+    "tags": ["bpftrace", "tracepoints", "arguments"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-028",
+    "front": "Write a bpftrace one-liner to measure the latency of vfs_read.",
+    "back": "`bpftrace -e 'kprobe:vfs_read { @start[tid] = nsecs; } kretprobe:vfs_read /@start[tid]/ { @us = hist((nsecs - @start[tid]) / 1000); delete(@start[tid]); }'`",
+    "tags": ["bpftrace", "one-liner", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-029",
+    "front": "What is the `nsecs` builtin in bpftrace?",
+    "back": "Returns the current timestamp in nanoseconds since boot (from ktime_get_ns). Used for latency calculations: store at entry, subtract at return.",
+    "tags": ["bpftrace", "builtins", "timing"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-030",
+    "front": "How do you filter bpftrace probes to a specific process?",
+    "back": "Use `-p PID` on the command line, or use a predicate filter: `/pid == 12345/` or `/comm == \"myapp\"/`.",
+    "tags": ["bpftrace", "filtering"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-031",
+    "front": "What PMC event counts retired instructions on Intel?",
+    "back": "`instructions` (perf generic name) or `inst_retired.any` (Intel name). This is a fixed counter (IA32_FIXED_CTR0) available without consuming a programmable PMC slot.",
+    "tags": ["pmc", "instructions", "intel"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-032",
+    "front": "What is the raw event encoding format for `perf stat -e`?",
+    "back": "rUUEE where UU is the umask byte and EE is the event number (both hex). Example: `r04C4` encodes machine_clears.count (event 0xC4, umask 0x04). Use `perf stat -e rUUEE`.",
+    "tags": ["pmc", "raw-events", "encoding"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "meth-033",
+    "front": "What does the PMC event `idq.dsb_uops` measure?",
+    "back": "Micro-ops delivered from the Decoded Stream Buffer (uop cache / DSB). High DSB delivery means the hot code fits in the uop cache; low means MITE (legacy decode) or MSROM paths are used instead.",
+    "tags": ["pmc", "frontend", "uop-cache"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "meth-034",
+    "front": "What does `idq.mite_uops` measure and what does a high value indicate?",
+    "back": "Micro-ops delivered from the legacy decode pipeline (MITE). A high ratio of MITE to DSB uops indicates the hot code is not fitting in the uop cache, often due to large instruction footprint or many branches.",
+    "tags": ["pmc", "frontend", "mite"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "meth-035",
+    "front": "What does the `branch-misses` PMC event count?",
+    "back": "Retired branch instructions that were mispredicted. The branch misprediction ratio is `branch-misses / branches`. A ratio above ~2% often indicates significant misprediction overhead.",
+    "tags": ["pmc", "branch", "misprediction"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-036",
+    "front": "What does the `baclears.any` PMC event indicate?",
+    "back": "The number of times the Branch Address Calculator (BAC) in the frontend detected a misprediction from the static/BTB predictor and resteered. Indicates early-stage frontend misprediction flushes.",
+    "tags": ["pmc", "branch", "frontend"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "meth-037",
+    "front": "What is the difference between `cache-misses` and `LLC-load-misses`?",
+    "back": "`cache-misses` is a generic perf event typically mapped to LLC misses. `LLC-load-misses` specifically counts last-level cache misses on loads (not stores/prefetches). The exact mapping varies by CPU model.",
+    "tags": ["pmc", "cache", "memory"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-038",
+    "front": "What does `dTLB-load-misses` measure?",
+    "back": "Data TLB misses on load operations, meaning the virtual-to-physical address translation was not in the L1 dTLB. High counts suggest the working set spans many pages; consider huge pages (2MB/1GB).",
+    "tags": ["pmc", "tlb", "memory"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-039",
+    "front": "What does `resource_stalls.any` indicate?",
+    "back": "Cycles where the backend stalled the rename/allocator stage because a resource was full (ROB, RS, load/store buffers). Indicates backend pressure — the CPU cannot retire uops fast enough.",
+    "tags": ["pmc", "backend", "stalls"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "meth-040",
+    "front": "How do you list all available PMC events on the current system?",
+    "back": "`perf list` shows all events. Use `perf list hw` for hardware events, `perf list cache` for cache events, `perf list sw` for software events. For Intel-specific events: `ocperf.py list` from pmu-tools.",
+    "tags": ["pmc", "discovery", "perf"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-041",
+    "front": "What are the two forms of `stalled-cycles-backend` and `stalled-cycles-frontend`?",
+    "back": "These are generic perf events. On Intel: frontend maps to `idq_uops_not_delivered.core`, backend to `resource_stalls.any` or cycle_activity events. The exact mapping varies by microarchitecture.",
+    "tags": ["pmc", "stalls", "generic-events"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-042",
+    "front": "What does multiplexing mean in `perf stat` output, and how do you detect it?",
+    "back": "When more events are requested than available PMC counters, perf time-shares (multiplexes) events and scales the counts. Detected by a percentage shown after the count (e.g., '42.31%' time enabled). Use event groups `{}` to avoid it.",
+    "tags": ["pmc", "multiplexing", "perf"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-043",
+    "front": "How many general-purpose PMC counters does a typical Intel Skylake/Ice Lake core have?",
+    "back": "4 programmable general-purpose counters (IA32_PMC0-3) plus 3 fixed counters (instructions retired, unhalted core cycles, unhalted reference cycles). Hyperthreaded mode may reduce available programmable counters to 4 shared.",
+    "tags": ["pmc", "hardware", "intel"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-044",
+    "front": "What is the `machine_clears.count` PMC event?",
+    "back": "Counts the number of machine clears (pipeline nukes). Common causes: memory ordering violations, self-modifying code, FP assists. Use with TMA Bad Speculation category. Raw encoding: r04C4 on many Intel microarchs.",
+    "tags": ["pmc", "machine-clears", "bad-speculation"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "meth-045",
+    "front": "What is the flame graph generation pipeline from perf data?",
+    "back": "`perf record -g -F 99 <cmd>` then `perf script | stackcollapse-perf.pl | flamegraph.pl > out.svg`. The intermediate folded format is one line per stack: `func1;func2;func3 count`.",
+    "tags": ["flame-graph", "pipeline"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-046",
+    "front": "What does the x-axis represent in a flame graph?",
+    "back": "The x-axis is the alphabetically sorted set of stack frames — it does NOT represent time. Width represents the proportion of total samples that include that function. Wider = more CPU time.",
+    "tags": ["flame-graph", "interpretation"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-047",
+    "front": "What is the folded stack format used by flamegraph.pl?",
+    "back": "One line per unique stack, semicolon-delimited from bottom to top, followed by a space and the sample count. Example: `main;processMsg;decode 42`. Created by stackcollapse-perf.pl or equivalent.",
+    "tags": ["flame-graph", "format"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-048",
+    "front": "What is an off-CPU flame graph and when do you use it?",
+    "back": "An off-CPU flame graph shows where threads spend time blocked (sleeping, waiting on I/O, locks). Generated by tracing sched_switch events. Use when throughput is low but CPU utilization is also low — the bottleneck is off-CPU.",
+    "tags": ["flame-graph", "off-cpu"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-049",
+    "front": "How do you create a differential flame graph?",
+    "back": "Capture two profiles (before/after), fold both, then: `difffolded.pl before.folded after.folded | flamegraph.pl > diff.svg`. Red = regression (more samples), blue = improvement (fewer samples).",
+    "tags": ["flame-graph", "differential"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-050",
+    "front": "What is a memory flame graph?",
+    "back": "A flame graph built from memory allocation samples rather than CPU samples. Generated using `perf record -e malloc` (via uprobe) or BPF tools tracing allocation functions. Shows which code paths allocate the most memory.",
+    "tags": ["flame-graph", "memory"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-051",
+    "front": "Why should you use `-F 99` instead of `-F 100` for `perf record`?",
+    "back": "99 Hz avoids lockstep sampling with the kernel's 100 Hz (or similar) timer tick, which can produce biased samples. Using a frequency that is coprime to common system frequencies gives more uniform coverage.",
+    "tags": ["flame-graph", "sampling", "perf"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-052",
+    "front": "What color scheme does a standard CPU flame graph use?",
+    "back": "Warm colors (red/orange/yellow) chosen randomly — color has no semantic meaning in standard flame graphs. In differential flame graphs, red = regression, blue = improvement. Some tools color by language or module.",
+    "tags": ["flame-graph", "visualization"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-053",
+    "front": "What are the four Level-1 categories in the Top-Down Microarchitecture Analysis (TMA) framework?",
+    "back": "1) Frontend Bound — stalls delivering uops to the backend. 2) Backend Bound — stalls executing/retiring uops. 3) Bad Speculation — wasted work from mispredictions/clears. 4) Retiring — useful work. They sum to 100% of pipeline slots.",
+    "tags": ["tma", "level-1"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-054",
+    "front": "What does a high 'Frontend Bound' TMA metric indicate?",
+    "back": "The CPU is starved for uops — the front end cannot decode/deliver instructions fast enough. Common causes: instruction cache (L1I) misses, iTLB misses, DSB (uop cache) misses, suboptimal code layout.",
+    "tags": ["tma", "frontend"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-055",
+    "front": "What does a high 'Backend Bound' TMA metric indicate?",
+    "back": "The execution engine is stalled. Splits into Memory Bound (cache misses, memory latency) and Core Bound (execution port contention, long-latency operations). Common in data-intensive workloads.",
+    "tags": ["tma", "backend"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-056",
+    "front": "What does 'Bad Speculation' in TMA measure?",
+    "back": "Pipeline slots wasted due to mispredicted branches or machine clears. Splits into Branch Mispredicts and Machine Clears. High values mean the CPU is doing significant throwaway work on wrong-path execution.",
+    "tags": ["tma", "bad-speculation"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-057",
+    "front": "What does 'Retiring' in TMA represent, and is 100% always good?",
+    "back": "Retiring measures pipeline slots used by uops that actually retire. High is generally good, but not always — microcode assists and inefficient instruction sequences (e.g., rep movsb) can show high Retiring yet slow performance.",
+    "tags": ["tma", "retiring"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-058",
+    "front": "What tool implements the full TMA hierarchy, and how do you run it?",
+    "back": "`toplev.py` from Andi Kleen's pmu-tools. Basic usage: `toplev.py --core S0-C0 -l1 <command>` for Level 1; use -l2, -l3 for deeper analysis. Requires perf and MSR access.",
+    "tags": ["tma", "toplev", "pmu-tools"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-059",
+    "front": "What are the Level-2 subcategories of Backend Bound in TMA?",
+    "back": "Memory Bound and Core Bound. Memory Bound further splits into L1/L2/L3 Bound, DRAM Bound, and Store Bound. Core Bound splits into Divider and Ports Utilization.",
+    "tags": ["tma", "level-2", "backend"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-060",
+    "front": "What are the Level-2 subcategories of Frontend Bound in TMA?",
+    "back": "Fetch Latency and Fetch Bandwidth. Fetch Latency includes ICache Misses, ITLB Misses, Branch Resteers, and DSB Switches. Fetch Bandwidth includes DSB and MITE sub-categories.",
+    "tags": ["tma", "level-2", "frontend"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-061",
+    "front": "What is the typical threshold for a TMA Level-1 category to be considered a bottleneck?",
+    "back": "Generally >20% for Frontend Bound or Bad Speculation, and >30-40% for Backend Bound, warrant investigation. Retiring <30% on compute-bound code is a red flag. toplev.py highlights metrics exceeding thresholds in red.",
+    "tags": ["tma", "thresholds"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-062",
+    "front": "What is `ocperf.py` and why is it needed?",
+    "back": "Part of pmu-tools, ocperf.py wraps `perf stat` to support symbolic names for all Intel PMC events (from the event JSON files). Standard perf only knows generic event names; ocperf.py resolves architecture-specific event codes.",
+    "tags": ["tma", "pmu-tools", "ocperf"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-063",
+    "front": "What does p99 latency mean?",
+    "back": "The 99th percentile: 99% of requests complete at or below this latency, and 1% are slower. It captures tail latency behavior that the mean or median would hide. For market data, p99 and p999 are often the primary SLA metrics.",
+    "tags": ["statistics", "percentiles"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-064",
+    "front": "Why is the arithmetic mean a poor summary statistic for latency distributions?",
+    "back": "Latency distributions are typically right-skewed (long tail). The arithmetic mean is pulled by outliers and does not represent typical or worst-case behavior. Use percentiles (p50, p99, p999) or a histogram instead.",
+    "tags": ["statistics", "mean", "latency"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-065",
+    "front": "What is the coefficient of variation (CV) and when is it useful in benchmarking?",
+    "back": "CV = (standard deviation / mean) * 100%. It measures relative variability. In benchmarking, CV > 2-5% suggests noisy measurements; investigate sources of variance (turbo boost, NUMA, interrupts) before trusting the data.",
+    "tags": ["statistics", "cv", "benchmarking"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-066",
+    "front": "How do you detect warm-up effects in a benchmark run?",
+    "back": "Plot per-iteration latency over time. Look for a downward trend at the start (caches warming, branch predictors training, JIT compiling). Discard the first N iterations until the metric stabilizes, or use a formal changepoint detector.",
+    "tags": ["statistics", "warm-up", "benchmarking"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-067",
+    "front": "What does `perf stat -r 10` do for statistical confidence?",
+    "back": "Runs the workload 10 times and reports the mean, standard deviation, and CV for each counter. This helps assess measurement noise. A minimum of 5-10 runs is recommended for stable estimates.",
+    "tags": ["statistics", "perf", "repeats"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-068",
+    "front": "What is the difference between p999 and p9999?",
+    "back": "p999 (99.9th percentile): 1 in 1,000 requests are slower. p9999 (99.99th percentile): 1 in 10,000 are slower. At 100K msg/sec, p9999 captures the worst ~10 messages per second. Tail latencies often dominate in market data.",
+    "tags": ["statistics", "percentiles", "tail-latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-069",
+    "front": "Why can a histogram reveal problems that percentiles miss?",
+    "back": "Histograms show the full distribution shape: bimodal distributions, gaps, or multiple modes that collapse into single percentile values. A bimodal latency distribution (e.g., fast-path vs slow-path) appears as two peaks in a histogram but a single misleading median.",
+    "tags": ["statistics", "histogram", "distribution"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-070",
+    "front": "What is coordinated omission in latency measurement?",
+    "back": "When a load generator waits for each response before sending the next request, slow responses reduce the request rate, hiding the true latency under load. The measured percentiles appear better than reality. Gil Tene's HDR Histogram and wrk2 address this.",
+    "tags": ["statistics", "coordinated-omission", "latency"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "meth-071",
+    "front": "What does `vmstat 1` show and what columns are most important?",
+    "back": "System-wide stats every 1 second: `r` (run queue), `b` (blocked procs), `free`/`buff`/`cache` (memory), `si`/`so` (swap I/O), `us`/`sy`/`id`/`wa` (CPU breakdown). Watch `r` > CPU count (saturation) and `wa` > 0 (I/O waits).",
+    "tags": ["system-tools", "vmstat"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-072",
+    "front": "What does `mpstat -P ALL 1` show?",
+    "back": "Per-CPU utilization breakdown every 1 second: %usr, %sys, %iowait, %irq, %soft, %idle for each logical CPU. Useful for detecting imbalanced load, interrupt storms, or single-threaded bottlenecks.",
+    "tags": ["system-tools", "mpstat"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-073",
+    "front": "What does `pidstat -u -p <pid> 1` show?",
+    "back": "Per-thread CPU utilization for a specific process, sampled every 1 second. Use `-t` for thread-level detail, `-d` for disk I/O, `-w` for context switches. Part of the sysstat package.",
+    "tags": ["system-tools", "pidstat"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-074",
+    "front": "What does `iostat -xz 1` show?",
+    "back": "Extended per-device I/O statistics every 1 second, skipping idle devices (-z). Key columns: `r/s`, `w/s` (IOPS), `r_await`, `w_await` (latency ms), `%util` (device saturation). %util near 100% indicates the device is busy.",
+    "tags": ["system-tools", "iostat"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-075",
+    "front": "What does `turbostat` measure and why is it important for benchmarking?",
+    "back": "Reports actual CPU frequency, C-state residency, power, and temperature per core. Important because turbo boost causes frequency variation — a workload may run at 4.5 GHz vs 3.2 GHz depending on thermal state, invalidating cycle-count comparisons.",
+    "tags": ["system-tools", "turbostat", "frequency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-076",
+    "front": "What does `numastat -m` show?",
+    "back": "Per-NUMA-node memory statistics: MemTotal, MemFree, MemUsed, Active, Inactive, Dirty, etc. Use it to detect NUMA imbalance where one node's memory is exhausted while another has free memory.",
+    "tags": ["system-tools", "numastat", "numa"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-077",
+    "front": "What does `lscpu` tell you that is relevant to profiling?",
+    "back": "CPU model, microarchitecture, core/thread counts, cache sizes (L1d/L1i/L2/L3), NUMA topology, and supported features. Critical for knowing PMC event availability, cache hierarchy for data structure sizing, and NUMA layout.",
+    "tags": ["system-tools", "lscpu", "topology"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-078",
+    "front": "What is `lstopo` and when would you use it?",
+    "back": "Part of hwloc. Displays the hardware topology graphically: NUMA nodes, sockets, cores, hardware threads, caches, and PCI devices. Use to understand CPU-memory affinity for NUMA-aware thread pinning and cache-sharing analysis.",
+    "tags": ["system-tools", "lstopo", "topology"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-079",
+    "front": "What is LIKWID and what does `likwid-perfctr` provide over `perf stat`?",
+    "back": "LIKWID (Like I Knew What I'm Doing) is a performance tool suite. `likwid-perfctr` provides pre-defined performance groups (MEM, FLOPS_DP, L2CACHE, etc.) that automatically collect the right events and compute derived metrics like bandwidth and FLOP/s.",
+    "tags": ["system-tools", "likwid"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-080",
+    "front": "What key columns does `sar -n DEV 1` show?",
+    "back": "Network device statistics every 1 second: `rxpck/s`, `txpck/s` (packets/sec), `rxkB/s`, `txkB/s` (throughput), `%ifutil` (interface utilization). Use for detecting network saturation on market data feeds.",
+    "tags": ["system-tools", "sar", "network"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-081",
+    "front": "How do you list all available kernel tracepoints?",
+    "back": "`perf list tracepoint` or `cat /sys/kernel/debug/tracing/available_events` or `ls /sys/kernel/debug/tracing/events/`. In bpftrace: `bpftrace -l 'tracepoint:*'`.",
+    "tags": ["tracing", "tracepoints", "discovery"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-082",
+    "front": "What is a kprobe and how does it differ from a tracepoint?",
+    "back": "A kprobe is a dynamic instrumentation point at any kernel function/instruction. Tracepoints are static, stable instrumentation points placed by kernel developers. Kprobes are more flexible but can break across kernel versions; tracepoints have stable APIs.",
+    "tags": ["tracing", "kprobe", "tracepoint"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-083",
+    "front": "What is a uprobe?",
+    "back": "A dynamic instrumentation point in user-space code. Set on any instruction in an ELF binary. The kernel places an int3 breakpoint and traps to a BPF program or ftrace handler. Higher overhead than tracepoints but works on any function without recompilation.",
+    "tags": ["tracing", "uprobe"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-084",
+    "front": "How do you discover USDT probes in a binary?",
+    "back": "`readelf -n <binary> | grep -A4 stapsdt` or `tplist-bpfcc -l <binary>` or `bpftrace -l 'usdt:<binary>:*'`. USDT probes are compiled in using the DTRACE_PROBE macros from systemtap-sdt-dev.",
+    "tags": ["tracing", "usdt", "discovery"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-085",
+    "front": "What are the main BPF program types relevant to profiling?",
+    "back": "BPF_PROG_TYPE_KPROBE (kprobes/uprobes), BPF_PROG_TYPE_TRACEPOINT (static tracepoints), BPF_PROG_TYPE_PERF_EVENT (PMC sampling/software events), BPF_PROG_TYPE_RAW_TRACEPOINT (raw tracepoint with full args access).",
+    "tags": ["tracing", "bpf", "program-types"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "meth-086",
+    "front": "What is the difference between a BPF ring buffer and a perf buffer?",
+    "back": "Perf buffer is per-CPU with potential event ordering issues and wasted memory. BPF ring buffer (ringbuf, kernel 5.8+) is a single shared buffer with multi-producer support, better memory efficiency, and preserved event ordering. Prefer ringbuf for new code.",
+    "tags": ["tracing", "bpf", "buffers"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "meth-087",
+    "front": "What is the overhead model for kprobes vs tracepoints vs uprobes?",
+    "back": "Tracepoints: ~100-200ns (NOP-sled patched to call). Kprobes: ~200-500ns (int3 trap + handler). Uprobes: ~1-5us (kernel trap from user space + context switches). All are per-hit costs, so frequency matters most.",
+    "tags": ["tracing", "overhead"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-088",
+    "front": "How do you check the format/arguments of a kernel tracepoint?",
+    "back": "`cat /sys/kernel/debug/tracing/events/<subsystem>/<event>/format`. This shows the field names, types, and offsets. In bpftrace, these fields are accessed as `args.field_name`.",
+    "tags": ["tracing", "tracepoints", "format"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-089",
+    "front": "What is the difference between sampling and counting in profiling?",
+    "back": "Counting (`perf stat`) reads PMC totals for the entire run — exact, low overhead, no per-sample data. Sampling (`perf record`) interrupts at a threshold to capture instruction pointer + stack — gives location info but has higher overhead and statistical error.",
+    "tags": ["profiling", "sampling", "counting"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-090",
+    "front": "Why is 99 Hz a commonly recommended sampling frequency?",
+    "back": "Low enough to have negligible overhead (<1% CPU), high enough to collect useful data over seconds/minutes. Avoids lockstep with common system timers (100Hz, 250Hz, 1000Hz). Higher rates (999Hz, 4999Hz) give better resolution but more overhead.",
+    "tags": ["profiling", "sampling-frequency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-091",
+    "front": "What are the requirements for perf to resolve symbols in a binary?",
+    "back": "Either: 1) Unstripped binary (symbols in ELF symtab), 2) Separate debuginfo file (.debug or .dwp), or 3) For kernel: /proc/kallsyms + kernel debug symbols. For inline functions: DWARF debuginfo. Symbols must be available at `perf report` time.",
+    "tags": ["profiling", "symbols", "debuginfo"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-092",
+    "front": "What is the difference between DWARF unwinding and frame-pointer unwinding in perf?",
+    "back": "Frame-pointer (fp): fast, requires -fno-omit-frame-pointer compilation. DWARF: uses .eh_frame / .debug_frame unwind tables, works without frame pointers but is slower and captures larger samples (~8KB stack copy). Use `--call-graph dwarf` or `--call-graph fp`.",
+    "tags": ["profiling", "call-graph", "unwinding"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-093",
+    "front": "What is the perf.data file?",
+    "back": "The default output file for `perf record`. Contains raw sample data (IP, timestamp, callchain, CPU, PID, event), header metadata, and build-id references. Analyzed with `perf report`, `perf script`, `perf annotate`. Can be large — use `-o` for custom names.",
+    "tags": ["profiling", "perf", "data-file"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-094",
+    "front": "Why might `perf record` show '[unknown]' in call stacks?",
+    "back": "Missing symbols (stripped binary), missing frame pointers (default -O2 omits them), or JIT-compiled code without a jitdump/perf map. Fix: compile with -fno-omit-frame-pointer, install debuginfo packages, or use --call-graph dwarf.",
+    "tags": ["profiling", "symbols", "troubleshooting"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-095",
+    "front": "How does `perf record -e cycles:pp` differ from `perf record -e cycles`?",
+    "back": "The `:pp` suffix requests precise event sampling (PEBS on Intel), which records the exact instruction that caused the event rather than the next instruction after the interrupt. Reduces skid to near-zero for accurate hotspot attribution.",
+    "tags": ["profiling", "pebs", "precision"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "meth-096",
+    "front": "What are the three components of the USE method for each resource?",
+    "back": "Utilization (% time busy), Saturation (queue depth / work queued), Errors (error count). Apply to each resource: CPU, memory, network, disk, interconnect. High utilization + saturation = bottleneck.",
+    "tags": ["analysis-patterns", "use-method"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "meth-097",
+    "front": "What is the recommended drill-down sequence when profiling a performance issue?",
+    "back": "1) USE method for system-level resource check. 2) `perf stat` for top-level PMC counters (IPC, cache misses). 3) TMA Level 1-2 to classify bottleneck. 4) `perf record` + flame graph to locate hotspot. 5) `perf annotate` for instruction-level analysis.",
+    "tags": ["analysis-patterns", "drill-down"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-098",
+    "front": "How do you perform differential profiling to find a regression?",
+    "back": "1) Capture baseline profile. 2) Capture regression profile with identical workload. 3) Generate differential flame graph (difffolded.pl + flamegraph.pl). 4) Also compare `perf stat` counter deltas, especially IPC, cache-misses, and branch-misses ratios.",
+    "tags": ["analysis-patterns", "differential", "regression"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-099",
+    "front": "What are common triggers that should initiate a performance regression investigation?",
+    "back": "p99 latency increase >10%, throughput decrease >5%, IPC drop, cache-miss rate increase, CPU utilization spike without load increase. Set up CI benchmarks with statistical significance thresholds and automated alerts on these metrics.",
+    "tags": ["analysis-patterns", "regression", "triggers"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "meth-100",
+    "front": "What USE-method checklist items apply to the CPU resource?",
+    "back": "Utilization: `mpstat -P ALL` (%usr+%sys per CPU), `vmstat` r column. Saturation: run queue length > CPU count (vmstat r), load average, `perf sched` latency. Errors: `dmesg` for MCE (Machine Check Exceptions), `perf stat` machine_clears.",
+    "tags": ["analysis-patterns", "use-method", "cpu"],
+    "difficulty": "intermediate"
+  }
+]

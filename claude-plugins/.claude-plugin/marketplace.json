@@ -1,0 +1,11 @@
+{
+  "name": "local",
+  "owner": { "name": "kairo5" },
+  "plugins": [
+    {
+      "name": "perf",
+      "description": "x86 performance investigation learning system",
+      "source": "./perf"
+    }
+  ]
+}
