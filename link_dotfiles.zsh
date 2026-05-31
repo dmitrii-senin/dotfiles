@@ -21,7 +21,6 @@ sync_paths=(
 	.zshenv
 	.claude/settings.json
 	.claude/settings.local.json
-	.claude/keybindings.json
 	.claude/statusline.sh
 )
 
