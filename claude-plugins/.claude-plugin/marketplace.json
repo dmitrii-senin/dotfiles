@@ -6,6 +6,11 @@
       "name": "perf",
       "description": "x86 performance investigation learning system",
       "source": "./perf"
+    },
+    {
+      "name": "neovim",
+      "description": "Neovim 0.12+ mastery and config coaching system",
+      "source": "./neovim"
     }
   ]
 }

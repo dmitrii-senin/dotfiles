@@ -1,0 +1,248 @@
+# Language IDE Workflows Topic Bank
+Updated: 2026-05-31
+
+## beginner
+
+### C++ with clangd
+Clangd is an LSP server built on the Clang compiler frontend that provides code completion, diagnostics, navigation, and refactoring for C and C++. Your config starts clangd with `--background-index` (builds an on-disk index of your entire project for fast cross-file navigation), `--clang-tidy` (runs clang-tidy checks as you type, surfacing modernize-*, performance-*, and bugprone-* warnings inline), `--header-insertion=iwyu` (auto-inserts missing `#include` directives based on Include-What-You-Use analysis), `--completion-style=detailed` (shows full function signatures in the completion menu), and `--fallback-style=Google` (applies Google C++ style when no `.clang-format` is found). Clangd needs a `compile_commands.json` at the project root to understand your build flags; without it, you get incomplete or incorrect diagnostics.
+**Key concepts:** background indexing, clang-tidy integration, IWYU header insertion, compilation database, fallback style, LSP attach
+**Tip:** If clangd reports many false-positive errors in a new project, the issue is almost always a missing or stale `compile_commands.json`. Run `cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B build` and symlink `build/compile_commands.json` to your project root.
+**Tool anchor:** `:LspInfo` to verify clangd is attached; `:LspLog` to debug startup failures; `gd` for go-to-definition via Telescope
+**Drill:** Open a C++ source file in your SBE codec project. Verify clangd is attached with `:LspInfo`, trigger completion with `<C-n>`, and navigate to a function definition with `gd`. Then introduce a deliberate type error and observe clang-tidy diagnostics appearing on the virtual line below the cursor (`virtual_lines = { current_line = true }` in your config).
+**Tags:** clangd, LSP, background-index, clang-tidy, IWYU, completion
+
+### Python with pyright
+Pyright is a static type checker and LSP server for Python written in TypeScript that provides fast type checking, auto-import suggestions, and intelligent completions. Your config enables it with default settings via `vim.lsp.config("pyright", {})` and `vim.lsp.enable`. Pyright detects your Python version and virtual environment from `pyrightconfig.json`, `pyproject.toml`, or the active venv. It supports incremental type checking so diagnostics update in real time as you edit, and its type inference is strong enough to catch `None` access, missing return types, and argument mismatches without explicit annotations.
+**Key concepts:** static type checking, auto-import, venv detection, pyrightconfig.json, type inference, incremental checking
+**Tip:** If pyright reports import errors for installed packages, it likely is not detecting your virtual environment. Create a `pyrightconfig.json` with `{"venvPath": ".", "venv": ".venv"}` at the project root, or set `python.pythonPath` in your workspace.
+**Tool anchor:** `:LspInfo` to verify pyright attachment and Python path; `gd` for go-to-definition; `<Leader>ca` for auto-import code actions
+**Drill:** Create a Python file that imports `json` and `pathlib`. Verify pyright is attached, type `Path.` and observe completions appearing via native LSP completion (`<C-n>`). Then type a function call with wrong argument types and watch pyright surface the type error as a diagnostic.
+**Tags:** pyright, Python, type-checking, auto-import, venv, LSP
+
+### Rust with rust-analyzer
+Rust-analyzer is the official LSP server for Rust that provides completion, diagnostics, navigation, and refactoring tightly integrated with Cargo. Your config sets `checkOnSave = "clippy"` (runs `cargo clippy` instead of `cargo check` on save, catching idiomatic issues and common mistakes), `cargo.allFeatures = true` (enables all Cargo features so conditional code is analyzed), and `procMacro.enable = true` (expands procedural macros for accurate analysis of derive macros and attribute macros). Rust-analyzer understands workspace structure, resolves trait implementations, and provides inline type hints for let bindings and function return types.
+**Key concepts:** cargo clippy on save, all features, proc macro expansion, workspace detection, trait resolution, inlay hints
+**Tip:** If rust-analyzer is slow on a large workspace, check that `allFeatures = true` is not pulling in heavy optional dependencies you do not need. You can also set `cargo.target` to limit analysis to a single target triple and skip cross-compilation targets.
+**Tool anchor:** `:LspInfo` for rust-analyzer status; `<Leader>th` to toggle inlay type hints; `gd`/`grr` for definition/references
+**Drill:** Open a Rust file with a `#[derive(Debug, Serialize)]` struct. Toggle inlay hints with `<Leader>th` to see inferred types. Introduce a clippy warning (e.g., `let _ = vec.len() > 0` instead of `!vec.is_empty()`) and save to see the clippy diagnostic appear.
+**Tags:** rust-analyzer, Rust, clippy, cargo, proc-macro, inlay-hints
+
+### compile_commands.json
+A `compile_commands.json` file tells clangd exactly how each source file is compiled: the compiler path, include paths, defines, warning flags, and standard version. Without it, clangd guesses based on the fallback style and system includes, which produces incorrect diagnostics for any non-trivial project. CMake generates it natively with `-DCMAKE_EXPORT_COMPILE_COMMANDS=ON`. For Make-based projects, Bear intercepts compiler calls during a build to produce the database. For header-only or single-file projects, you can create a manual entry specifying just the compiler flags you need.
+**Key concepts:** compilation database, CMake export, Bear, compile flags, include paths, build system integration
+**Tip:** Symlink rather than copy `compile_commands.json` to your project root: `ln -s build/compile_commands.json .` -- this way it stays current when you re-run CMake. If you use multiple build directories (debug/release), point the symlink at whichever you are actively developing against.
+**Tool anchor:** `cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -B build` for CMake; `bear -- make` for Make; verify with `:LspInfo` and checking diagnostics
+**Drill:** In your SBE codec project, generate `compile_commands.json` with CMake, symlink it to the project root, and restart clangd (`:LspRestart`). Confirm that include path errors disappear and that clangd can resolve all SBE-generated headers by navigating to a codec type with `gd`.
+**Tags:** compile-commands, compilation-database, CMake, Bear, clangd, build-system
+
+### Python virtual environments
+Python virtual environments isolate project dependencies, and your LSP server needs to know which venv to use for accurate import resolution and type checking. Pyright searches for `.venv`, `venv`, or `env` directories in the workspace root, and reads `pyrightconfig.json` or `pyproject.toml` for explicit venv configuration. If pyright uses the wrong Python interpreter, you get missing import errors for installed packages and incorrect type stubs. Neovim itself does not manage venvs -- it is your responsibility to activate the correct environment or configure the path explicitly.
+**Key concepts:** venv detection, pyrightconfig.json, pyproject.toml, interpreter path, import resolution, stub files
+**Tip:** For projects using Poetry or Conda, pyright may not auto-detect the environment. Add `{"venvPath": "/path/to/envs", "venv": "myproject"}` to `pyrightconfig.json` or set `python.pythonPath` in a `.pyrightconfig.json` at the project root to point pyright at the correct interpreter.
+**Tool anchor:** `:LspInfo` shows the detected Python path; `:!which python3` to verify active interpreter; `pyrightconfig.json` for explicit config
+**Drill:** Create a Python project with a venv, install `numpy`, and open a file that imports it. Verify pyright resolves the import without errors. Then deactivate the venv, reopen Neovim, and observe the import error. Fix it by adding a `pyrightconfig.json` pointing to the venv.
+**Tags:** venv, virtual-environment, pyright, Python, interpreter, import-resolution
+
+### Cargo workspace detection
+Rust-analyzer discovers project structure by finding `Cargo.toml` files and understanding Cargo workspace layouts. In a workspace with multiple crates, rust-analyzer indexes all member crates and resolves cross-crate dependencies. Your `allFeatures = true` setting ensures that feature-gated code is analyzed rather than greyed out. Target selection matters when you have both library and binary targets -- rust-analyzer analyzes all targets by default, but you can limit this with `cargo.target` if analysis is too slow on large workspaces with many binaries.
+**Key concepts:** Cargo.toml, workspace members, feature flags, target selection, cross-crate resolution, workspace root
+**Tip:** If rust-analyzer is indexing slowly in a large workspace, add `"rust-analyzer.cargo.sysroot": "discover"` and consider setting `checkOnSave.extraArgs = ["--target-dir", "target/ra"]` to use a separate target directory so rust-analyzer builds do not conflict with your manual `cargo build`.
+**Tool anchor:** `:LspInfo` shows workspace root; `:LspLog` for cargo build output; `gd` to verify cross-crate navigation
+**Drill:** Open a Rust workspace with at least two member crates. Navigate from a function call in one crate to its definition in another using `gd`. Then add a feature flag to a dependency and verify that rust-analyzer picks it up because `allFeatures = true`.
+**Tags:** cargo, workspace, rust-analyzer, feature-flags, target, cross-crate
+
+### C++ formatting with clang-format
+Your config uses conform.nvim to run clang-format on save for C and C++ files, with `--style=Google` as the default. Clang-format reads a `.clang-format` or `_clang-format` file from the nearest parent directory, and falls back to the style specified on the command line. Google style enforces 2-space indentation, attached braces, and specific include ordering. You can customize individual rules by creating a `.clang-format` file with `BasedOnStyle: Google` and overriding specific keys like `ColumnLimit`, `AllowShortFunctionsOnASingleLine`, or `IncludeCategories` for project-specific needs.
+**Key concepts:** format-on-save, conform.nvim, .clang-format, BasedOnStyle, Google style, LLVM style, column limit
+**Tip:** For SBE-generated codec files that should not be reformatted, add `// clang-format off` and `// clang-format on` comments around generated sections, or exclude the generated directory in your conform config with a `condition` function that checks the file path.
+**Tool anchor:** `<Leader>cf` to format manually; format-on-save triggers automatically; `:ConformInfo` to verify formatter status
+**Drill:** Open a C++ file and intentionally misformat it (wrong indentation, braces on wrong line). Save the file and watch clang-format fix it automatically. Then create a `.clang-format` file at the project root with `BasedOnStyle: Google` and `ColumnLimit: 120`, save again, and verify the wider column limit takes effect.
+**Tags:** clang-format, formatting, conform, Google-style, format-on-save, C++
+
+### Python formatting and linting
+Your config uses a two-tool pipeline for Python: conform.nvim runs `ruff_format` on save for formatting, and nvim-lint runs `ruff` as a linter on `BufWritePost`, `BufReadPost`, and `InsertLeave` events. Ruff is an extremely fast Python linter and formatter written in Rust that replaces flake8, isort, pycodestyle, and many other tools. Ruff format produces Black-compatible output by default. You can configure ruff via `pyproject.toml` or `ruff.toml` with rule selections, per-file ignores, line length, and isort settings for import sorting.
+**Key concepts:** ruff_format, ruff linter, conform.nvim, nvim-lint, format-on-save, lint-on-event, pyproject.toml
+**Tip:** Ruff can fix many lint violations automatically. Use `<Leader>ca` on a ruff diagnostic to see available code actions, or run `ruff check --fix` from the terminal to batch-fix all auto-fixable issues in the project.
+**Tool anchor:** `<Leader>cf` for manual format; `:ConformInfo` for formatter status; lint runs automatically on save/read/insert-leave
+**Drill:** Open a Python file with unsorted imports and unused import statements. Save and observe ruff_format reformat the file and ruff surface the unused import as a diagnostic. Use `<Leader>ca` on the diagnostic to see if ruff offers an auto-fix code action.
+**Tags:** ruff, Python, formatting, linting, conform, nvim-lint
+
+### Rust formatting
+Your config uses conform.nvim to run `rustfmt` on save for Rust files. Rustfmt reads configuration from `rustfmt.toml` or `.rustfmt.toml` at the project root, with settings like `edition` (must match your Cargo.toml edition), `max_width` (default 100), `imports_granularity` (controls how `use` statements are merged), and `group_imports` (controls blank lines between import groups). Rustfmt enforces a consistent style across the Rust ecosystem, and most settings deviate only slightly from the defaults.
+**Key concepts:** rustfmt, rustfmt.toml, edition, max_width, imports_granularity, group_imports, format-on-save
+**Tip:** If rustfmt fails silently on save, check `:ConformInfo` -- rustfmt requires a valid Rust file to format. Syntax errors prevent formatting, so fix compilation errors first. You can also add `unstable_features = true` in `rustfmt.toml` with nightly rustfmt to access options like `imports_granularity = "Crate"`.
+**Tool anchor:** `<Leader>cf` for manual format; `:ConformInfo` for status; `rustfmt.toml` for project config
+**Drill:** Create a Rust file with multiple `use` statements from the same crate on separate lines. Add a `rustfmt.toml` with `imports_granularity = "Crate"` (requires nightly). Format and verify that the imports are merged into a single `use` statement with nested paths.
+**Tags:** rustfmt, Rust, formatting, conform, imports, edition
+
+### Language-specific treesitter
+Treesitter provides incremental parsing for syntax highlighting, code folding, and text objects. Your config installs parsers for `c`, `cpp`, `python`, `rust`, and many others, with highlighting enabled via a `FileType` autocmd that calls `vim.treesitter.start()`. Each language parser understands the full grammar, enabling features like accurate function/class boundaries for folding (`foldmethod=expr`, `foldexpr=v:lua.vim.treesitter.foldexpr()`), syntax-aware selections, and structural navigation. C++ treesitter handles templates, namespaces, and preprocessor directives; Python handles decorators and f-strings; Rust handles lifetime annotations and match arms.
+**Key concepts:** treesitter parsers, incremental parsing, syntax highlighting, foldexpr, language grammar, parser installation
+**Tip:** If syntax highlighting looks wrong after a Neovim or treesitter update, run `:TSUpdate` to rebuild all parsers. You can also check parser health with `:checkhealth nvim-treesitter` and see which queries are active with `:InspectTree` to view the concrete syntax tree.
+**Tool anchor:** `:InspectTree` to view the parse tree; `:TSUpdate` to update parsers; `:Inspect` to see highlight groups at cursor
+**Drill:** Open a C++ file with template code. Run `:InspectTree` to see how treesitter parses template parameters and function bodies. Then open a Python file and compare how the tree structure differs. Fold a function body with `za` and verify that folds follow treesitter boundaries rather than indentation.
+**Tags:** treesitter, syntax-highlighting, folding, parsing, C++, Python, Rust
+
+## intermediate
+
+### C++ debugging with DAP
+Your config sets up nvim-dap with the codelldb adapter for C/C++/Rust debugging, installed via Mason at `~/.local/share/nvim/mason/bin/codelldb`. The adapter runs as a server on a dynamic port. Your launch configuration prompts for the executable path using `vim.fn.input` with file completion rooted at `vim.fn.getcwd()`. Key DAP keymaps: `<Leader>Db` toggles breakpoints, `<Leader>DB` sets conditional breakpoints (prompts for an expression), `<Leader>Dc` continues execution, `<Leader>Do`/`<Leader>Di`/`<Leader>DO` step over/into/out, `<Leader>Dr` toggles the REPL for expression evaluation, and `<Leader>Du` toggles the dap-ui panels. The UI auto-opens on debug start and auto-closes on termination.
+**Key concepts:** codelldb adapter, launch config, breakpoints, conditional breakpoints, step commands, REPL, dap-ui
+**Tip:** For SBE codec debugging, compile with `-g -O0` to get reliable breakpoints and variable inspection. If you need to debug optimized code, use `-g -O2 -fno-omit-frame-pointer` -- some variables may be optimized out, but codelldb will show what is available. Set conditional breakpoints on message type fields to break only on specific CME template IDs.
+**Tool anchor:** `<Leader>Dc` to start debugging; `<Leader>Db` for breakpoints; `<Leader>Du` for UI; `<Leader>Dr` for REPL evaluation
+**Drill:** Build your SBE decoder with debug symbols, start a DAP session with `<Leader>Dc`, set a breakpoint at the message dispatch function with `<Leader>Db`, and step into a specific message handler with `<Leader>Di`. Use the REPL (`<Leader>Dr`) to evaluate a field value like `msg.templateId()` mid-execution.
+**Tags:** DAP, codelldb, C++, debugging, breakpoints, REPL, dap-ui
+
+### Python debugging with DAP
+Your config uses dap-python with the debugpy adapter, initialized via `require("dap-python").setup("python3")`. Debugpy is a full-featured Python debugger that supports breakpoints, step execution, watch expressions, and exception breakpoints. The dap-python plugin provides default launch configurations and adds test-runner integration for pytest. You can debug individual test functions, test files, or entire test suites from within Neovim. The same `<Leader>D*` keymaps work for Python as for C++ -- the adapter is selected based on filetype.
+**Key concepts:** debugpy, dap-python, test debugging, launch configuration, exception breakpoints, Python debugger
+**Tip:** To debug a specific pytest test, place your cursor on the test function and use the dap-python command to debug the nearest test. For scripts that require command-line arguments, add a custom configuration in your DAP setup with an `args` field or use the REPL to set them at runtime.
+**Tool anchor:** `<Leader>Dc` to start/continue; `<Leader>Db` for breakpoints; `<Leader>Du` for dap-ui; `:lua require('dap-python').test_method()` for test debugging
+**Drill:** Open a Python test file, place the cursor on a test function, and debug it with `:lua require('dap-python').test_method()`. Set a breakpoint inside the test, step through the logic, and use the dap-ui scopes panel to inspect local variables. Try setting a conditional breakpoint that only triggers when a loop variable exceeds a threshold.
+**Tags:** DAP, debugpy, Python, test-debugging, dap-python, breakpoints
+
+### Rust debugging with DAP
+Your config reuses the codelldb adapter for Rust debugging with `dap.configurations.rust = dap.configurations.cpp`. Codelldb handles Rust binaries natively, understanding Rust-specific types like `Vec`, `HashMap`, `Option`, and `Result` for pretty-printing in the variables panel. The key challenge is pointing DAP at the correct binary: Cargo builds to `target/debug/<binary-name>`, and workspace crates produce binaries at `target/debug/<crate-name>`. For library crates, you debug the test binary instead. Conditional breakpoints work with Rust expressions evaluated in the LLDB context.
+**Key concepts:** codelldb for Rust, cargo build targets, binary path, pretty-printing, test binary debugging, workspace paths
+**Tip:** To avoid typing the binary path every time, add a project-specific DAP configuration in a `.nvim.lua` local config file that hardcodes the path to your most commonly debugged binary: `dap.configurations.rust = {{ name = "My Binary", type = "codelldb", request = "launch", program = "target/debug/my_binary", cwd = "${workspaceFolder}" }}`.
+**Tool anchor:** `<Leader>Dc` prompts for binary path; `cargo build` first to ensure binary exists; `<Leader>Dr` for LLDB REPL commands
+**Drill:** Build a Rust binary with `cargo build`, start a DAP session with `<Leader>Dc`, enter the path `target/debug/<binary>`, set a breakpoint, and step through execution. In the dap-ui variables panel, expand a `Vec` and a `HashMap` to see codelldb's Rust-aware pretty-printing. Try evaluating a Rust expression in the REPL.
+**Tags:** DAP, codelldb, Rust, cargo, debugging, pretty-printing
+
+### C++ header/source navigation
+Clangd provides a `switchSourceHeader` command that toggles between corresponding header and source files (e.g., `decoder.h` to `decoder.cpp`). This is invaluable in C++ where the declaration/definition split across header/source pairs is the norm. The switching is intelligent: clangd uses the compilation database and include graph to find the correct pair, not just filename matching. You can bind this to a keymap via `vim.lsp.buf.execute_command` or use the clangd-extensions plugin. For non-standard layouts, clangd still resolves correctly if the files include each other.
+**Key concepts:** switchSourceHeader, header/source pairs, clangd command, include graph, file navigation, declaration/definition split
+**Tip:** Add a keymap specifically for header/source switching: `vim.keymap.set("n", "<Leader>ch", "<Cmd>ClangdSwitchSourceHeader<CR>")`. If you do not have clangd-extensions installed, use the raw LSP command: `vim.lsp.buf_request(0, "textDocument/switchSourceHeader", vim.lsp.util.make_text_document_params())` with a callback that opens the result.
+**Tool anchor:** `:ClangdSwitchSourceHeader` or custom keymap; `gd` for cross-file definition jumping; `grr` for references across header/source
+**Drill:** Open a C++ header file with several class declarations. Jump to the implementation of a method using `gd`, verify it lands in the correct `.cpp` file, then use header/source switching to toggle back to the header. Try this with a template class where the implementation is in the header itself and observe the behavior.
+**Tags:** clangd, header-source, navigation, switchSourceHeader, C++, declaration-definition
+
+### Python import management
+Pyright provides auto-import suggestions through code actions and completions. When you type a symbol that is not imported, pyright offers to add the import statement automatically. Your `<Leader>ca` keymap triggers code actions including auto-import. Pyright also reports unused imports as diagnostics (when configured), and ruff catches unused imports via its F401 rule. Stub files (`.pyi`) provide type information for libraries without inline types, and pyright resolves them from typeshed (bundled) or `py.typed` packages. Organizing imports (sorting and grouping) is handled by ruff_format on save.
+**Key concepts:** auto-import, code actions, unused imports, stub files, typeshed, py.typed, import organization
+**Tip:** If pyright does not suggest auto-imports for a third-party library, the library may lack `py.typed` marker or type stubs. Install stubs with `pip install types-<package>` (e.g., `types-requests`), or create a `pyrightconfig.json` with `"stubPath": "./stubs"` pointing to your custom stubs directory.
+**Tool anchor:** `<Leader>ca` for auto-import code actions; ruff_format organizes imports on save; `]e`/`[e` to navigate unused import diagnostics
+**Drill:** Open a Python file and type `Path(".")` without importing `pathlib`. Observe pyright's diagnostic, then use `<Leader>ca` to trigger the auto-import code action. Save the file and verify ruff_format sorts the new import into the correct position among existing imports.
+**Tags:** pyright, auto-import, code-actions, stub-files, unused-imports, ruff
+
+### Rust trait and impl navigation
+Rust-analyzer excels at navigating trait hierarchies and implementations. `gd` on a trait method call goes to the trait definition; `gri` (go-to-implementation via Telescope) shows all implementations of a trait across the workspace; `grr` shows all references. For generic code using trait bounds, rust-analyzer resolves the concrete implementations and lets you navigate to them. The type hierarchy feature shows the relationship between traits and their implementors, which is especially useful for understanding complex trait hierarchies in codebases using the builder or strategy pattern.
+**Key concepts:** trait navigation, go-to-implementation, trait hierarchy, generic resolution, impl blocks, Telescope LSP pickers
+**Tip:** When working with a trait that has many implementations (like `serde::Serialize`), the Telescope references picker (`grr`) can be overwhelming. Use `gri` instead to see only the `impl` blocks, and use Telescope's fuzzy filtering to narrow to the specific type you care about.
+**Tool anchor:** `gd` for trait definition; `gri` for implementations via Telescope; `grr` for references; `gO` for document symbols showing all `impl` blocks
+**Drill:** Open a Rust file with a trait definition and several implementors. Use `gri` on the trait name to see all implementations in Telescope. Navigate to one, then use `grr` on a method to find all call sites. Use `gO` (document symbols) to get an overview of all `impl` blocks in the current file.
+**Tags:** rust-analyzer, traits, implementation, navigation, Telescope, type-hierarchy
+
+### Language-specific text objects
+Your treesitter-textobjects config provides `af`/`if` (function outer/inner), `ac`/`ic` (class outer/inner), and `aa`/`ia` (parameter outer/inner) text objects that work across C++, Python, and Rust. The move keymaps `]m`/`[m` navigate between function starts, `]]`/`[[` between class starts, and `]M`/`[M` between function ends. The swap keymap `<Leader>a`/`<Leader>A` swaps parameters. These text objects adapt to each language: in C++, "class" matches `class`/`struct`/`namespace`; in Rust, it matches `struct`/`enum`/`impl`; in Python, it matches `class` definitions. The function text object captures the entire function including decorators in Python and attributes in Rust.
+**Key concepts:** treesitter text objects, function/class/parameter, move motions, swap, language-aware selection, operator-pending
+**Tip:** Combine text objects with operators for powerful editing: `daf` deletes an entire function, `cif` changes the function body, `via` selects a function parameter, and `<Leader>a` swaps it with the next parameter. These work identically across C++, Python, and Rust because treesitter understands each grammar.
+**Tool anchor:** `af`/`if` for functions, `ac`/`ic` for classes, `aa`/`ia` for parameters; `]m`/`[m` for function navigation; `<Leader>a` for parameter swap
+**Drill:** Open a C++ file with a class containing multiple methods. Use `]m` to hop between methods, `daf` to delete one, `yac` to yank the entire class, and `<Leader>a` to swap two function parameters. Then open the equivalent Rust file and verify the same motions work with `struct`/`impl`/`fn` boundaries.
+**Tags:** treesitter-textobjects, text-objects, motions, swap, function, class, parameter
+
+### Compiler error navigation
+The quickfix list is Neovim's mechanism for navigating compiler errors, grep results, and any structured list of file locations. Your config provides `[q`/`]q` to move between quickfix entries, and `<Leader>lq` opens the quickfix in Trouble for a richer UI. The `:make` command runs `makeprg` (default `make`) and parses output through `errorformat` to populate the quickfix list. For C++ with CMake, set `makeprg` to `cmake --build build` and clangd diagnostics overlap with build errors. For Rust, `cargo build` output is parsed natively. Your Trouble plugin shows quickfix entries with syntax highlighting and preview.
+**Key concepts:** quickfix list, errorformat, makeprg, :make, Trouble, diagnostic jump, [q/]q navigation
+**Tip:** You can populate the quickfix list from any command: `:cexpr system('cargo build 2>&1')` captures cargo build errors, and `:grep pattern` uses ripgrep (your `grepprg`) to search and jump to results. Combine with Trouble's `<Leader>lq` for a persistent, filterable error list.
+**Tool anchor:** `[q`/`]q` for quickfix navigation; `<Leader>lq` for Trouble quickfix; `]e`/`[e` for diagnostic errors; `:make` for build integration
+**Drill:** Set `vim.opt.makeprg = "cmake --build build"` for your C++ project, run `:make`, and navigate the resulting errors with `]q`/`[q`. Open the quickfix in Trouble with `<Leader>lq`. Then use `]e`/`[e` to compare LSP diagnostics with build errors -- some build errors appear only after a full compile, not in clangd's incremental analysis.
+**Tags:** quickfix, errorformat, make, Trouble, diagnostics, compiler-errors
+
+### Multi-language projects
+When a project contains C++, Python, and Rust code (common in quantitative finance for core engine, analysis scripts, and tooling), Neovim attaches different LSP servers to different buffers based on filetype. Your config enables clangd, pyright, rust-analyzer, and lua_ls simultaneously. Each server operates independently with its own workspace root detection: clangd looks for `compile_commands.json` or `.clangd`, pyright looks for `pyrightconfig.json` or `pyproject.toml`, and rust-analyzer looks for `Cargo.toml`. In a monorepo, you may need per-directory configuration to ensure each server finds the right root.
+**Key concepts:** multi-LSP, workspace root detection, per-filetype server, monorepo patterns, independent LSP instances, configuration files
+**Tip:** In a monorepo with `src/cpp/`, `src/python/`, and `src/rust/` directories, each LSP server needs its configuration file at the right level. Place `compile_commands.json` at the C++ subtree root, `pyrightconfig.json` at the Python subtree root, and ensure `Cargo.toml` is at the Rust subtree root. Neovim's `vim.lsp.config` applies globally, but workspace roots are per-server.
+**Tool anchor:** `:LspInfo` to see all attached servers and their root directories; `:LspLog` to debug root detection; `gd` should navigate within the correct language context
+**Drill:** Open files in three different languages from the same project. Run `:LspInfo` in each buffer to verify the correct LSP server is attached with the correct workspace root. Test cross-file navigation (`gd`) within each language and confirm that the servers do not interfere with each other.
+**Tags:** multi-language, monorepo, workspace-root, LSP, clangd, pyright, rust-analyzer
+
+### Snippet patterns per language
+Neovim 0.10+ includes a built-in snippet engine via `vim.snippet` that integrates with LSP completion. Your config maps `<C-l>`/`<C-h>` in insert and select modes to jump forward/backward through snippet placeholders. LSP servers provide language-specific snippets: clangd offers C++ snippets for function signatures with placeholders for arguments (enabled by `--function-arg-placeholders`), pyright provides Python import and function snippets, and rust-analyzer provides snippets for match arms, if-let, and derive macros. You can also define custom snippets in JSON files under your config directory.
+**Key concepts:** vim.snippet, LSP snippets, placeholder jumping, function-arg-placeholders, custom snippets, snippet expansion
+**Tip:** When clangd completes a function with argument placeholders, the cursor lands on the first argument. Press `<C-l>` to jump to the next placeholder and `<C-h>` to go back. For frequently used patterns like SBE field accessors or message builders, create custom snippets in `~/.config/nvim/snippets/cpp.json` to avoid repetitive typing.
+**Tool anchor:** `<C-l>` to jump forward, `<C-h>` to jump backward in snippet placeholders; `<C-n>` to trigger completion with snippets; `<Tab>` to confirm
+**Drill:** Open a C++ file and type a function name that takes multiple arguments. Accept the completion with `<Tab>` and observe the argument placeholders. Use `<C-l>` to jump through each placeholder, filling in values. Then create a simple custom snippet for a common SBE pattern and test that it appears in completions.
+**Tags:** snippets, vim-snippet, completion, placeholders, C++, Python, Rust
+
+## advanced
+
+### C++ template navigation
+Navigating C++ template code with clangd requires understanding how the LSP handles template instantiations, concepts, SFINAE, and constexpr-if branches. Clangd indexes template specializations and can navigate from a template instantiation site to the specific specialization that is selected. Go-to-definition on a concept-constrained function shows the concept definition, and clangd reports SFINAE failures as diagnostics when template substitution fails. However, clangd analyzes templates at the declaration level, not per-instantiation, so some errors only appear during compilation. Deeply nested template metaprogramming (common in SBE codec generators) can slow clangd indexing.
+**Key concepts:** template specialization, concept navigation, SFINAE diagnostics, constexpr-if, template instantiation, index performance
+**Tip:** If clangd is slow or consuming excessive memory on a template-heavy SBE project, add `--pch-storage=memory` and `--limit-references=100` to your clangd flags. For generated codec headers with thousands of template instantiations, consider adding the generated directory to `.clangd` config with `CompileFlags: Add: [-ferror-limit=0]` to prevent clangd from giving up on complex headers.
+**Tool anchor:** `gd` on template instantiation to see specialization; `grr` to find all instantiation sites; `:LspInfo` to monitor clangd memory usage
+**Drill:** Open an SBE-generated codec header with template specializations for different message types. Use `gd` on a template type to navigate to its primary template, then `gri` to find all specializations. Introduce a concept constraint error and observe how clangd reports the failure compared to how the compiler reports it with `:make`.
+**Tags:** templates, concepts, SFINAE, clangd, template-navigation, SBE, constexpr-if
+
+### Python type checking strategies
+Pyright supports multiple type checking modes: off (no type checking), basic (default, catches obvious errors), standard (stricter, requires more type annotations), and strict (enforces full typing including return types, no implicit Any, and no untyped function calls). Your default pyright config uses basic mode. For market data analysis scripts where correctness matters, upgrading to strict mode catches subtle bugs like None-value access and incorrect DataFrame column types. Strategies include gradual adoption with per-file `# pyright: strict` comments, custom type stubs for untyped libraries, and the `py.typed` marker for your own packages.
+**Key concepts:** type checking modes, strict mode, type stubs, py.typed, gradual typing, per-file overrides, overloads
+**Tip:** Enable strict mode per-file with `# pyright: strict` at the top of critical modules rather than project-wide. This lets you enforce strict typing on core logic while keeping loose typing on throwaway scripts. Use `reveal_type()` calls (pyright shows the inferred type as a diagnostic) to debug complex type inference.
+**Tool anchor:** `pyrightconfig.json` with `"typeCheckingMode": "strict"`; `# pyright: strict` per-file; `<Leader>ca` for type-related code actions
+**Drill:** Take a Python module with no type annotations and add `# pyright: strict` at the top. Observe the flood of diagnostics. Gradually add type annotations starting with function signatures, then local variables, using `reveal_type()` to understand what pyright infers. Track how many diagnostics you eliminate with each annotation pass.
+**Tags:** pyright, strict-mode, type-stubs, gradual-typing, py-typed, type-checking
+
+### Rust macro expansion
+Rust-analyzer provides an `expandMacro` command that shows the expanded output of any macro invocation, which is essential for debugging derive macros, procedural macros, and complex declarative macros. You can invoke this via code actions (`<Leader>ca`) when the cursor is on a macro call. For procedural macros (enabled in your config with `procMacro.enable = true`), rust-analyzer actually runs the proc macro to get the expansion, which means it needs to build the proc macro crate first. Declarative macros (`macro_rules!`) are expanded statically. Understanding expansions is critical for debugging derive macros like `serde::Serialize` or custom protocol decoders.
+**Key concepts:** expandMacro, procedural macros, declarative macros, macro_rules!, derive expansion, proc macro build
+**Tip:** If rust-analyzer shows errors inside a macro expansion but the code compiles fine, the issue is usually that rust-analyzer's proc macro server is out of sync. Run `:LspRestart` to force a rebuild of proc macro crates, or check `:LspLog` for proc macro server errors.
+**Tool anchor:** `<Leader>ca` on a macro invocation to expand; `:LspLog` for proc macro server status; `gd` on expanded types
+**Drill:** Open a Rust file with a `#[derive(Debug, Serialize)]` struct. Place the cursor on `Serialize` and use `<Leader>ca` to expand the macro. Read the generated `impl Serialize` code to understand what serde produces. Then create a simple `macro_rules!` macro and expand it to verify the expansion matches your expectation.
+**Tags:** macro-expansion, proc-macro, macro-rules, rust-analyzer, serde, derive
+
+### Cross-compilation LSP
+When developing for a target different from your host (e.g., cross-compiling C++ for ARM or Linux from macOS, or building Rust for embedded targets), LSP servers need to know the target sysroot and compiler flags. For clangd, add `--query-driver=/path/to/cross-compiler` and set the sysroot in `compile_commands.json` via `-isysroot` or `--sysroot` flags. For rust-analyzer, set `cargo.target` to the cross-compilation target and `cargo.sysroot` to the target sysroot. Without correct sysroot configuration, LSP will report false errors for all platform-specific headers and standard library types.
+**Key concepts:** sysroot, cross-target, query-driver, cargo target, platform headers, cross-compilation flags
+**Tip:** For CME MDP 3.0 development targeting Linux from macOS, generate `compile_commands.json` on the Linux build machine and copy it to your macOS development machine. Edit the compiler path and sysroot entries to point at your macOS-installed cross-compilation toolchain, or use a devcontainer where the build environment matches.
+**Tool anchor:** `.clangd` config file for per-project clangd settings; `"rust-analyzer.cargo.target"` for Rust cross-compilation; `:LspInfo` to verify
+**Drill:** If you have a cross-compilation toolchain available, configure clangd to use it by adding `--query-driver=**/aarch64-*-gcc` to your clangd flags and updating `compile_commands.json` sysroot paths. Verify that platform-specific headers resolve correctly and diagnostics are accurate for the target platform.
+**Tags:** cross-compilation, sysroot, query-driver, clangd, rust-analyzer, target-platform
+
+### Test runner integration
+Neotest is a test runner framework that provides language-specific adapters for running tests from within Neovim. Adapters exist for C++ (neotest-ctest, neotest-gtest), Python (neotest-python using pytest), and Rust (neotest-rust using cargo test). Each adapter discovers test functions, allows running individual tests, test files, or entire suites, and displays results inline with pass/fail indicators. Combined with DAP, you can debug individual failing tests. While your current config uses dap-python's built-in test debugging for Python, neotest provides a unified interface across all three languages with consistent keymaps.
+**Key concepts:** neotest, language adapters, test discovery, inline results, test/file/suite runners, DAP integration
+**Tip:** Set up neotest with adapters for your primary languages and bind `<Leader>Tn` to run the nearest test, `<Leader>Tf` for the current file, and `<Leader>Td` to debug the nearest test via DAP. This gives you a consistent testing workflow across C++, Python, and Rust without leaving Neovim.
+**Tool anchor:** `:Neotest run` for nearest test; `:Neotest output` for test output; `:Neotest summary` for test tree view
+**Drill:** Install neotest with the pytest adapter and a C++ test adapter. Write a simple pytest test and a Google Test, then run each from Neovim using neotest keymaps. Compare the inline result display. Debug a failing test by running it through neotest's DAP integration.
+**Tags:** neotest, testing, pytest, cargo-test, gtest, DAP-integration
+
+### REPL-driven development
+Terminal-based REPL workflows in Neovim let you send code selections to an interactive interpreter for rapid experimentation. Your toggleterm.nvim config (`<Leader>tt` for floating terminal, `<Esc><Esc>` to dismiss) provides the terminal infrastructure. For Python, you can send selections to an IPython or Python REPL running in a toggleterm instance. For Rust, tools like `evcxr` provide a REPL. For C++ there is no practical REPL, but you can compile and run single-file experiments via `:!g++ -std=c++20 -o /tmp/test % && /tmp/test`. Iron.nvim or vim-slime formalize the send-to-REPL pattern with language-specific REPL commands.
+**Key concepts:** send-to-REPL, toggleterm, IPython, evcxr, interactive experimentation, terminal channels, vim-slime
+**Tip:** For quick Python experiments with market data structures, open a toggleterm with `<Leader>tt`, start `ipython`, and use visual selection with `:'<,'>w !python3` to send code blocks to the interpreter. For more structured REPL workflows, consider iron.nvim which manages REPL sessions and provides `<Leader>sc` (send-current-line) and `<Leader>sf` (send-file) keymaps.
+**Tool anchor:** `<Leader>tt` for floating terminal; `:'<,'>!python3` to pipe selection through Python; `vim.system` for programmatic command execution
+**Drill:** Open a Python file and a floating terminal side-by-side (use `<Leader>tt` then resize or switch to horizontal). Start IPython in the terminal. Select a few lines of Python code in visual mode and send them to the REPL with `:'<,'>w !python3`. Compare this workflow with running the entire file via `:!python3 %`.
+**Tags:** REPL, toggleterm, IPython, interactive, send-to-terminal, experimentation
+
+### Build system integration
+Integrating your build system with Neovim's `:make` command and quickfix list creates a seamless edit-compile-fix cycle. For C++ with CMake, set `makeprg=cmake\ --build\ build\ --\ -j$(nproc)` to build with parallel jobs. For Rust, `makeprg=cargo\ build` works natively because Neovim's default errorformat handles cargo output. For Python, `makeprg=python3\ -m\ pytest` captures test failures as quickfix entries. You can use autocommands to set `makeprg` per filetype, or use project-local `.nvim.lua` files for per-project build commands. CMake presets (`CMakePresets.json`) let you define debug/release/sanitizer builds selectable at runtime.
+**Key concepts:** makeprg, errorformat, per-filetype build, CMake presets, cargo build, pytest, quickfix, :make
+**Tip:** Create a per-project `.nvim.lua` file (enabled with `vim.opt.exrc`) that sets `makeprg` and adds custom commands: `vim.api.nvim_create_user_command("Build", "make", {})` and `vim.api.nvim_create_user_command("Test", "set makeprg=ctest\\ --test-dir\\ build | make", {})`. This gives you project-specific `:Build` and `:Test` commands with quickfix integration.
+**Tool anchor:** `:make` to build; `[q`/`]q` to navigate errors; `<Leader>lq` for Trouble quickfix; `:compiler` to set errorformat presets
+**Drill:** Configure `makeprg` for your SBE project's CMake build. Run `:make` and navigate compile errors with `]q`. Then switch `makeprg` to run CTest and verify that test failures also populate the quickfix. Compare the quickfix-based workflow with relying solely on clangd diagnostics for finding errors.
+**Tags:** make, cmake, cargo, build-system, quickfix, errorformat, project-config
+
+### Refactoring per language
+LSP-powered refactoring capabilities vary by language server. Clangd supports rename (`grn` built-in), extract function, and inline variable for C++. Pyright supports rename and organize imports for Python. Rust-analyzer supports rename, extract function, extract variable, inline, and move item for Rust. Your `<Leader>ca` keymap surfaces available code actions including refactoring actions. The effectiveness depends on the LSP server: rust-analyzer has the richest refactoring support, clangd is moderate, and pyright is limited to rename and import management. For operations not supported by LSP, treesitter-based tools like refactoring.nvim fill gaps.
+**Key concepts:** LSP rename, extract function, inline variable, code actions, refactoring.nvim, per-server capabilities
+**Tip:** Before renaming a symbol with `grn`, use `grr` (references) to preview all locations that will change. For C++ renames across header/source pairs, clangd handles this correctly through the compilation database -- but verify with git diff after the rename to catch any files outside the indexed project.
+**Tool anchor:** `grn` for rename; `<Leader>ca` for code actions including extract/inline; `grr` to preview references before renaming
+**Drill:** In a Rust file, select a block of code and use `<Leader>ca` to extract it into a new function. Rename the function with `grn` and verify all call sites update. Then try the same extract-function operation in a C++ file with clangd and compare the refactoring capabilities and reliability.
+**Tags:** refactoring, rename, extract-function, code-actions, clangd, rust-analyzer, pyright
+
+### Performance profiling integration
+Connecting profiling tool output to your Neovim workflow closes the loop between measurement and editing. Perf, Valgrind, and sanitizer outputs can be parsed into quickfix entries using custom errorformat patterns or external parsers. Flamegraph SVGs can be opened in a browser from Neovim with `:!open`. Compiler sanitizer output (AddressSanitizer, UndefinedBehaviorSanitizer) includes file:line:column format that Neovim's default errorformat can parse directly into the quickfix list. For `perf annotate` output, the disassembly treesitter parser (in your installed parsers) highlights assembly code.
+**Key concepts:** profiling output, quickfix integration, errorformat, flamegraph, sanitizer output, perf annotate, disassembly parser
+**Tip:** Capture sanitizer output directly into the quickfix list: `:cexpr system('./build/tests/my_test 2>&1')` when built with `-fsanitize=address,undefined`. The AddressSanitizer output includes file:line format that Neovim parses automatically, jumping you directly to the source of memory errors. This is invaluable for debugging SBE codec buffer overflows.
+**Tool anchor:** `:cexpr system('command')` to capture output in quickfix; `[q`/`]q` to navigate; `:!perf annotate -s func` for hot-function analysis
+**Drill:** Build your SBE decoder with `-fsanitize=address -g`, run the test suite with `:cexpr system('./build/test_decoder 2>&1')`, and navigate any sanitizer findings with `]q`. Then run `perf record` on a benchmark, generate a flamegraph, and open it from Neovim with `:!open flamegraph.svg`.
+**Tags:** profiling, perf, sanitizer, flamegraph, quickfix, errorformat, disassembly
+
+### SBE/market-data C++ workflow
+Editing SBE (Simple Binary Encoding) codec code and CME MDP 3.0 message handlers in Neovim requires a workflow optimized for generated code, large template instantiations, and low-latency C++ patterns. SBE codecs are typically generated from XML schema files, producing header-only C++ with heavy template usage. Clangd needs the correct include paths to the generated headers in `compile_commands.json`. Navigation patterns include jumping between message handler dispatch (switch on template ID), individual field accessor implementations, and the schema XML source. Common editing operations include adding new message type handlers, modifying field extraction logic, and updating order book data structures.
+**Key concepts:** SBE codecs, CME MDP 3.0, generated code, template ID dispatch, field accessors, schema XML, order book, low-latency
+**Tip:** Create a project-local `.nvim.lua` that sets up SBE-specific keymaps: a command to open the corresponding XML schema element when the cursor is on a generated type, `makeprg` pointing at your CMake build with the SBE code generator as a dependency, and a DAP configuration that feeds recorded market data as input. Exclude the generated codec directory from formatting with a conform condition.
+**Tool anchor:** `gd` for navigating SBE field accessors; `grr` for finding all handler sites for a template ID; `:make` for building with codegen; `<Leader>Db` for breakpoints in message handlers
+**Drill:** Open your SBE message handler that dispatches on CME MDP template IDs. Use `gd` to jump into a generated codec accessor. Set a conditional breakpoint (`<Leader>DB`) that triggers only for a specific template ID (e.g., `templateId == 32`). Build with `:make`, start a debug session with recorded market data, and step through the decode path for that specific message type.
+**Tags:** SBE, CME-MDP, market-data, generated-code, template-dispatch, low-latency, C++
