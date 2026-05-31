@@ -1,7 +1,7 @@
 {
   "name": "neovim",
   "version": "1.0.0",
-  "description": "Neovim 0.12+ mastery system — modal editing, motions, LSP, treesitter, Lua config, language workflows (C++/Python/Rust). 180 topics across 6 domains, cheatsheets, and config audit. Anchored to the user's actual config at ~/x/dotfiles/.config/nvim/.",
+  "description": "Neovim 0.12+ mastery system — modal editing, motions, LSP, treesitter, Lua config, language workflows (C++/Python/Rust). 180 topics across 6 domains, cheatsheets, and config audit. Anchored to the user's actual config at ~/x/dotfiles/.config/nvim/. Shared data (topics/, data/, cheatsheets/, references/) lives at the plugin root, NOT inside individual skills/.",
   "author": {
     "name": "kairo5"
   },

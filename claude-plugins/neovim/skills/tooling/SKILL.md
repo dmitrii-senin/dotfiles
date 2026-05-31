@@ -34,6 +34,20 @@ Their config lives at `~/x/dotfiles/.config/nvim/` (symlinked from `~/.config/nv
 
 ---
 
+## File layout — IMPORTANT
+
+All shared data lives at the **plugin root** (`~/.claude/local-plugins/neovim/`), NOT inside `skills/tooling/`. Never create files under the skill directory — only `SKILL.md` belongs there.
+
+| Path (relative to plugin root) | Purpose |
+|---|---|
+| `topics/tooling-bank.md` | Topic bank for this domain |
+| `data/progress.json` | Progress across ALL domains (shared) |
+| `data/session-log.md` | Session log across ALL domains (shared) |
+| `data/weak-areas.json` | Weak areas across ALL domains (shared) |
+| `references/keymaps.md` | User's current keymaps (shared) |
+
+---
+
 ## Knowledge sources
 
 **Primary (authoritative):**

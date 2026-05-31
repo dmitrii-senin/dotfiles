@@ -16,6 +16,20 @@ The user is a C++ core infrastructure engineer on a market data team (SBE + CME 
 
 ---
 
+## File layout — IMPORTANT
+
+All reference data lives at the **plugin root** (`~/.claude/local-plugins/neovim/`), NOT inside `skills/audit/`. Never create files under the skill directory — only `SKILL.md` belongs there.
+
+| Path (relative to plugin root) | Purpose |
+|---|---|
+| `references/current-config-snapshot.md` | Cached config inventory |
+| `references/customization.md` | Adaptation rules + upgrade candidates |
+| `references/anti-patterns.md` | Forbidden patterns table |
+| `references/keymaps.md` | Keymap taxonomy and rules |
+| `references/architecture.md` | Plugin category matrix and swap criteria |
+
+---
+
 ## Knowledge sources
 
 **Primary:**
