@@ -36,15 +36,15 @@ Their config lives at `~/x/dotfiles/.config/nvim/` (symlinked from `~/.config/nv
 
 ## File layout — IMPORTANT
 
-All shared data lives at the **plugin root** (`~/.claude/local-plugins/neovim/`), NOT inside `skills/tooling/`. Never create files under the skill directory — only `SKILL.md` belongs there.
+All shared data lives under the `neovim` plugin root, NOT inside `skills/tooling/`. Never create files under the skill directory — only `SKILL.md` belongs there. All paths below use the `neovim/` prefix to mean the plugin root directory.
 
-| Path (relative to plugin root) | Purpose |
+| Path | Purpose |
 |---|---|
-| `topics/tooling-bank.md` | Topic bank for this domain |
-| `data/progress.json` | Progress across ALL domains (shared) |
-| `data/session-log.md` | Session log across ALL domains (shared) |
-| `data/weak-areas.json` | Weak areas across ALL domains (shared) |
-| `references/keymaps.md` | User's current keymaps (shared) |
+| `neovim/topics/tooling-bank.md` | Topic bank for this domain |
+| `neovim/data/progress.json` | Progress across ALL domains (shared) |
+| `neovim/data/session-log.md` | Session log across ALL domains (shared) |
+| `neovim/data/weak-areas.json` | Weak areas across ALL domains (shared) |
+| `neovim/references/keymaps.md` | User's current keymaps (shared) |
 
 ---
 
@@ -75,7 +75,7 @@ Parse `$ARGUMENTS`:
 | `mm` | Propose 10 topics from bank -> user picks -> 15-30 min session |
 | `mm "<topic>"` | Jump to a specific topic by title (fuzzy match) |
 | `mm random` | Random uncompleted topic, skip menu |
-| `cheatsheet` | Show gitsigns/DAP keymaps extracted from `references/keymaps.md` |
+| `cheatsheet` | Show gitsigns/DAP keymaps extracted from `neovim/references/keymaps.md` |
 | `cheatsheet <topic>` | Show specific cheatsheet: `git`, `dap`, `terminal` |
 | `status` | Progress dashboard for tooling domain |
 | `help` | Usage reference |
@@ -89,8 +89,8 @@ If the input is ambiguous, say so and offer 2-3 specific options. Do not guess.
 
 ### Topic selection flow
 
-1. Read the topic bank: `topics/tooling-bank.md` (relative to plugin root).
-2. Read `data/progress.json` to find completed topics for the `tooling` domain.
+1. Read the topic bank: `neovim/topics/tooling-bank.md`.
+2. Read `neovim/data/progress.json` to find completed topics for the `tooling` domain.
 3. Select **10 topics** to propose:
    - **8 new topics** -- uncompleted, varied difficulty. Balance across git, DAP, build, and performance categories.
    - **2 previously completed topics** -- marked with `(revisit)` for reinforcement. Pick oldest-completed or lowest-scored.
@@ -141,7 +141,7 @@ When the user specifies `random`: pick one uncompleted topic at random, skip the
 
 5. **Takeaway** -- one sentence to internalize. Make it actionable.
 
-6. **Log** -- update `data/progress.json` and append to `data/session-log.md`. Show current streak.
+6. **Log** -- update `neovim/data/progress.json` and append to `neovim/data/session-log.md`. Show current streak.
 
 **Critical: Never advance past the drill or review without the user's response.**
 
@@ -150,9 +150,9 @@ When the user specifies `random`: pick one uncompleted topic at random, skip the
 ## cheatsheet mode -- Quick Reference
 
 1. Determine which cheatsheet to show based on argument:
-   - No argument -> show combined git + DAP keymaps from `references/keymaps.md`
-   - `git` -> extract gitsigns keymaps from `references/keymaps.md` (`<Leader>g*` maps + `]h/[h` + `ih` text object)
-   - `dap` -> extract DAP keymaps from `references/keymaps.md` (`<Leader>d*` maps)
+   - No argument -> show combined git + DAP keymaps from `neovim/references/keymaps.md`
+   - `git` -> extract gitsigns keymaps from `neovim/references/keymaps.md` (`<Leader>g*` maps + `]h/[h` + `ih` text object)
+   - `dap` -> extract DAP keymaps from `neovim/references/keymaps.md` (`<Leader>d*` maps)
    - `terminal` -> extract terminal-related maps and toggleterm config
    - Any other value -> search for fuzzy match, or say "available: git, dap, terminal"
 2. Display the content. Keep it terse -- this is a quick reference, not a tutorial.
@@ -161,9 +161,9 @@ When the user specifies `random`: pick one uncompleted topic at random, skip the
 
 ## status mode -- Progress Dashboard
 
-1. Read `data/progress.json`.
-2. Read `topics/tooling-bank.md` to count total topics by difficulty.
-3. Read `data/weak-areas.json` for drill performance.
+1. Read `neovim/data/progress.json`.
+2. Read `neovim/topics/tooling-bank.md` to count total topics by difficulty.
+3. Read `neovim/data/weak-areas.json` for drill performance.
 4. Display:
    ```
    /neovim:tooling -- 5 sessions . Streak: 2 days (best: 4)
@@ -216,7 +216,7 @@ CROSS-REFERENCES:
 ## Empty input behavior
 
 When `/neovim:tooling` is invoked with no arguments:
-1. Read `data/progress.json` (create with defaults if missing).
+1. Read `neovim/data/progress.json` (create with defaults if missing).
 2. Show compact status: sessions, streak, last topic.
 3. Suggest a mode based on what the user hasn't tried or done recently. Bias toward git and DAP topics as these are the most frequently used tools.
 
@@ -224,9 +224,9 @@ When `/neovim:tooling` is invoked with no arguments:
 
 ## Shared state files
 
-All state lives in `data/` at the plugin root. Create with defaults if missing.
+All state lives in `neovim/data/`. Create with defaults if missing.
 
-### data/progress.json
+### neovim/data/progress.json
 
 Each completed topic entry:
 ```json
@@ -241,7 +241,7 @@ Each completed topic entry:
 
 **Score calculation:** combined drill + review score as a decimal (0.0-1.0).
 
-### data/session-log.md
+### neovim/data/session-log.md
 
 Append per session:
 ```markdown
@@ -251,7 +251,7 @@ Append per session:
 - Takeaway: <the one-liner>
 ```
 
-### data/weak-areas.json
+### neovim/data/weak-areas.json
 
 Each subtopic entry: `{"misses": 3, "attempts": 5, "last_seen": "2026-05-31", "last_score": 0.4}`
 
@@ -263,7 +263,7 @@ Each subtopic entry: `{"misses": 3, "attempts": 5, "last_seen": "2026-05-31", "l
 
 **gitsigns.nvim deep knowledge:**
 1. **Hunk navigation** -- `]h`/`[h` jump between hunks (normal + visual). Pair with count for multi-hunk jumps.
-2. **Hunk actions** -- full `<Leader>g*` prefix (stage/reset/undo/preview/blame/diff). See `references/keymaps.md` for the complete map. Key insight: `<Leader>gs` in visual mode stages only selected lines within a hunk -- partial staging without leaving Neovim.
+2. **Hunk actions** -- full `<Leader>g*` prefix (stage/reset/undo/preview/blame/diff). See `neovim/references/keymaps.md` for the complete map. Key insight: `<Leader>gs` in visual mode stages only selected lines within a hunk -- partial staging without leaving Neovim.
 3. **The `ih` text object** -- select the current hunk. Composable: `dih` deletes a hunk, `vih` selects it. Workflow: preview with `<Leader>gp`, then `dih` to discard.
 4. **Word diff** -- gitsigns can show word-level diffs in the preview popup. Useful for single-character changes.
 
@@ -279,7 +279,7 @@ Each subtopic entry: `{"misses": 3, "attempts": 5, "last_seen": "2026-05-31", "l
 1. **Adapter vs configuration** -- adapters define HOW to talk to a debugger (codelldb, debugpy). Configurations define WHAT to debug (program, args, cwd, env). The user has codelldb (mason, shared C/C++/Rust) and debugpy (nvim-dap-python with `python3`).
 2. **Launch vs attach** -- launch starts the program (user's default C++ config); attach connects to a running process by PID (essential for long-running market data services).
 3. **DAP UI** -- auto-opens on attach/launch, auto-closes on terminate. Panels: scopes, breakpoints, stacks, watches, REPL, console.
-4. **Keymap taxonomy** (`<Leader>d*`) -- see `references/keymaps.md`. Session control, stepping, breakpoints, UI toggle.
+4. **Keymap taxonomy** (`<Leader>d*`) -- see `neovim/references/keymaps.md`. Session control, stepping, breakpoints, UI toggle.
 
 **Advanced DAP workflows:**
 1. **Conditional breakpoints** -- `<Leader>dB` for condition expressions ("break when `sequence_number > 5000`"). Also: hit-count breakpoints and logpoints (print without stopping).
@@ -314,7 +314,7 @@ Each subtopic entry: `{"misses": 3, "attempts": 5, "last_seen": "2026-05-31", "l
 1. **lazy.nvim maintenance** -- `:Lazy update` (review changelog first), `:Lazy sync`, `:Lazy check`, `:Lazy clean`. Commit `lazy-lock.json` for reproducibility.
 2. **Mason tool management** -- `:Mason` (`<Leader>M`), `mason-tool-installer` declarative list with `run_on_start`. Mason does not pin versions by default.
 3. **When to update vs pin** -- update weekly during low-stakes periods. Never before a deploy. After updating: `:checkhealth`, open each language, verify LSP + formatting.
-4. **Config evolution** -- one change per commit in `~/x/dotfiles/.config/nvim/`. Periodically run `/neovim:audit`. Track Neovim release notes for builtins absorbing plugin functionality. Drop a plugin when a builtin covers 80% of its value (see `references/architecture.md` principle 2).
+4. **Config evolution** -- one change per commit in `~/x/dotfiles/.config/nvim/`. Periodically run `/neovim:audit`. Track Neovim release notes for builtins absorbing plugin functionality. Drop a plugin when a builtin covers 80% of its value (see `neovim/references/architecture.md` principle 2).
 
 ---
 
@@ -354,8 +354,8 @@ When a topic touches another domain, note it explicitly:
 Other refusals:
 - **No distro-first answers** (LazyVim, NvChad, AstroNvim, Kickstart).
 - **No plugin recommendations without rationale.** Every suggestion needs a problem statement.
-- **No keymap drift.** Check `references/keymaps.md` before proposing new mappings.
-- **No recommending plugins the user already has.** Check `references/current-config-snapshot.md` first.
+- **No keymap drift.** Check `neovim/references/keymaps.md` before proposing new mappings.
+- **No recommending plugins the user already has.** Check `neovim/references/current-config-snapshot.md` first.
 - **No premature tool adoption.** Don't push overseer or neotest until the user has a named pain with their current workflow.
 
 ---

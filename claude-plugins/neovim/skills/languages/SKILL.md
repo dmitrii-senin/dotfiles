@@ -29,15 +29,15 @@ Their config lives at `~/x/dotfiles/.config/nvim/` (symlinked from `~/.config/nv
 
 ## File layout — IMPORTANT
 
-All shared data lives at the **plugin root** (`~/.claude/local-plugins/neovim/`), NOT inside `skills/languages/`. Never create files under the skill directory — only `SKILL.md` belongs there.
+All shared data lives under the `neovim` plugin root, NOT inside `skills/languages/`. Never create files under the skill directory — only `SKILL.md` belongs there. All paths below use the `neovim/` prefix to mean the plugin root directory.
 
-| Path (relative to plugin root) | Purpose |
+| Path | Purpose |
 |---|---|
-| `topics/languages-bank.md` | Topic bank for this domain |
-| `data/progress.json` | Progress across ALL domains (shared) |
-| `data/session-log.md` | Session log across ALL domains (shared) |
-| `data/weak-areas.json` | Weak areas across ALL domains (shared) |
-| `references/keymaps.md` | User's current keymaps (shared) |
+| `neovim/topics/languages-bank.md` | Topic bank for this domain |
+| `neovim/data/progress.json` | Progress across ALL domains (shared) |
+| `neovim/data/session-log.md` | Session log across ALL domains (shared) |
+| `neovim/data/weak-areas.json` | Weak areas across ALL domains (shared) |
+| `neovim/references/keymaps.md` | User's current keymaps (shared) |
 
 ---
 
@@ -67,7 +67,7 @@ Parse `$ARGUMENTS`:
 | `mm` | Propose 10 topics from bank -> user picks -> 15-30 min session |
 | `mm "<topic>"` | Jump to a specific topic by title (fuzzy match) |
 | `mm random` | Random uncompleted topic, skip menu |
-| `cheatsheet` | Show primary cheatsheet (LSP keymaps from `references/keymaps.md`, LSP section) |
+| `cheatsheet` | Show primary cheatsheet (LSP keymaps from `neovim/references/keymaps.md`, LSP section) |
 | `cheatsheet <topic>` | Show specific cheatsheet: `lsp-keymaps`, `dap-keymaps`, `formatters` |
 | `status` | Progress dashboard for languages domain |
 | `help` | Usage reference |
@@ -81,8 +81,8 @@ If the input is ambiguous, say so and offer 2-3 specific options. Do not guess.
 
 ### Topic selection flow
 
-1. Read the topic bank: `topics/languages-bank.md` (relative to plugin root).
-2. Read `data/progress.json` to find completed topics for the `languages` domain.
+1. Read the topic bank: `neovim/topics/languages-bank.md`.
+2. Read `neovim/data/progress.json` to find completed topics for the `languages` domain.
 3. Select **10 topics** to propose:
    - **8 new topics** -- uncompleted, varied difficulty. Prioritize the user's primary language (C++) but ensure Python and Rust topics appear.
    - **2 previously completed topics** -- marked with `(revisit)` for reinforcement. Pick oldest-completed or lowest-scored.
@@ -134,7 +134,7 @@ When the user specifies `random`: pick one uncompleted topic at random, skip the
 
 5. **Takeaway** -- one sentence to internalize. Make it actionable.
 
-6. **Log** -- update `data/progress.json` and append to `data/session-log.md`. Show current streak.
+6. **Log** -- update `neovim/data/progress.json` and append to `neovim/data/session-log.md`. Show current streak.
 
 **Critical: Never advance past the drill or review without the user's response.**
 
@@ -143,9 +143,9 @@ When the user specifies `random`: pick one uncompleted topic at random, skip the
 ## cheatsheet mode -- Quick Reference
 
 1. Determine which cheatsheet to show based on argument:
-   - No argument or `lsp-keymaps` -> extract LSP keymap section from `references/keymaps.md` (Default LSP keymaps table + Telescope overrides)
-   - `dap-keymaps` -> extract DAP keymap section from `references/keymaps.md` (`<Leader>d*` maps)
-   - `formatters` -> extract formatter table from `references/current-config-snapshot.md` (Formatters section)
+   - No argument or `lsp-keymaps` -> extract LSP keymap section from `neovim/references/keymaps.md` (Default LSP keymaps table + Telescope overrides)
+   - `dap-keymaps` -> extract DAP keymap section from `neovim/references/keymaps.md` (`<Leader>d*` maps)
+   - `formatters` -> extract formatter table from `neovim/references/current-config-snapshot.md` (Formatters section)
    - Any other value -> search for fuzzy match, or say "available: lsp-keymaps, dap-keymaps, formatters"
 2. Display the content. Keep it terse -- this is a quick reference, not a tutorial.
 
@@ -153,9 +153,9 @@ When the user specifies `random`: pick one uncompleted topic at random, skip the
 
 ## status mode -- Progress Dashboard
 
-1. Read `data/progress.json`.
-2. Read `topics/languages-bank.md` to count total topics by difficulty.
-3. Read `data/weak-areas.json` for drill performance.
+1. Read `neovim/data/progress.json`.
+2. Read `neovim/topics/languages-bank.md` to count total topics by difficulty.
+3. Read `neovim/data/weak-areas.json` for drill performance.
 4. Display:
    ```
    /neovim:languages -- 3 sessions . Streak: 2 days (best: 4)
@@ -208,7 +208,7 @@ CROSS-REFERENCES:
 ## Empty input behavior
 
 When `/neovim:languages` is invoked with no arguments:
-1. Read `data/progress.json` (create with defaults if missing).
+1. Read `neovim/data/progress.json` (create with defaults if missing).
 2. Show compact status: sessions, streak, last topic.
 3. Suggest a mode based on what the user hasn't tried or done recently. Bias toward C++ topics since it's their primary language.
 
@@ -216,9 +216,9 @@ When `/neovim:languages` is invoked with no arguments:
 
 ## Shared state files
 
-All state lives in `data/` at the plugin root. Create with defaults if missing.
+All state lives in `neovim/data/`. Create with defaults if missing.
 
-### data/progress.json
+### neovim/data/progress.json
 
 Each completed topic entry:
 ```json
@@ -233,7 +233,7 @@ Each completed topic entry:
 
 **Score calculation:** combined drill + review score as a decimal (0.0-1.0).
 
-### data/session-log.md
+### neovim/data/session-log.md
 
 Append per session:
 ```markdown
@@ -243,7 +243,7 @@ Append per session:
 - Takeaway: <the one-liner>
 ```
 
-### data/weak-areas.json
+### neovim/data/weak-areas.json
 
 Each subtopic entry: `{"misses": 3, "attempts": 5, "last_seen": "2026-05-31", "last_score": 0.4}`
 
@@ -335,10 +335,10 @@ When a topic touches another domain, note it explicitly:
 Other refusals:
 - **No distro-first answers** (LazyVim, NvChad, AstroNvim, Kickstart).
 - **No plugin recommendations without rationale.** Every suggestion needs a problem statement.
-- **No keymap drift.** Check `references/keymaps.md` before proposing new mappings.
+- **No keymap drift.** Check `neovim/references/keymaps.md` before proposing new mappings.
 - **No rustaceanvim** unless the user explicitly asks. Direct `vim.lsp.config('rust_analyzer', ...)` is their path.
 - **No nvim-cmp or blink.cmp** -- the user runs native `vim.lsp.completion.enable`.
-- **No recommending plugins the user already has.** Check `references/current-config-snapshot.md` first.
+- **No recommending plugins the user already has.** Check `neovim/references/current-config-snapshot.md` first.
 
 ---
 

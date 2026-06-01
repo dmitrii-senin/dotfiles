@@ -18,15 +18,15 @@ The user is a C++ core infrastructure engineer on a market data team (SBE + CME 
 
 ## File layout — IMPORTANT
 
-All reference data lives at the **plugin root** (`~/.claude/local-plugins/neovim/`), NOT inside `skills/audit/`. Never create files under the skill directory — only `SKILL.md` belongs there.
+All reference data lives under the `neovim` plugin root, NOT inside `skills/audit/`. Never create files under the skill directory — only `SKILL.md` belongs there. All paths below use the `neovim/` prefix to mean the plugin root directory.
 
-| Path (relative to plugin root) | Purpose |
+| Path | Purpose |
 |---|---|
-| `references/current-config-snapshot.md` | Cached config inventory |
-| `references/customization.md` | Adaptation rules + upgrade candidates |
-| `references/anti-patterns.md` | Forbidden patterns table |
-| `references/keymaps.md` | Keymap taxonomy and rules |
-| `references/architecture.md` | Plugin category matrix and swap criteria |
+| `neovim/references/current-config-snapshot.md` | Cached config inventory |
+| `neovim/references/customization.md` | Adaptation rules + upgrade candidates |
+| `neovim/references/anti-patterns.md` | Forbidden patterns table |
+| `neovim/references/keymaps.md` | Keymap taxonomy and rules |
+| `neovim/references/architecture.md` | Plugin category matrix and swap criteria |
 
 ---
 
@@ -34,11 +34,11 @@ All reference data lives at the **plugin root** (`~/.claude/local-plugins/neovim
 
 **Primary:**
 - The user's actual config files under `~/x/dotfiles/.config/nvim/`
-- `references/current-config-snapshot.md` — cached inventory (may be stale)
-- `references/customization.md` — adaptation rules + audit upgrade candidates
-- `references/anti-patterns.md` — forbidden patterns table
-- `references/keymaps.md` — keymap taxonomy and rules
-- `references/architecture.md` — plugin category matrix and swap criteria
+- `neovim/references/current-config-snapshot.md` — cached inventory (may be stale)
+- `neovim/references/customization.md` — adaptation rules + audit upgrade candidates
+- `neovim/references/anti-patterns.md` — forbidden patterns table
+- `neovim/references/keymaps.md` — keymap taxonomy and rules
+- `neovim/references/architecture.md` — plugin category matrix and swap criteria
 
 **Secondary:**
 - `:help` documentation (cite when recommending an option or API)
@@ -85,13 +85,13 @@ Use `Read` for each file. Do not rely on the snapshot alone (anti-pattern #19).
 
 ### Step 2 — Read references
 
-Read these reference files (relative to plugin root):
-- `references/current-config-snapshot.md`
-- `references/customization.md`
+Read these reference files:
+- `neovim/references/current-config-snapshot.md`
+- `neovim/references/customization.md`
 
-For `keymaps` mode, also read `references/keymaps.md`.
-For `plugins` mode, also read `references/architecture.md`.
-For all modes, also read `references/anti-patterns.md`.
+For `keymaps` mode, also read `neovim/references/keymaps.md`.
+For `plugins` mode, also read `neovim/references/architecture.md`.
+For all modes, also read `neovim/references/anti-patterns.md`.
 
 ### Step 3 — Detect snapshot drift
 
@@ -105,14 +105,14 @@ Report drift findings before proceeding to the upgrade evaluation.
 
 ### Step 4 — Evaluate upgrade candidates
 
-Check the upgrade candidates list in `references/customization.md` against the actual config:
+Check the upgrade candidates list in `neovim/references/customization.md` against the actual config:
 - Which HIGH/MED/LOW candidates are already done?
 - Which remain applicable?
 - Are there new opportunities not in the candidates list (based on Neovim 0.12+ features)?
 
 ### Step 5 — Check forbidden patterns
 
-Scan all read config files against the forbidden patterns table in `references/anti-patterns.md`:
+Scan all read config files against the forbidden patterns table in `neovim/references/anti-patterns.md`:
 - Pre-0.11 LSP setup (`require('lspconfig').X.setup{}`)
 - Deprecated `vim.diagnostic.goto_next` / `goto_prev`
 - `vim.loop` instead of `vim.uv`
@@ -129,7 +129,7 @@ Run additional checks based on the audit mode:
 - Prefix collisions (two maps under different conceptual groups sharing a prefix)
 - Shadows of Vim defaults (remapping `K`, `*`, `#`, `gq`, `gv`, `g;`, `g,`, `''`, `zz/zt/zb` without reason)
 - Leader maps exceeding the 25-cap guideline
-- Drift from the taxonomy in `references/keymaps.md`
+- Drift from the taxonomy in `neovim/references/keymaps.md`
 
 **plugins:**
 - Plugins with `lazy = false` that could use event/cmd/ft triggers
@@ -203,9 +203,9 @@ If multiple items are selected, process them one at a time. Never batch-apply wi
 
 After all selected changes are applied:
 
-1. **Refresh `references/current-config-snapshot.md`** — re-read the changed files and update the relevant sections of the snapshot to reflect the new state. Update the snapshot date.
+1. **Refresh `neovim/references/current-config-snapshot.md`** — re-read the changed files and update the relevant sections of the snapshot to reflect the new state. Update the snapshot date.
 
-2. **Append to `data/session-log.md`:**
+2. **Append to `neovim/data/session-log.md`:**
    ```markdown
    ## YYYY-MM-DD — audit / <mode>
    - Findings: N items (H high, M med, L low)
@@ -242,7 +242,7 @@ These patterns must never appear in the audit's own recommendations. If found in
 **Other refusals (never recommend):**
 - Distro-first answers (LazyVim, NvChad, AstroNvim, Kickstart)
 - Plugin recommendations without a problem statement, breakage scenario, and one alternative
-- Keymap drift — check `references/keymaps.md` before proposing any new binding
+- Keymap drift — check `neovim/references/keymaps.md` before proposing any new binding
 - Aesthetic plugins unprompted (statuslines, themes, dashboards, icons)
 - Plugin swaps without a named pain ("telescope is fine" is not a reason to suggest fzf-lua)
 - Recommending plugins already installed — check the snapshot and actual config first

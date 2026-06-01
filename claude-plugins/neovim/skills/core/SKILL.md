@@ -20,16 +20,16 @@ Their config lives at `~/x/dotfiles/.config/nvim/` (symlinked from `~/.config/nv
 
 ## File layout — IMPORTANT
 
-All shared data lives at the **plugin root** (`~/.claude/local-plugins/neovim/`), NOT inside `skills/core/`. Never create files under the skill directory — only `SKILL.md` belongs there.
+All shared data lives under the `neovim` plugin root, NOT inside `skills/core/`. Never create files under the skill directory — only `SKILL.md` belongs there. All paths below use the `neovim/` prefix to mean the plugin root directory.
 
-| Path (relative to plugin root) | Purpose |
+| Path | Purpose |
 |---|---|
-| `topics/core-bank.md` | Topic bank for this domain |
-| `data/progress.json` | Progress across ALL domains (shared) |
-| `data/session-log.md` | Session log across ALL domains (shared) |
-| `data/weak-areas.json` | Weak areas across ALL domains (shared) |
-| `cheatsheets/motions.md` | Primary cheatsheet for this domain |
-| `references/keymaps.md` | User's current keymaps (shared) |
+| `neovim/topics/core-bank.md` | Topic bank for this domain |
+| `neovim/data/progress.json` | Progress across ALL domains (shared) |
+| `neovim/data/session-log.md` | Session log across ALL domains (shared) |
+| `neovim/data/weak-areas.json` | Weak areas across ALL domains (shared) |
+| `neovim/cheatsheets/motions.md` | Primary cheatsheet for this domain |
+| `neovim/references/keymaps.md` | User's current keymaps (shared) |
 
 ---
 
@@ -55,7 +55,7 @@ Parse `$ARGUMENTS`:
 | `mm` | Propose 10 topics from bank → user picks → 15-30 min session |
 | `mm "<topic>"` | Jump to a specific topic by title (fuzzy match) |
 | `mm random` | Random uncompleted topic, skip menu |
-| `cheatsheet` | Show primary cheatsheet (`cheatsheets/motions.md`) |
+| `cheatsheet` | Show primary cheatsheet (`neovim/cheatsheets/motions.md`) |
 | `cheatsheet <topic>` | Show specific cheatsheet: `motions`, `registers` |
 | `status` | Progress dashboard for core domain |
 | `help` | Usage reference |
@@ -69,8 +69,8 @@ If the input is ambiguous, say so and offer 2-3 specific options. Do not guess.
 
 ### Topic selection flow
 
-1. Read the topic bank: `topics/core-bank.md` (relative to plugin root).
-2. Read `data/progress.json` to find completed topics for the `core` domain.
+1. Read the topic bank: `neovim/topics/core-bank.md`.
+2. Read `neovim/data/progress.json` to find completed topics for the `core` domain.
 3. Select **10 topics** to propose:
    - **8 new topics** — uncompleted, varied difficulty. Prioritize foundational topics the user hasn't covered.
    - **2 previously completed topics** — marked with `(revisit)` for reinforcement. Pick oldest-completed or lowest-scored.
@@ -118,7 +118,7 @@ When the user specifies `random`: pick one uncompleted topic at random, skip the
 
 5. **Takeaway** — one sentence to internalize. Make it actionable.
 
-6. **Log** — update `data/progress.json` and append to `data/session-log.md`. Show current streak.
+6. **Log** — update `neovim/data/progress.json` and append to `neovim/data/session-log.md`. Show current streak.
 
 **Critical: Never advance past the drill or review without the user's response.**
 
@@ -127,18 +127,18 @@ When the user specifies `random`: pick one uncompleted topic at random, skip the
 ## cheatsheet mode — Quick Reference
 
 1. Determine which cheatsheet to show based on argument:
-   - No argument or `motions` → read `cheatsheets/motions.md`
-   - `registers` → read `cheatsheets/motions.md` (registers section)
-   - Any other value → search cheatsheets/ for fuzzy match, or say "available: motions"
+   - No argument or `motions` → read `neovim/cheatsheets/motions.md`
+   - `registers` → read `neovim/cheatsheets/motions.md` (registers section)
+   - Any other value → search `neovim/cheatsheets/` for fuzzy match, or say "available: motions"
 2. Display the cheatsheet content. Keep it terse — this is a quick reference, not a tutorial.
 
 ---
 
 ## status mode — Progress Dashboard
 
-1. Read `data/progress.json`.
-2. Read `topics/core-bank.md` to count total topics by difficulty.
-3. Read `data/weak-areas.json` for drill performance.
+1. Read `neovim/data/progress.json`.
+2. Read `neovim/topics/core-bank.md` to count total topics by difficulty.
+3. Read `neovim/data/weak-areas.json` for drill performance.
 4. Display:
    ```
    /neovim:core — 6 sessions · Streak: 3 days (best: 5)
@@ -188,7 +188,7 @@ CROSS-REFERENCES:
 ## Empty input behavior
 
 When `/neovim:core` is invoked with no arguments:
-1. Read `data/progress.json` (create with defaults if missing).
+1. Read `neovim/data/progress.json` (create with defaults if missing).
 2. Show compact status: sessions, streak, last topic.
 3. Suggest a mode based on what the user hasn't tried or done recently.
 
@@ -196,9 +196,9 @@ When `/neovim:core` is invoked with no arguments:
 
 ## Shared state files
 
-All state lives in `data/` at the plugin root. Create with defaults if missing.
+All state lives in `neovim/data/`. Create with defaults if missing.
 
-### data/progress.json
+### neovim/data/progress.json
 
 Each completed topic entry:
 ```json
@@ -213,7 +213,7 @@ Each completed topic entry:
 
 **Score calculation:** combined drill + review score as a decimal (0.0–1.0).
 
-### data/session-log.md
+### neovim/data/session-log.md
 
 Append per session:
 ```markdown
@@ -223,7 +223,7 @@ Append per session:
 - Takeaway: <the one-liner>
 ```
 
-### data/weak-areas.json
+### neovim/data/weak-areas.json
 
 Each subtopic entry: `{"misses": 3, "attempts": 5, "last_seen": "2026-05-31", "last_score": 0.4}`
 
@@ -261,7 +261,7 @@ When a topic touches another domain, note it explicitly:
 Other refusals:
 - **No distro-first answers** (LazyVim, NvChad, AstroNvim, Kickstart).
 - **No plugin recommendations without rationale.**
-- **No keymap drift.** Check `references/keymaps.md` before proposing new mappings.
+- **No keymap drift.** Check `neovim/references/keymaps.md` before proposing new mappings.
 
 ---
 
