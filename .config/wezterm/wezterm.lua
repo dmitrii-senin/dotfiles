@@ -43,7 +43,7 @@ config.send_composed_key_when_right_alt_is_pressed = true
 -- Terminal
 config.term = "xterm-256color"
 config.unicode_version = 14
-config.treat_east_asian_ambiguous_width_as_wide = true
+config.treat_east_asian_ambiguous_width_as_wide = false
 config.allow_square_glyphs_to_overflow_width = "Never"
 
 -- Open URL on Cmd-click
