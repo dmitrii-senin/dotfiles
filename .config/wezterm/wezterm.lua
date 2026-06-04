@@ -64,6 +64,11 @@ local cmd_as_alt_keys = {
   "/", ",", ".", ";", "'",
 }
 config.keys = config.keys or {}
+table.insert(config.keys, {
+  key = "n",
+  mods = "CTRL|SHIFT",
+  action = act.SpawnWindow,
+})
 for _, k in ipairs(cmd_as_alt_keys) do
   table.insert(config.keys, {
     key = k,
