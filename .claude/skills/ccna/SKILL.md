@@ -1,7 +1,7 @@
 ---
 name: ccna
 description: CCNA 200-301 exam practice — quiz/flash/subnet/cli-roleplay/config-review/tutor/explain/journal/schedule modes
-argument-hint: "schedule [week|next|overview|N] | quiz [domain|topic|weak-areas|mock] [N] | flash [add|review|stats] | subnet [N] [--ipv6] | cli-roleplay <scenario> | config-review | tutor <topic> | explain <concept> | journal <append|search> | help"
+argument-hint: "schedule [week|next|overview|N] | quiz [domain|topic|weak-areas|mock] [N] | flash [add|review|stats] | subnet [N] [--ipv4|--ipv6|--mixed] | cli-roleplay <scenario> | config-review | tutor <topic> | explain <concept> | journal <append|search> | help"
 disable-model-invocation: true
 ---
 
@@ -397,9 +397,14 @@ Leeches (3+ resets): 2 cards
 
 ## `subnet` Mode
 
-Generate IPv4 subnetting problems (or IPv6 with `--ipv6`).
+Generate subnetting problems. Default is IPv4-only.
 
-Default count = 10. Format: `subnet [N] [--ipv6]`.
+Default count = 10. Format: `subnet [N] [--ipv6] [--mixed]`.
+
+- `--ipv4` — IPv4-only problems (default)
+- `--ipv6` — IPv6-only problems
+- `--mixed` — blend of IPv4 and IPv6 problems. Distribution: ~60% IPv4, ~40% IPv6 (rounded to whole numbers for the given count). IPv4 and IPv6 problems are interleaved, not grouped — e.g., for 10 problems: 6 IPv4 + 4 IPv6, shuffled together. Cycle through both IPv4 and IPv6 problem type lists independently so all subtypes get coverage.
+- No flag — same as `--ipv4`
 
 ### IPv4 problem types (cycle through)
 
@@ -569,7 +574,7 @@ MODES:
   quiz weak-areas [N]      — focus on your weakest subtopics
   quiz mock [N]            — full mock exam, 60 weighted Qs
   flash add | review | stats — Leitner flashcards
-  subnet [N] [--ipv6]      — subnetting drill
+  subnet [N] [--ipv4|--ipv6|--mixed] — subnetting drill
   cli-roleplay <scenario>  — IOS device roleplay (bare-router, bare-switch,
                              vlan-build, ospf-troubleshoot, acl-design, stp-investigate)
   config-review            — paste a config, get a critique
@@ -586,6 +591,7 @@ EXAMPLES:
   /ccna flash review             → due flashcards
   /ccna flash stats              → SRS progress dashboard
   /ccna subnet 20                → 20 subnetting problems
+  /ccna subnet --mixed 10        → 10 problems, IPv4 + IPv6 blended
   /ccna cli-roleplay ospf-troubleshoot
   /ccna tutor stp                → Socratic STP session
   /ccna explain "ospf dr/bdr"
