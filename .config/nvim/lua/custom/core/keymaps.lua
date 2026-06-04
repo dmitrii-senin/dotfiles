@@ -14,7 +14,7 @@ map("n", "<C-j>", "<C-w>j", { desc = "Go to Lower Window", remap = true })
 map("n", "<C-k>", "<C-w>k", { desc = "Go to Upper Window", remap = true })
 map("n", "<C-l>", "<C-w>l", { desc = "Go to Right Window", remap = true })
 
--- Resize window using <alt-shift> arrow keys (alt for tmux panes, alt-shift for vim windows)
+-- Resize window using <alt-shift> arrow keys (alt for zellij panes, alt-shift for vim windows)
 map("n", "<M-S-Up>", "<Cmd>resize +2<cr>", { desc = "Increase Window Height" })
 map("n", "<M-S-Down>", "<Cmd>resize -2<cr>", { desc = "Decrease Window Height" })
 map("n", "<M-S-Left>", "<Cmd>vertical resize +2<cr>", { desc = "Increase Window Width" })
