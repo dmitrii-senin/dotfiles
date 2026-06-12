@@ -19,8 +19,10 @@ after a fresh clone.
 | `.config/starship.toml` | Starship prompt | `~/.config/starship.toml` |
 | `.config/zellij/` | Zellij (primary multiplexer, tmux-like prefix) | `~/.config/zellij` |
 | `.config/wezterm/` | WezTerm terminal | `~/.config/wezterm` |
-| `.claude/` | Claude Code (settings, statusline, skills) | `~/.claude/` (select files) |
-| `claude-plugins/` | Claude Code local plugins (neovim, perf) | `~/.claude/local-plugins` |
+| `.claude/` | Claude Code (settings, statusline) | `~/.claude/` (select files) |
+| `.claude/skills/` | Skills: the `learn` engine (+ `domains/`: perf, claude, neovim) plus ccna, lpic-202 | `~/.claude/skills/*` |
+| `.claude/commands/` | Slash-command aliases for learn domains (`/perf`, `/claude`, `/nvim`) | `~/.claude/commands/*` |
+| `claude-plugins/` | Local plugin marketplace (empty — learning consolidated into `.claude/skills/learn/`) | `~/.claude/local-plugins` |
 | `.zshenv` | Zsh env bootstrap (sets ZDOTDIR) | `~/.zshenv` |
 
 ## Conventions

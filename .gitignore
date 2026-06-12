@@ -18,3 +18,9 @@ zsh-meta/
 *.epub
 
 claude-plugins/*/data/
+
+# learn engine: volatile per-domain state (notes/ and records/ are tracked)
+.claude/skills/learn/domains/*/data/
+
+# local rollback stash for retired skills (not tracked)
+attic/

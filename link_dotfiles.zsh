@@ -72,6 +72,15 @@ function make_claude_skill_links() {
 	done
 }
 
+function make_claude_command_links() {
+	local commands_dir="$repo/.claude/commands"
+	[ -d "$commands_dir" ] || return
+	mkdir -p "$HOME/.claude/commands"
+	for command_file in "$commands_dir"/*(N.); do
+		make_link ".claude/commands/${command_file:t}"
+	done
+}
+
 function make_claude_marketplace_link() {
 	local marketplace_dir="$repo/claude-plugins"
 	[ -d "$marketplace_dir" ] || return
@@ -94,6 +103,7 @@ function main() {
 	make_xdg_dirs
 	make_links
 	make_claude_skill_links
+	make_claude_command_links
 	make_claude_marketplace_link
 }
 
