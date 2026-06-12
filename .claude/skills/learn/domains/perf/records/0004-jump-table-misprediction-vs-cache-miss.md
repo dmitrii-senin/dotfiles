@@ -6,7 +6,7 @@
 
 Attributed 38% samples on a jump table `movsxd` to a cache miss. The jump table
 had ≤33 entries (132 bytes, 2 cache lines) — far too small to miss L1d in a hot
-loop. The real cause: indirect branch misprediction on the `jmp *%rdx` that
+loop. The real cause: indirect branch misprediction on the `jmp [rdx]` that
 follows, with samples retiring back to the feeding load.
 
 ## Rule

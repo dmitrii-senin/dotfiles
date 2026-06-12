@@ -56,6 +56,7 @@ perf annotate --stdio                      # text output: interleaved source + a
 perf annotate -s my_function               # annotate specific symbol
 perf annotate -s my_function --stdio       # specific symbol, text output
 perf annotate --source --asm               # show both source lines and assembly
+perf annotate -M intel --stdio             # Intel syntax (default is AT&T)
 ```
 
 Requires debuginfo (`-g` at compile time). For best results: compile with `-g -O2`.

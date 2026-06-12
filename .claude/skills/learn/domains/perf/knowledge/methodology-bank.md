@@ -81,7 +81,7 @@ These pseudo-files are the raw data behind every monitoring tool. Knowing key fi
 `perf annotate` maps samples to individual instructions (and source lines with debug info), showing exactly which instruction is hot within a function. This reveals whether time is spent on loads (memory-bound), branches (control-flow), or arithmetic. For C++ template-heavy code like SBE codecs, it disambiguates which template instantiation is the bottleneck.
 **Key concepts:** instruction-level sampling, hot instruction, source-line mapping, compiler optimization visibility
 **Tip:** A `mov` instruction with 40% of samples is not slow itself; it is stalled waiting for a prior cache-miss load to complete. Look at the instruction 1-3 lines above it for the true culprit.
-**Tool anchor:** `perf annotate -s decode_field --no-source --stdio` (`--source`, which interleaves source with assembly, is the default; use `--no-source` for pure assembly when source mapping is misleading due to inlining)
+**Tool anchor:** `perf annotate -s decode_field -M intel --no-source --stdio` (`--source`, which interleaves source with assembly, is the default; use `--no-source` for pure assembly when source mapping is misleading due to inlining)
 **Drill:** perf annotate shows 35% of samples on a `mov rax, [rbx+0x40]` inside your SBE message decoder's hot loop. The instruction above is `cmp` with 0% samples. Explain what is happening at the microarchitectural level and propose a fix.
 **Tags:** perf-annotate, assembly, instruction-level, source-correlation, cache-miss
 

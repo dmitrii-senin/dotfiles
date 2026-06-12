@@ -31,7 +31,7 @@ The CPU predicts branch outcomes before they are resolved so it can keep fetchin
 Every instruction has two performance numbers: latency (cycles from input ready to output available) and throughput (maximum operations per cycle when independent). An integer add has latency 1 and throughput 4/cycle on Skylake, while a 64-bit divide has latency 35-90 cycles and throughput one every 21-42 cycles. Pipelining means independent instructions overlap, so throughput matters for parallel operations while latency matters for dependent chains.
 **Key concepts:** latency, reciprocal throughput, pipelining, dependency chain, instruction-level parallelism
 **Tip:** A multiply with latency 3 in a dependency chain of 100 multiplies takes 300 cycles, but 100 independent multiplies take only 100 cycles (one per cycle throughput) because the pipeline overlaps them. Breaking dependency chains is often more valuable than reducing instruction count.
-**Tool anchor:** `llvm-mca -mcpu=skylake -timeline -iterations=1 < loop.s`
+**Tool anchor:** `llvm-mca -mcpu=skylake -timeline -iterations=1 -output-asm-variant=1 < loop.s`
 **Drill:** You have two loop implementations: one computes `acc = acc * data[i] + coeff[i]` (chained multiply-add), the other uses four independent accumulators merged at the end. Use llvm-mca to predict the throughput of each and explain the speedup from multiple accumulators.
 **Tags:** latency, throughput, pipelining, dependency-chain, instruction-tables
 
@@ -105,7 +105,7 @@ Modern CPUs have 6-8 execution ports, each connected to specific functional unit
 Macro-fusion merges two adjacent instructions (typically CMP/TEST + Jcc) into a single uop, effectively increasing decode and issue bandwidth for free. Micro-fusion combines a memory operand with an ALU operation (e.g., `add rax, [rbx]`) into a single uop at the frontend, though it may "unfuse" into two uops at the scheduler on some microarchitectures. Fusion failures due to RIP-relative addressing or unsupported instruction combinations leave performance on the table.
 **Key concepts:** macro-fusion, micro-fusion, CMP+Jcc fusion, unfusion, decode bandwidth, addressing modes
 **Tip:** Micro-fused indexed addressing modes (`add rax, [rbx+rcx*8]`) unfuse into two uops at the rename stage on Haswell+, consuming extra scheduler entries. Base+displacement addressing (`add rax, [rbx+8]`) stays fused. This matters in tight loops where scheduler capacity is the bottleneck.
-**Tool anchor:** `llvm-mca -mcpu=skylake -resource-pressure -bottleneck-analysis < loop.s`
+**Tool anchor:** `llvm-mca -mcpu=skylake -resource-pressure -bottleneck-analysis -output-asm-variant=1 < loop.s`
 **Drill:** Two versions of an inner loop: v1 uses `cmp eax, [rbx+rcx*8]` followed by `jl .loop`, v2 uses `cmp eax, edx` followed by `jl .loop` with a separate `mov edx, [rbx+rcx*8]`. Analyze with llvm-mca: which has fewer uops? Which has better throughput? Explain the micro-fusion and macro-fusion behavior in each.
 **Tags:** macro-fusion, micro-fusion, CMP-Jcc, unfusion, addressing-modes, decode-bandwidth
 
@@ -187,7 +187,7 @@ Simultaneous Multithreading (SMT/Hyperthreading) shares most microarchitectural 
 Instruction-Level Parallelism (ILP) is the amount of independent work the OoO engine can find and overlap. The critical path through a computation is the longest chain of dependent instructions; it sets the minimum execution time regardless of the number of execution units. Analyzing the critical path requires building a data dependency graph and finding the longest weighted path (weighted by instruction latency). Loop-carried dependencies are especially important because they limit ILP across iterations.
 **Key concepts:** ILP, critical path, data dependency graph, loop-carried dependency, independent chains, accumulator splitting
 **Tip:** A single loop-carried dependency of latency 4 (e.g., FP add into the next iteration's accumulator) limits throughput to 1 iteration per 4 cycles regardless of loop body size. Splitting into 4 independent accumulators achieves 4x throughput by breaking the loop-carried chain.
-**Tool anchor:** `llvm-mca -mcpu=skylake -timeline -bottleneck-analysis -iterations=100 < hot_loop.s`
+**Tool anchor:** `llvm-mca -mcpu=skylake -timeline -bottleneck-analysis -iterations=100 -output-asm-variant=1 < hot_loop.s`
 **Drill:** Your SBE decoder's hot loop computes a running CRC32: `crc = _mm_crc32_u64(crc, data[i])`. CRC32 has latency 3 on Skylake. The loop body is 5 uops. Calculate the critical path length, the achieved throughput in iterations/cycle, and design a 3-way interleaved CRC computation that processes 3 independent message chunks to achieve 3x throughput.
 **Tags:** ILP, critical-path, loop-carried-dependency, accumulator-splitting, dependency-graph
 
@@ -243,6 +243,6 @@ Intel (Golden Cove/Raptor Cove) and AMD (Zen 4/Zen 5) differ in key structural p
 LLVM Machine Code Analyzer (llvm-mca) simulates instruction execution on a modeled CPU pipeline, providing throughput estimates, resource pressure analysis, timeline views of instruction flow, and bottleneck identification without running any code. It models dispatch, execution, and retirement but does not model caches, branch prediction, or memory. This makes it ideal for analyzing tight computational loops where cache behavior is known (everything in L1) but uarch behavior is not.
 **Key concepts:** static analysis, throughput simulation, resource pressure, timeline view, bottleneck report, model limitations
 **Tip:** llvm-mca's bottleneck analysis (`-bottleneck-analysis`) tells you whether your loop is latency-bound (critical path through dependencies) or throughput-bound (port pressure). If it says "throughput bottleneck," check the resource pressure view to find the saturated port; if "latency bottleneck," look at the timeline for the longest dependency chain.
-**Tool anchor:** `echo '.loop: vmulps %ymm0, %ymm1, %ymm2; vaddps %ymm2, %ymm3, %ymm3; dec %ecx; jnz .loop' | llvm-mca -mcpu=skylake -timeline -bottleneck-analysis -resource-pressure -iterations=100`
+**Tool anchor:** `printf '.intel_syntax noprefix\n.loop:\nvmulps ymm2, ymm0, ymm1\nvaddps ymm3, ymm3, ymm2\ndec ecx\njnz .loop\n' | llvm-mca -mcpu=skylake -timeline -bottleneck-analysis -resource-pressure -iterations=100 -output-asm-variant=1`
 **Drill:** Extract the hot loop from your SBE decoder's field parsing function using `objdump -d`, isolate it into a .s file, and run llvm-mca with `-mcpu=skylake -timeline -bottleneck-analysis`. The report shows throughput of 2.5 cycles/iteration but your actual measurement shows 8 cycles/iteration. List three reasons the static analysis underestimates the real cost and describe how to close the gap in your analysis.
 **Tags:** llvm-mca, static-analysis, throughput, resource-pressure, timeline, bottleneck-analysis

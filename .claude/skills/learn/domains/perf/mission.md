@@ -26,3 +26,5 @@ not by a deadline. (No `schedule` ⇒ all flashcards inject immediately.)
 Skip basics. Prefer real tool output, concrete numbers, and a runnable command anchor.
 Be honest about uncertainty — flag anything unsourced (exact ROB sizes, port counts,
 predictor table sizes) so I can verify it.
+All disassembly examples must use **Intel syntax** (destination-first, no `%`/`$` sigils).
+Use `-M intel` with objdump/perf, `.intel_syntax noprefix` in inline asm examples.

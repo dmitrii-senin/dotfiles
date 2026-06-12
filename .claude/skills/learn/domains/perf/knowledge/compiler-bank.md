@@ -55,7 +55,7 @@ Beyond catching bugs, specific compiler warnings flag performance-relevant issue
 The compiler evaluates expressions with known values at compile time (constant folding) and removes code that can never execute or whose results are never used (dead code elimination). Together they mean that benchmark code like `int x = 2 * 3; if (false) { heavy_work(); }` compiles to almost nothing. Understanding these passes prevents writing benchmarks that measure nothing and explains why adding `const` or `constexpr` can change generated code.
 **Key concepts:** constant folding, dead code elimination, constexpr, side-effect preservation, benchmark::DoNotOptimize
 **Tip:** If your Google Benchmark shows suspiciously low nanosecond times, the compiler likely constant-folded your computation; use `benchmark::DoNotOptimize()` to force the result to be materialized.
-**Tool anchor:** `g++ -O2 -S -o - fold_test.cpp | grep -v '^\s*\.' | grep -v '^\s*$'` to see how little code remains after folding
+**Tool anchor:** `g++ -O2 -masm=intel -S -o - fold_test.cpp | grep -v '^\s*\.' | grep -v '^\s*$'` to see how little code remains after folding
 **Drill:** Write a function that decodes a fixed SBE message at compile time (all inputs are constexpr). Verify in Godbolt that the compiler replaces the entire decode with a constant. Then make one input non-constexpr and observe the codegen difference.
 **Tags:** constant-folding, dead-code-elimination, constexpr, benchmark
 
@@ -63,7 +63,7 @@ The compiler evaluates expressions with known values at compile time (constant f
 Strength reduction replaces expensive operations with cheaper equivalents: multiply by a power of two becomes a left shift, division by a constant becomes a multiply-and-shift sequence, modulo by a power of two becomes a bitwise AND. Loop-invariant code motion (LICM) hoists computations that produce the same result every iteration out of the loop body. These optimizations are automatic at -O2 but understanding them helps you write code the compiler can transform.
 **Key concepts:** strength reduction, multiply-to-shift, division-by-constant, LICM, induction variables
 **Tip:** Division by a non-power-of-two constant is never compiled to a `div` instruction; the compiler uses a magic-number multiply-and-shift sequence that is several times faster (roughly 2-10x, since `div`/`idiv` is ~12-44 cycles vs ~3-7 for `imul` plus a shift), so do not manually replace `x / 10` with a lookup table.
-**Tool anchor:** `echo 'int f(int x) { return x / 7; }' | g++ -O2 -S -x c++ -o - - | grep -A5 'f:'` to see the magic multiply
+**Tool anchor:** `echo 'int f(int x) { return x / 7; }' | g++ -O2 -masm=intel -S -x c++ -o - - | grep -A5 'f:'` to see the magic multiply
 **Drill:** Write a loop that computes `array[i] * 8 + base_offset` for each element. Inspect the assembly at -O2 and verify the compiler replaced the multiply with a shift and hoisted `base_offset` out of the loop.
 **Tags:** strength-reduction, LICM, loop-transformation, shift, division
 
@@ -113,7 +113,7 @@ Loop unrolling replicates the loop body N times to reduce branch overhead and en
 Tail call optimization (TCO) reuses the current stack frame when a function's last action is calling another function (or itself), converting recursion into iteration with O(1) stack usage. TCO requires: the call is in tail position, no destructors need to run after the call (a major constraint in C++), the calling convention matches, and the compiler can prove no address of a local is retained. Clang supports `[[clang::musttail]]` to guarantee TCO or emit a compile error.
 **Key concepts:** tail position, stack frame reuse, musttail, destructor constraint, calling convention
 **Tip:** In C++, any local variable with a non-trivial destructor (including `std::string`, `std::unique_ptr`, `std::lock_guard`) prevents TCO because the destructor runs after the call returns, breaking the tail position requirement.
-**Tool anchor:** `echo 'int f(int n, int acc) { if (n==0) return acc; return f(n-1, acc+n); }' | g++ -O2 -S -x c++ -o - - | grep -E 'call|jmp'` to verify TCO (should show `jmp` not `call`)
+**Tool anchor:** `echo 'int f(int n, int acc) { if (n==0) return acc; return f(n-1, acc+n); }' | g++ -O2 -masm=intel -S -x c++ -o - - | grep -E 'call|jmp'` to verify TCO (should show `jmp` not `call`)
 **Drill:** Write a recursive message chain walker that traverses linked SBE repeating groups. Verify whether TCO fires by checking the assembly. If it does not, identify the blocker (destructor, non-tail position, or ABI mismatch) and refactor to enable it.
 **Tags:** TCO, tail-call, recursion, musttail, stack
 
@@ -121,7 +121,7 @@ Tail call optimization (TCO) reuses the current stack frame when a function's la
 When auto-vectorization fails, SIMD intrinsics give direct access to vector instructions: `_mm256_loadu_si256` loads 32 bytes, `_mm256_cmpeq_epi8` compares 32 bytes at once, `_mm256_movemask_epi8` extracts comparison results to a bitmask. The `immintrin.h` header provides all intrinsics for SSE through AVX-512. Intrinsics are more portable than inline assembly, auto-allocate registers, and allow the compiler to schedule around them. The tradeoff is non-trivial development and maintenance cost.
 **Key concepts:** _mm256_* functions, immintrin.h, __m256i, load/store, mask, intrinsics vs inline asm
 **Tip:** Always use unaligned loads (`_mm256_loadu_si256`) unless you have guaranteed alignment; the performance difference between aligned and unaligned loads disappeared with Haswell and the segfault risk of `_mm256_load_si256` on unaligned data is not worth it.
-**Tool anchor:** `g++ -O2 -mavx2 -S -o - simd_scan.cpp | grep -E 'vmovdqu|vpcmpeqb|vpmovmskb'` to verify intrinsics compiled to expected instructions
+**Tool anchor:** `g++ -O2 -mavx2 -masm=intel -S -o - simd_scan.cpp | grep -E 'vmovdqu|vpcmpeqb|vpmovmskb'` to verify intrinsics compiled to expected instructions
 **Drill:** Write an AVX2 function that scans a buffer for a specific byte value (e.g., SOH delimiter 0x01 in a FIX message). Compare throughput against a scalar `memchr`-based version and explain when the SIMD version wins or loses.
 **Tags:** SIMD, intrinsics, AVX2, SSE, immintrin
 
@@ -129,7 +129,7 @@ When auto-vectorization fails, SIMD intrinsics give direct access to vector inst
 Function multiversioning compiles multiple versions of a function targeting different CPU features (SSE4.2, AVX2, AVX-512) and selects the best one at runtime. GCC's `__attribute__((target("avx2")))` creates explicit versions, while `__attribute__((target_clones("avx2","sse4.2","default")))` generates all variants automatically. The GNU ifunc mechanism resolves the correct version at dynamic link time (once, not per call). This lets a single binary run optimally on heterogeneous server fleets.
 **Key concepts:** target attribute, target_clones, ifunc, runtime dispatch, __builtin_cpu_supports, CPU features
 **Tip:** `target_clones` adds ~100 bytes of resolver overhead per function; use it only on hot functions where the architectural difference matters, not on every function in your codebase.
-**Tool anchor:** `echo '__attribute__((target_clones("avx2","sse4.2","default"))) int sum(const int* a, int n) { int s=0; for(int i=0;i<n;i++) s+=a[i]; return s; }' | g++ -O2 -S -x c++ -o - -`
+**Tool anchor:** `echo '__attribute__((target_clones("avx2","sse4.2","default"))) int sum(const int* a, int n) { int s=0; for(int i=0;i<n;i++) s+=a[i]; return s; }' | g++ -O2 -masm=intel -S -x c++ -o - -`
 **Drill:** Take your SBE field checksum function and add `target_clones("avx2","sse4.2","default")`. Verify in the assembly that three versions are generated. Benchmark on your machine and confirm the AVX2 version is selected at runtime.
 **Tags:** multiversioning, target_clones, ifunc, dispatch, CPU-features
 
@@ -137,7 +137,7 @@ Function multiversioning compiles multiple versions of a function targeting diff
 The compiler may reorder, combine, or eliminate memory accesses as long as the observable behavior of a single-threaded program is preserved (the "as-if" rule). This is distinct from hardware reordering: even on x86 (which has a strong hardware memory model), the compiler can reorder stores and loads freely. `volatile` prevents only compiler reordering of that specific variable but provides no atomicity or hardware fence. `std::atomic` with appropriate memory orders is the correct tool; `asm volatile("" ::: "memory")` acts as a compiler-only barrier without a hardware fence.
 **Key concepts:** as-if rule, compiler barrier, volatile, std::atomic, asm volatile memory clobber, compiler vs hardware reordering
 **Tip:** `volatile` on a shared counter does not make it thread-safe; it only prevents the compiler from caching it in a register. You still need `std::atomic` for correctness across threads.
-**Tool anchor:** `echo 'void spin(volatile int* flag) { while(!*flag); }' | g++ -O2 -S -x c++ -o - - | grep -A10 'spin'` to see volatile preventing load hoisting
+**Tool anchor:** `echo 'void spin(volatile int* flag) { while(!*flag); }' | g++ -O2 -masm=intel -S -x c++ -o - - | grep -A10 'spin'` to see volatile preventing load hoisting
 **Drill:** Write a spin-wait loop for a market data ready flag using `volatile`, `std::atomic<int>` with `memory_order_acquire`, and a plain `int`. Compare the assembly for all three and identify which one the compiler hoists the load out of the loop.
 **Tags:** memory-model, volatile, atomic, compiler-barrier, reordering
 
@@ -153,7 +153,7 @@ Alignment affects performance at multiple levels: data alignment determines whet
 Virtual function calls (via vtable lookup) incur an indirect branch that the CPU must predict, plus they prevent inlining. The compiler can devirtualize when it can prove the dynamic type: `final` classes/methods, local variables with known type, or PGO-guided speculative devirtualization (inserting a type check and direct call for the most common type, with fallback to virtual dispatch). Marking classes and methods `final` is the cheapest optimization for virtual-heavy C++ code.
 **Key concepts:** vtable, indirect branch, final keyword, speculative devirtualization, PGO devirt
 **Tip:** Adding `final` to a class that is never subclassed costs nothing and lets the compiler replace every virtual call through a pointer to that class with a direct call, enabling inlining of the method body.
-**Tool anchor:** `g++ -O2 -Rpass=devirt -c handler.cpp 2>&1` (Clang) or check assembly for `call` vs `call *(%rax)` to distinguish direct from indirect calls
+**Tool anchor:** `g++ -O2 -Rpass=devirt -c handler.cpp 2>&1` (Clang) or check assembly for `call` vs `call [rax]` to distinguish direct from indirect calls
 **Drill:** Create a base `MessageHandler` with a virtual `onMessage()` method and a derived `MDPHandler` that overrides it. Call through a base pointer and inspect the assembly. Then add `final` to `MDPHandler` and observe the call change from indirect to direct.
 **Tags:** devirtualization, vtable, final, indirect-call, PGO
 
@@ -162,7 +162,7 @@ The `__attribute__((hot))` and `__attribute__((cold))` annotations tell the comp
 **Key concepts:** hot/cold attributes, .text.hot, .text.unlikely, I-cache locality, section placement, -freorder-functions
 **Tip:** Moving error-handling code to a `__attribute__((cold, noinline))` helper function is doubly effective: the cold attribute puts it in a separate section, and noinline keeps it from bloating the hot caller.
 **Tool anchor:** `g++ -O2 -c handler.cpp && readelf -S handler.o | grep -E '\.text|\.unlikely'` to verify section placement
-**Drill:** Identify the error-handling path in your SBE decoder (malformed message handling). Mark it `cold, noinline` and the main decode loop `hot`. Compare the binary layout before and after using `objdump -d --section=.text.hot`.
+**Drill:** Identify the error-handling path in your SBE decoder (malformed message handling). Mark it `cold, noinline` and the main decode loop `hot`. Compare the binary layout before and after using `objdump -d -M intel --section=.text.hot`.
 **Tags:** hot, cold, section-placement, I-cache, code-layout
 
 ## advanced
@@ -179,7 +179,7 @@ x86-64 has 16 general-purpose registers (rax-r15, minus rsp/rbp), and when a fun
 GCC and Clang provide builtins that convey programmer knowledge to the optimizer: `__builtin_expect(expr, val)` (C++20 `[[likely]]`/`[[unlikely]]`) guides branch prediction layout, `__builtin_prefetch(addr, rw, locality)` inserts prefetch instructions, `__builtin_unreachable()` eliminates impossible code paths, and `__builtin_assume_aligned(ptr, N)` promises pointer alignment. Each gives the compiler information it cannot deduce, enabling better codegen for the specific case.
 **Key concepts:** __builtin_expect, [[likely]], __builtin_prefetch, __builtin_unreachable, __builtin_assume_aligned
 **Tip:** `__builtin_unreachable()` in a default switch case lets the compiler eliminate the bounds check entirely; but if the "impossible" case ever occurs, you get silent undefined behavior instead of a crash, so pair it with an assert in debug builds.
-**Tool anchor:** `echo 'int f(int x) { switch(x) { case 0: return 1; case 1: return 2; default: __builtin_unreachable(); } }' | g++ -O2 -S -x c++ -o - -`
+**Tool anchor:** `echo 'int f(int x) { switch(x) { case 0: return 1; case 1: return 2; default: __builtin_unreachable(); } }' | g++ -O2 -masm=intel -S -x c++ -o - -`
 **Drill:** Add `__builtin_expect` to the hot path branch in your CME MDP3 message type switch statement (expecting the most common message type). Compare the assembly layout before and after, verifying that the expected case now falls through without a taken branch.
 **Tags:** builtins, likely, prefetch, unreachable, assume_aligned
 
@@ -195,7 +195,7 @@ Both GCC and Clang can emit detailed reports about which optimizations were appl
 The compiler reorders independent instructions to fill pipeline bubbles and maximize instruction-level parallelism (ILP). On in-order cores this is critical; on out-of-order x86 cores it still matters because it affects decode bandwidth and can help the hardware scheduler. Software pipelining (modulo scheduling) overlaps iterations of a loop so that loads from iteration N+1 start while iteration N is computing. The `-fschedule-insns` and `-fschedule-insns2` flags control pre-RA and post-RA scheduling.
 **Key concepts:** instruction scheduling, ILP, pipeline bubble, modulo scheduling, pre-RA/post-RA scheduling
 **Tip:** On modern out-of-order x86 CPUs, compiler scheduling matters most at the decode/frontend stage; a sequence of dependent instructions that the hardware reorders anyway still costs frontend bandwidth to crack into uops.
-**Tool anchor:** `g++ -O2 -fschedule-insns -fschedule-insns2 -S -o sched.s decoder.cpp && g++ -O2 -fno-schedule-insns -fno-schedule-insns2 -S -o nosched.s decoder.cpp && diff sched.s nosched.s | head -40`
+**Tool anchor:** `g++ -O2 -fschedule-insns -fschedule-insns2 -masm=intel -S -o sched.s decoder.cpp && g++ -O2 -fno-schedule-insns -fno-schedule-insns2 -masm=intel -S -o nosched.s decoder.cpp && diff sched.s nosched.s | head -40`
 **Drill:** Take a sequence of 6 independent loads followed by 6 dependent computations in your SBE decoder. Compare the scheduled assembly (default -O2) with `-fno-schedule-insns2` output. Count the pipeline bubbles in each version by analyzing instruction latencies.
 **Tags:** scheduling, ILP, pipeline, modulo-scheduling, frontend
 

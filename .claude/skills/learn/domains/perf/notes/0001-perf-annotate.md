@@ -46,7 +46,7 @@ because source-line mapping gets confused across inlining boundaries.
 ```
 perf stat -M TopdownL1  →  "Backend Bound 65%"
 perf report             →  "decode_field() at 28%"
-perf annotate           →  "mov (%rax,%rcx,8) at 35%"  ← YOU ARE HERE
+perf annotate           →  "mov [rax+rcx*8] at 35%"  ← YOU ARE HERE
 perf stat -e BR_MISP_RETIRED.INDIRECT  or  perf mem  →  confirm mechanism
 ```
 
