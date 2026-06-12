@@ -4,9 +4,9 @@ Updated: 2026-05-28
 ## beginner
 
 ### Pipeline stages and instruction flow
-A modern x86-64 CPU pipeline has roughly 14-20 stages (19 on Skylake, 20+ on Alder Lake) divided into a frontend (fetch, predecode, decode, allocate) and backend (execute, retire). Understanding where the frontend ends and backend begins at the allocation/rename stage is critical because TMA analysis splits bottlenecks at exactly this boundary. Every instruction flows in-order through the frontend, executes out-of-order in the backend, then retires in-order again.
+A modern x86-64 CPU pipeline has roughly 14-20 stages (Golden Cove/Alder Lake added one stage over Skylake) divided into a frontend (fetch, predecode, decode, allocate) and backend (execute, retire). Understanding where the frontend ends and backend begins at the allocation/rename stage is critical because TMA analysis splits bottlenecks at exactly this boundary. Every instruction flows in-order through the frontend, executes out-of-order in the backend, then retires in-order again.
 **Key concepts:** fetch, decode, execute, retire, frontend/backend boundary, pipeline depth, in-order vs out-of-order
-**Tip:** Pipeline depth determines branch misprediction cost: a 19-stage Skylake pipeline wastes ~14-20 cycles per mispredict because all speculatively-issued instructions after the branch must be flushed and re-fetched.
+**Tip:** Pipeline depth determines branch misprediction cost: Skylake wastes ~16.5 cycles per mispredict on a uop-cache (DSB) hit and ~19-20 cycles on a DSB miss, because all speculatively-issued instructions after the branch must be flushed and re-fetched.
 **Tool anchor:** `perf stat -e cycles,instructions,uops_issued.any,uops_retired.retire_slots -- ./bench`
 **Drill:** You have two binaries: one with a tight arithmetic loop (add/mul chain), another with scattered branches. Predict which has higher IPC and explain how pipeline depth affects each differently. Then verify with `perf stat`.
 **Tags:** pipeline, frontend, backend, pipeline-depth, fetch-decode-execute-retire
@@ -96,7 +96,7 @@ Intel's Top-down Microarchitecture Analysis splits every pipeline slot into exac
 ### SIMD execution units and port pressure
 Modern CPUs have 6-8 execution ports, each connected to specific functional units. On Skylake, ports 0/1/5 handle vector ALU, port 0 handles FP divides, ports 2/3 handle loads, port 4 handles stores, and port 7 handles simple store address calculation. When multiple instructions compete for the same port, port contention limits throughput even if other ports are idle. AVX-512 further complicates this because heavy 512-bit operations may shut down port 1 vector execution.
 **Key concepts:** execution ports, port contention, functional units, AVX-512 port restrictions, port binding
-**Tip:** On Skylake, `vpand` (bitwise AND) can run on ports 0, 1, or 5, but `vpmullw` (16-bit multiply) can only run on port 0. If your SBE decoder interleaves AND and MULTIPLY operations, the multiplies become the bottleneck because they are port-0-only.
+**Tip:** On Skylake, `vpand` (bitwise AND) can run on ports 0, 1, or 5, but `vpmullw` (16-bit multiply) only runs on ports 0 and 1 (it cannot use port 5). If your SBE decoder interleaves AND and MULTIPLY operations, the multiplies become the bottleneck because they are restricted to the two p0/p1 vector multiply units.
 **Tool anchor:** `perf stat -e uops_dispatched_port.port_0,uops_dispatched_port.port_1,uops_dispatched_port.port_2,uops_dispatched_port.port_3,uops_dispatched_port.port_5 -- ./bench`
 **Drill:** `perf stat` shows port 0 at 95% utilization while ports 1 and 5 are at 30%. Your hot loop contains SIMD shift, multiply, and add operations. Use llvm-mca or Intel intrinsics guide to determine which instructions are port-0-only and propose instruction substitutions to balance port pressure.
 **Tags:** execution-ports, port-contention, SIMD, AVX-512, functional-units, Skylake
@@ -232,7 +232,7 @@ The ROB and Reservation Station (RS) are the two main OoO engine queues, and eit
 **Tags:** ROB, reservation-station, back-pressure, resource-stalls, OoO-window, gather-pattern
 
 ### Comparing Intel vs AMD microarchitectures
-Intel (Golden Cove/Raptor Cove) and AMD (Zen 4/Zen 5) differ in key structural parameters: decode width (6 vs 4), ROB size (512 vs 320), scheduler entries (different partitioning), cache hierarchy (Intel: 1.25MB L2, AMD: 1MB L2 with different associativity), and PMC event naming. Code optimized for one may bottleneck differently on the other. AMD's separate INT and FP scheduler vs Intel's unified RS, and AMD's larger L1d (48KB vs 32KB) affect optimization priorities.
+Intel (Golden Cove/Raptor Cove) and AMD (Zen 4/Zen 5) differ in key structural parameters: decode width (6 vs 4), ROB size (512 vs 320), scheduler entries (different partitioning), cache hierarchy (Intel: 1.25MB L2, AMD: 1MB L2 with different associativity), and PMC event naming. Code optimized for one may bottleneck differently on the other. AMD's separate INT and FP scheduler vs Intel's unified RS, and Intel's larger L1d (Golden Cove 48KB vs Zen 4 32KB) affect optimization priorities.
 **Key concepts:** Zen 4/5, Golden Cove, decode width, ROB size, cache sizes, PMC event names, structural differences
 **Tip:** AMD Zen 4 has a 32-entry return address stack vs Intel's 16-entry RSB. If your workload has deep call stacks (16-32 levels), it will mispredict returns on Intel but not AMD. Profile on both architectures before concluding a branch prediction problem is fundamental vs architectural.
 **Tool anchor:** `perf stat -e ex_ret_brn_misp,ex_ret_brn,ls_dispatch.ld_dispatch,ls_dispatch.store_dispatch -- ./bench` (AMD PMC events; compare with Intel equivalents `br_misp_retired.all_branches,br_inst_retired.all_branches,mem_inst_retired.all_loads,mem_inst_retired.all_stores`)

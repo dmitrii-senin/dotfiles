@@ -20,9 +20,9 @@ Modern CPUs have a deep memory hierarchy with dramatically increasing latencies:
 **Tags:** latency, memory-wall, cache-miss, IPC, DRAM
 
 ### TLB and page table walks
-The TLB (Translation Lookaside Buffer) caches virtual-to-physical address translations. L1 dTLB holds ~64 entries, L2 sTLB holds ~1536 entries. A TLB miss triggers a page table walk through 4 levels of page tables (PML4, PDPT, PD, PT), costing ~7ns best case (page table in cache) to ~100ns+ if page table entries miss to DRAM. Using 2MB huge pages increases TLB coverage from 256KB (64 x 4KB) to 128MB (64 x 2MB).
+The TLB (Translation Lookaside Buffer) caches virtual-to-physical address translations. L1 dTLB holds ~64 entries (for 4KB pages), L2 sTLB holds ~1536 entries. A TLB miss triggers a page table walk through 4 levels of page tables (PML4, PDPT, PD, PT), costing ~7ns best case (page table in cache) to ~100ns+ if page table entries miss to DRAM. Using 2MB huge pages increases TLB coverage: on Skylake the L1 dTLB has a separate 32-entry pool for 2MB pages, so coverage goes from 256KB (64 x 4KB) to 64MB (32 x 2MB).
 **Key concepts:** dTLB, sTLB, page table walk, 4KB vs 2MB pages, TLB reach
-**Tip:** With 4KB pages, 64 dTLB entries cover only 256KB; a market data application touching a 16MB ring buffer will TLB-miss constantly, but switching to 2MB huge pages makes 64 dTLB entries cover 128MB, eliminating the walks entirely.
+**Tip:** With 4KB pages, 64 dTLB entries cover only 256KB; a market data application touching a 16MB ring buffer will TLB-miss constantly, but switching to 2MB huge pages makes the 32-entry 2MB dTLB pool cover 64MB, eliminating the walks entirely.
 **Tool anchor:** `perf stat -e dTLB-loads,dTLB-load-misses,dtlb_load_misses.walk_completed,dtlb_load_misses.walk_active -- ./md_handler`
 **Drill:** Your feed handler's perf stat shows dTLB-load-misses at 4.2% of dTLB-loads and dtlb_load_misses.walk_active is 22% of total cycles. The application uses a 32MB hash table with 4KB pages. Calculate the TLB reach, explain why the miss rate is high, and propose a fix.
 **Tags:** TLB, page-table-walk, huge-pages, dTLB, address-translation
@@ -70,7 +70,7 @@ x86-64 uses a 4-level page table (PML4 -> PDPT -> PD -> PT) to translate 48-bit 
 ## intermediate
 
 ### Hardware prefetching
-Modern CPUs have multiple hardware prefetchers: the L1 streaming prefetcher detects sequential access, the adjacent-line prefetcher fetches the neighboring cache line, and the L2 stride prefetcher detects constant-stride patterns (up to 2KB stride on Intel). These prefetchers can sustain near-L1 throughput for predictable patterns but waste bandwidth on irregular access. Knowing when they are active (and when they fail) is the key to understanding memory-bound performance.
+Modern CPUs have multiple hardware prefetchers: the L1 streaming (DCU) prefetcher detects sequential access, the adjacent-line prefetcher fetches the neighboring cache line, the L1 IP-based stride prefetcher detects constant-stride patterns per load instruction (up to 2KB stride on Intel), and the L2 streamer follows forward/backward streams within a 4KB page. These prefetchers can sustain near-L1 throughput for predictable patterns but waste bandwidth on irregular access. Knowing when they are active (and when they fail) is the key to understanding memory-bound performance.
 **Key concepts:** streaming prefetcher, adjacent-line prefetcher, L2 stride prefetcher, prefetch distance, training
 **Tip:** The L2 stride prefetcher needs ~2 consecutive accesses with the same stride to start prefetching; if your SBE messages vary in size between 32 and 128 bytes, the stride changes every message and the prefetcher never engages.
 **Tool anchor:** `perf stat -e l2_lines_in.all,l2_rqsts.prefetch_miss,l2_rqsts.all_pf -- ./sbe_decoder < capture.pcap`
@@ -94,9 +94,9 @@ False sharing occurs when two threads write to different variables that share th
 **Tags:** false-sharing, cache-coherence, MESI, perf-c2c, multi-threaded
 
 ### Store buffers and store-to-load forwarding
-The store buffer (~56 entries on modern Intel) holds pending stores so the CPU does not stall waiting for cache coherence. When a load reads from the same address as a pending store, store-to-load forwarding provides the data directly from the store buffer (~4-5 cycles) instead of waiting for the store to commit. Forwarding fails when the load is wider than the store, partially overlapping, or unaligned relative to the store, causing a ~13-cycle penalty with a pipeline flush.
-**Key concepts:** store buffer entries, forwarding rules, forwarding failure, pipeline nuke, memory ordering
-**Tip:** Writing a `uint32_t` and then reading the containing `uint64_t` (e.g., via a union or type-pun) causes a store-forwarding failure because the load is wider than the store; the CPU must drain the store buffer and re-fetch from cache.
+The store buffer (~56 entries on modern Intel) holds pending stores so the CPU does not stall waiting for cache coherence. When a load reads from the same address as a pending store, store-to-load forwarding provides the data directly from the store buffer (~4-5 cycles) instead of waiting for the store to commit. Forwarding fails when the load is wider than the store, partially overlapping, or unaligned relative to the store, causing a ~13-cycle penalty because the load stalls until the store reaches L1 (it is a stall, not a pipeline flush).
+**Key concepts:** store buffer entries, forwarding rules, forwarding failure, load stall, memory ordering
+**Tip:** Writing a `uint32_t` and then reading the containing `uint64_t` (e.g., via a union or type-pun) causes a store-forwarding failure because the load is wider than the store; the load is blocked until the store drains to L1 cache, then re-issues.
 **Tool anchor:** `perf stat -e ld_blocks.store_forward -- ./sbe_decoder < capture.pcap`
 **Drill:** Your SBE encoder writes message fields as individual typed stores (uint16_t, uint32_t, uint64_t) into a buffer, then copies the entire buffer with a memcpy that reads 128-bit (16-byte) chunks. perf stat shows 2.4M ld_blocks.store_forward events/sec. Explain why forwarding fails and propose two solutions.
 **Tags:** store-buffer, store-forwarding, forwarding-failure, pipeline-flush, memory-ordering
@@ -194,13 +194,13 @@ Transparent Huge Pages (THP) automatically promote 4KB pages to 2MB in the backg
 ### Cache partitioning (Intel CAT/MBA)
 Intel Cache Allocation Technology (CAT) lets you assign cache ways to classes of service (CLOS), preventing noisy neighbors from evicting your hot data. Memory Bandwidth Allocation (MBA) similarly throttles bandwidth per-CLOS. For a market data handler sharing a server with logging, analytics, or other processes, CAT can reserve 4-8 L3 ways exclusively for the feed handler, guaranteeing its working set stays resident.
 **Key concepts:** CLOS (Class of Service), CAT bitmask, MBA percentage, pqos/resctrl, noisy neighbor isolation
-**Tip:** On a 20-way L3 (typical Xeon), reserving 8 ways (40%) for your feed handler via CAT guarantees ~11MB of dedicated L3 (from a 27.5MB total), preventing the analytics process from evicting order book data.
+**Tip:** On a 20-way L3 (e.g. a 20-core Broadwell-EP Xeon with 2.5MB inclusive slices), reserving 8 ways (40%) for your feed handler via CAT guarantees ~20MB of dedicated L3 (from a 50MB total), preventing the analytics process from evicting order book data. (Note: post-Skylake-SP server L3 is 11-way per slice at 1.375MB/core, so a 27.5MB part exposes only 11 CAT ways, not 20.)
 **Tool anchor:** `sudo pqos -s` to show current CAT/MBA configuration; `sudo pqos -e "llc:1=0x00FF;"` to assign 8 ways to CLOS 1; `sudo pqos -a "llc:1=$(pgrep md_handler)"`
 **Drill:** Your market data handler and a log compression process share a 20-way 30MB L3. Without CAT, perf shows LLC-load-misses spike 3x when the compressor runs. Design a CAT configuration: assign 12 ways to the handler (CLOS 1), 6 ways to the compressor (CLOS 2), and 2 shared ways (CLOS 0). Write the pqos commands and calculate the MB guaranteed to each process.
 **Tags:** CAT, MBA, cache-partitioning, CLOS, noisy-neighbor
 
 ### Memory ordering and store buffer (hardware view)
-The store buffer decouples stores from the memory hierarchy for performance, but this creates a gap between program order and visibility order. x86 TSO (Total Store Order) guarantees loads are not reordered with other loads and stores are not reordered with other stores, but a load CAN read a stale value if a prior store to a different address has not yet drained. Machine clears from memory ordering violations (load speculation past a store to the same address) cost ~20 cycles each.
+The store buffer decouples stores from the memory hierarchy for performance, but this creates a gap between program order and visibility order. x86 TSO (Total Store Order) guarantees loads are not reordered with other loads and stores are not reordered with other stores, but a load CAN read a stale value if a prior store to a different address has not yet drained. Machine clears from memory ordering violations (load speculation past a store to the same address) are expensive pipeline flushes; Intel's VTune impact model estimates ~500 cycles per event.
 **Key concepts:** TSO, store buffer draining, load speculation, memory ordering machine clear, LFENCE/SFENCE/MFENCE
 **Tip:** x86 TSO means you almost never need `std::atomic` fences between same-type operations, but a producer-consumer pattern where thread A stores data then stores a flag needs the flag store to be `std::memory_order_release` to prevent the compiler from reordering (the hardware already provides TSO ordering).
 **Tool anchor:** `perf stat -e machine_clears.memory_ordering -- ./md_handler` to count ordering-violation pipeline flushes

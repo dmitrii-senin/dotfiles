@@ -135,7 +135,7 @@ Build drill modes with auto-grading, retry, stuck/skip/done commands, and end-of
 
 ### Hooks in skills
 Attach lifecycle hooks to skills — run commands before/after the skill loads.
-**Tip:** `hooks: { pre_tool_use: [...] }` can validate state before every tool call in your skill
+**Tip:** `hooks: { PreToolUse: [...] }` can validate state before every tool call in your skill
 **Drill:** Design a hook that validates state file integrity before a skill runs
 **Tags:** hooks, lifecycle, pre-tool, validation
 

@@ -113,6 +113,14 @@ Use: /learn <domain> <mode>   (modes: mm, flash, drill, challenge, cheatsheet, s
 
 ---
 
+## `doctor` mode
+
+Validate the engine: every domain's JSON parses, required files (`domain.md`/`mission.md`/
+`resources.md`) exist, the universal mode→file map resolves, mode files are non-empty, and
+no `domain.md`/`modes/` reference points at a missing path. Run the validator —
+`python3 ~/.claude/skills/learn/doctor.py` (exit non-zero on error). Run after editing the
+engine or adding a domain.
+
 ## `help` mode
 
 ```
@@ -132,6 +140,7 @@ A domain may add its own modes (declared in its domain.md), e.g. neovim/claude `
 An area with no mode defaults to `mm` (`/learn perf cpu` ⇒ mm on cpu).
 
 list                         — all domains + what's due
+doctor                       — validate the engine (run: python3 ~/.claude/skills/learn/doctor.py)
 Token order is forgiving: `/learn perf flash cpu` == `/learn perf cpu flash`.
 Short aliases exist for frequent domains (e.g. /perf, /claude, /nvim).
 ```

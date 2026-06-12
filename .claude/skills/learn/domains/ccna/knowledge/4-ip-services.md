@@ -96,7 +96,7 @@ ip dhcp pool LAN
 
 **DNS exam focus:**
 - IOS as client: `ip name-server 8.8.8.8`, `ip domain-lookup`, `ip domain-name lab.local`.
-- Without `ip domain-lookup` (off by default on some), unknown commands like typos cause the router to attempt DNS resolution and hang. Best practice: `no ip domain-lookup` + `transport preferred none` on console.
+- With `ip domain-lookup` (enabled by default), unknown commands like typos cause the router to attempt DNS resolution and hang. Best practice: `no ip domain-lookup` + `transport preferred none` on console.
 
 ---
 
@@ -176,7 +176,7 @@ interface gi0/0
  ip helper-address 192.168.10.5
 ```
 
-`ip helper-address` forwards broadcast UDP 67 (DHCP) AND seven other UDP services (DNS, TFTP, NTP, NetBIOS NS/DS, TACACS, time). Use `no ip forward-protocol udp <port>` to disable forwarding for unwanted services.
+`ip helper-address` forwards broadcast UDP 67 (DHCP) AND seven other UDP services (DNS, TFTP, DHCP client 68, NetBIOS NS/DS, TACACS, time). Use `no ip forward-protocol udp <port>` to disable forwarding for unwanted services.
 
 ---
 
@@ -193,7 +193,7 @@ interface gi0/0
 **Exam focus:**
 - **Classification**: identify traffic (NBAR, ACL, DSCP marking).
 - **Marking**: tag packets with DSCP (Layer 3, 6 bits in IP ToS) or CoS (Layer 2, 3 bits in 802.1Q).
-- DSCP values: EF (46) for voice, AF31/AF41 (signaling/video), CS6 (network control). Default = 0.
+- DSCP values: EF (46) for voice, CS3/AF41 (signaling/video), CS6 (network control). Default = 0.
 - **Queuing**: PQ, WFQ, CBWFQ, LLQ (low-latency queuing — strict priority for voice).
 - **Policing**: drops or re-marks excess traffic (immediate).
 - **Shaping**: buffers excess traffic and sends later (smooths bursts).

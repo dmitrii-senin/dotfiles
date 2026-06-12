@@ -21,7 +21,7 @@ For `quiz mock` / `quiz weak-areas`, read all six (or the subset matching weak a
 
 ## Modes
 
-enabled: `flash`, `cheatsheet` (universal) · `subnet`, `schedule`, `quiz`, `tutor`, `explain` (domain — `modes/`)
+enabled: `flash`, `cheatsheet` (universal) · `subnet`, `schedule`, `quiz`, `tutor`, `explain`, `progress` (domain — `modes/`)
 default: `schedule`   (bare `/ccna` shows this week's targets)
 removed (decommissioned): ~~cli-roleplay~~, ~~config-review~~, ~~journal~~
 not used: `mm`, `drill`, `challenge` (ccna uses `quiz`/`tutor`/`explain` instead)

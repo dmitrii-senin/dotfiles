@@ -9,7 +9,7 @@ Official blueprint: https://learningnetwork.cisco.com/s/ccna-exam-topics
 **Exam focus:**
 - **Threat** — potential danger
 - **Vulnerability** — weakness that could be exploited
-- **Exploit** — actual use of a vulnerability
+- **Exploit** — a means/tool that takes advantage of a vulnerability
 - **Mitigation** — defense
 - **Risk** = likelihood × impact
 

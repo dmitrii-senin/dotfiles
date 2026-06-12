@@ -20,7 +20,7 @@ GCC and Clang define optimization levels that enable progressively more aggressi
 **Tags:** optimization-levels, O2, O3, Os, Ofast
 
 ### Inlining decisions and attributes
-The compiler inlines functions when the callee is small enough (typically under ~100 instructions for GCC's default threshold) and the call site is hot enough to justify the code-size increase. `__attribute__((always_inline))` forces inlining regardless of cost, useful for tiny hot-path helpers like SBE field accessors. `__attribute__((noinline))` prevents inlining, essential for keeping cold error-handling paths from bloating hot functions. The `-finline-limit=N` flag adjusts the threshold globally.
+The compiler inlines functions when the callee is small enough (typically a few dozen of GCC's internal pseudo-instructions for the auto-inline default — `max-inline-insns-auto`, ~30 in GCC 8+ and lower still in current releases, vs ~70 for explicitly-`inline` functions via `max-inline-insns-single`; `gcc -Q --help=params` prints your version's value) and the call site is hot enough to justify the code-size increase. `__attribute__((always_inline))` forces inlining regardless of cost, useful for tiny hot-path helpers like SBE field accessors. `__attribute__((noinline))` prevents inlining, essential for keeping cold error-handling paths from bloating hot functions. The `-finline-limit=N` flag adjusts the threshold globally.
 **Key concepts:** inline threshold, always_inline, noinline, code size vs speed tradeoff, -finline-limit
 **Tip:** Forcing `always_inline` on a function larger than ~50 instructions usually hurts performance by inflating the caller's instruction footprint; reserve it for trivial accessors and wrappers.
 **Tool anchor:** `g++ -O2 -Rpass=inline -Rpass-missed=inline -c decoder.cpp 2>&1 | head -40`
@@ -62,7 +62,7 @@ The compiler evaluates expressions with known values at compile time (constant f
 ### Strength reduction and loop transformations
 Strength reduction replaces expensive operations with cheaper equivalents: multiply by a power of two becomes a left shift, division by a constant becomes a multiply-and-shift sequence, modulo by a power of two becomes a bitwise AND. Loop-invariant code motion (LICM) hoists computations that produce the same result every iteration out of the loop body. These optimizations are automatic at -O2 but understanding them helps you write code the compiler can transform.
 **Key concepts:** strength reduction, multiply-to-shift, division-by-constant, LICM, induction variables
-**Tip:** Division by a non-power-of-two constant is never compiled to a `div` instruction; the compiler uses a magic-number multiply-and-shift sequence that is 20-30x faster, so do not manually replace `x / 10` with a lookup table.
+**Tip:** Division by a non-power-of-two constant is never compiled to a `div` instruction; the compiler uses a magic-number multiply-and-shift sequence that is several times faster (roughly 2-10x, since `div`/`idiv` is ~12-44 cycles vs ~3-7 for `imul` plus a shift), so do not manually replace `x / 10` with a lookup table.
 **Tool anchor:** `echo 'int f(int x) { return x / 7; }' | g++ -O2 -S -x c++ -o - - | grep -A5 'f:'` to see the magic multiply
 **Drill:** Write a loop that computes `array[i] * 8 + base_offset` for each element. Inspect the assembly at -O2 and verify the compiler replaced the multiply with a shift and hoisted `base_offset` out of the loop.
 **Tags:** strength-reduction, LICM, loop-transformation, shift, division

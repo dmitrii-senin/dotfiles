@@ -6,8 +6,6 @@ lazyvim.json
 
 zsh-meta/
 
-.claude/skills/lpic-202/progress.md
-
 *.epub
 
 claude-plugins/*/data/

@@ -41,7 +41,9 @@ Favor problems where the math straddles an octet boundary or starts at a non-zer
 3. Verify; show the correct answer with brief working (e.g. "block size 32 → nets at .128/.160;
    .135 ∈ .128/27").
 4. Tag missed types into `data/weak-areas.json` under `subnetting:<type>` (increment
-   `misses`/`attempts`, set `last_seen`/`last_score`).
+   `misses`/`attempts`, set `last_seen`/`last_score`). If the same conceptual error recurs
+   (e.g. block-size direction, octet-boundary straddling), write a `records/` entry
+   (`methodology/state.md`) capturing the misconception.
 5. After all: score, average time-per-problem, and any subtopic the user struggled with.
 
 Daily-driver: keep it fast and low-friction — this is run every day. Don't over-explain

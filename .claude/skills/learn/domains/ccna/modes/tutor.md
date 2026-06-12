@@ -13,6 +13,9 @@ Teach a CCNA topic by asking, not lecturing. Invoked as `/learn ccna tutor <topi
    you guess? Even a wrong guess shows me your thinking."*
 7. Close: ask the user to synthesize — *"Now explain it back to me in 3 sentences."*
 8. Offer: *"Add this to your flashcards?"* → if yes, hand off to `flash add`.
+9. If the session resolved a misconception or surfaced a durable insight, write a
+   `records/NNNN-*.md` (see `methodology/state.md`); optionally save the synthesis as a
+   `notes/NNNN-*.md` for re-reading.
 
 Cisco/IOS framing; stay on the blueprint. This is the deep-engagement path for leeches and
 weak areas surfaced by `flash`/`quiz`.

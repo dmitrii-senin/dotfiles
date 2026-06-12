@@ -95,7 +95,7 @@ Official blueprint: https://learningnetwork.cisco.com/s/ccna-exam-topics
 - **Rapid PVST+**: Cisco's per-VLAN RSTP. One STP instance per VLAN.
 - Verify: `show spanning-tree`, `show spanning-tree vlan 10`, `show spanning-tree summary`.
 
-**RSTP convergence: <1s typical; 802.1D legacy: ~50s.**
+**RSTP convergence: within a few seconds typical (~10s worst case); 802.1D legacy: ~50s.**
 
 ---
 
@@ -113,8 +113,8 @@ Official blueprint: https://learningnetwork.cisco.com/s/ccna-exam-topics
   - LAP joins WLC via **CAPWAP** (Control And Provisioning of Wireless Access Points). Two tunnels: control (UDP 5246), data (UDP 5247).
   - Split MAC: real-time 802.11 (ACKs, beacons) at AP; management (auth, association, radio mgmt) at WLC.
   - LAP boots, gets IP via DHCP, discovers WLC (DHCP option 43, DNS, broadcast), joins.
-- **Cloud-managed**: Meraki — controller in cloud.
-- **Embedded WLC**: small deployment, WLC in switch hardware.
+- **Cloud-managed**: Meraki — autonomous APs centrally managed via the Meraki cloud (no WLC; cloud handles management only, not the client data path).
+- **Embedded WLC (EWC)**: small/branch deployment, WLC function co-located with (hosted on) an AP; aka controller-less. Supports up to 100 APs.
 
 ---
 

@@ -81,7 +81,7 @@ These pseudo-files are the raw data behind every monitoring tool. Knowing key fi
 `perf annotate` maps samples to individual instructions (and source lines with debug info), showing exactly which instruction is hot within a function. This reveals whether time is spent on loads (memory-bound), branches (control-flow), or arithmetic. For C++ template-heavy code like SBE codecs, it disambiguates which template instantiation is the bottleneck.
 **Key concepts:** instruction-level sampling, hot instruction, source-line mapping, compiler optimization visibility
 **Tip:** A `mov` instruction with 40% of samples is not slow itself; it is stalled waiting for a prior cache-miss load to complete. Look at the instruction 1-3 lines above it for the true culprit.
-**Tool anchor:** `perf annotate -s decode_field --source --no-source --stdio` (use `--no-source` for pure assembly when source mapping is misleading due to inlining)
+**Tool anchor:** `perf annotate -s decode_field --no-source --stdio` (`--source`, which interleaves source with assembly, is the default; use `--no-source` for pure assembly when source mapping is misleading due to inlining)
 **Drill:** perf annotate shows 35% of samples on a `mov rax, [rbx+0x40]` inside your SBE message decoder's hot loop. The instruction above is `cmp` with 0% samples. Explain what is happening at the microarchitectural level and propose a fix.
 **Tags:** perf-annotate, assembly, instruction-level, source-correlation, cache-miss
 
@@ -97,7 +97,7 @@ bpftrace provides concise one-liner tracing programs across four probe types: kp
 Before optimizing anything, classify your workload: is it CPU-bound (high IPC, saturated core), memory-bound (low IPC, high cache misses), I/O-bound (high %iowait, frequent syscalls), or mixed? Intel's Top-down Microarchitecture Analysis (TMA) Level 1 splits cycles into Frontend Bound, Backend Bound, Bad Speculation, and Retiring, giving a definitive first-pass classification that guides all subsequent analysis.
 **Key concepts:** CPU/memory/IO-bound, TMA Level 1, Frontend/Backend/BadSpec/Retiring, iterative drill-down
 **Tip:** If TMA shows >50% Backend Bound, do not waste time optimizing branch prediction or instruction fetch; your bottleneck is cache/memory and you need to fix data access patterns.
-**Tool anchor:** `perf stat -M TopdownL1 -C 3 -- sleep 10` (requires perf 5.8+ and Intel CPU with PEBS; use `--topdown` on older perf)
+**Tool anchor:** `perf stat -M TopdownL1 -C 3 -- sleep 10` (requires perf 5.8+ and an Intel CPU exposing the `slots` fixed counter, i.e. Ice Lake or newer; use `--topdown` on older perf)
 **Drill:** TMA Level 1 for your SBE decoder shows: Retiring 15%, Bad Speculation 5%, Frontend Bound 10%, Backend Bound 70%. What does this tell you? What TMA Level 2 breakdown would you examine next, and what specific perf events would you measure?
 **Tags:** workload-characterization, TMA, CPU-bound, memory-bound, classification
 
@@ -121,7 +121,7 @@ False sharing occurs when different cores write to different variables that shar
 `perf mem` samples load and store instructions and records the data source for each access (L1 hit, L2 hit, L3 hit, local DRAM, remote DRAM). This reveals whether your hot data fits in cache and identifies specific data structures causing DRAM accesses. Weight-based sampling prioritizes high-latency accesses, focusing attention where it matters most.
 **Key concepts:** load/store sampling, data source attribution, weight sampling, DRAM vs cache hits
 **Tip:** Sort by weight (latency) not count; 100 DRAM accesses at 200 cycles each cost more than 10,000 L1 hits at 4 cycles each.
-**Tool anchor:** `perf mem record -t load -p $(pgrep md_feed) -- sleep 10 && perf mem report --sort=mem,sym,dso --stdio`
+**Tool anchor:** `perf mem -t load record -p $(pgrep md_feed) -- sleep 10 && perf mem report --sort=mem,sym,dso --stdio`
 **Drill:** perf mem report shows your order book's `std::unordered_map::operator[]` with 60% of accesses hitting DRAM and average weight 180 cycles. The map has 500K entries. Propose a data structure change and predict its effect on the data source distribution.
 **Tags:** perf-mem, memory-access, data-source, weight-sampling, DRAM
 
@@ -145,7 +145,7 @@ Beyond standard CPU flame graphs, several variants illuminate different bottlene
 Modern CPUs have only 4-8 general-purpose PMC registers, but `perf stat` can measure dozens of events simultaneously by time-multiplexing: rapidly switching which events are counted and scaling the results. This introduces statistical error that grows with the number of events. Understanding the `<not counted>` and scaling percentage warnings is critical for trusting your numbers.
 **Key concepts:** PMC register limit, time multiplexing, scaling factor, counting error, event groups
 **Tip:** If perf stat shows a scaling percentage above 30%, your counts are unreliable; reduce the number of simultaneous events or use event groups to pin critical events to dedicated counters.
-**Tool anchor:** `perf stat -e '{cycles,instructions,cache-misses}:S' -- ./bench` (the `:S` suffix and braces create a group scheduled together, avoiding multiplexing between these three events)
+**Tool anchor:** `perf stat -e '{cycles,instructions,cache-misses}' -- ./bench` (the braces create a group scheduled together, avoiding multiplexing between these three events; the `:S` group-leader-sampling modifier is a `perf record`/PERF_SAMPLE_READ concept, not needed for counting)
 **Drill:** You run `perf stat` with 15 events and notice `cache-misses` shows `(23.07%)` next to it while `cycles` shows `(100.00%)`. Explain what these percentages mean, why they differ, and how to restructure the command to get 100% accuracy on cache-misses.
 **Tags:** multiplexing, PMC-registers, scaling, event-groups, accuracy
 

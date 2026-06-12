@@ -29,7 +29,8 @@ Multi-select MC and config-debugging are **guaranteed in every quiz** (they domi
    - **Never advance without `n`/`s`.** Never reveal upcoming answers.
 5. After all (+ skipped re-pass): score `X/N · NN%`, breakdown by domain/subtopic, focus areas,
    and **update `data/weak-areas.json`** (missed subtopics: `misses`/`attempts`++, `last_seen`,
-   recalc `last_score`).
+   recalc `last_score`). For a notable wrong mental model, also write a
+   `records/NNNN-<insight>.md` (see `methodology/state.md`) so it feeds future ZPD selection.
 
 ## `quiz mock [N]` — full mock exam
 - **60 questions** default; **weighted** D1:12 D2:12 D3:15 D4:6 D5:9 D6:6 (→60). All formats, mixed difficulty.

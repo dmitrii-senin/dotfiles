@@ -65,7 +65,7 @@ Official blueprint: https://learningnetwork.cisco.com/s/ccna-exam-topics
 - Speed
 
 **Exam focus:**
-- Duplex mismatch symptom: late collisions on full-duplex side, FCS errors, runts
+- Duplex mismatch symptom: late collisions on the half-duplex side (the side running CSMA/CD), FCS errors, runts
 - `show interfaces` counters: input errors, runts, giants, CRC, frame, overrun, ignored
 - Always set both ends to same speed/duplex (or both to auto)
 
@@ -83,7 +83,7 @@ Official blueprint: https://learningnetwork.cisco.com/s/ccna-exam-topics
 ## 1.6 Configure and verify IPv4 addressing and subnetting
 
 **Exam focus:**
-- Classful: A (0-127, /8), B (128-191, /16), C (192-223, /24), D multicast (224-239), E reserved (240-255)
+- Classful: A (1-126, /8; 0 and 127 reserved), B (128-191, /16), C (192-223, /24), D multicast (224-239), E reserved (240-255)
 - Private RFC1918: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16
 - Subnetting: block size = 256 - mask octet; network at multiples of block size; broadcast = network + block - 1
 - VLSM
@@ -174,7 +174,7 @@ Official blueprint: https://learningnetwork.cisco.com/s/ccna-exam-topics
 ## Common exam traps
 
 - **APIPA address** indicates DHCP failure — check DHCP server reachability
-- **Duplex mismatch** is silent at link level (link comes up) but kills throughput; look for late collisions on the full-duplex side
+- **Duplex mismatch** is silent at link level (link comes up) but kills throughput; look for late collisions on the half-duplex side (only the CSMA/CD side counts collisions)
 - **Auto-MDIX** means crossover cables are usually optional now, but historically required between same-type devices (router-router, switch-switch, host-host)
 - **Solicited-node multicast** is computed from unicast, not configured
 - **Wi-Fi 2.4 GHz channel overlap** — only 1, 6, 11 are non-overlapping in 20 MHz spacing

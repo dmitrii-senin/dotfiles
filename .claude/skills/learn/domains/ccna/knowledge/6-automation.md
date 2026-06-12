@@ -34,7 +34,7 @@ Official blueprint: https://learningnetwork.cisco.com/s/ccna-exam-topics
 ## 6.3 Describe controller-based, software-defined architecture (overlay, underlay, fabric)
 
 **Exam focus:**
-- **Underlay**: physical IP network (routers, switches, links). Provides reachability between fabric edges. Typically OSPF or IS-IS in spine-leaf.
+- **Underlay**: physical IP network (routers, switches, links). Provides reachability between fabric edges so VXLAN overlay tunnels can be built. In Cisco SD-Access greenfield deployments, Catalyst Center configures the underlay as a routed access layer running **IS-IS**. (Note: spine-leaf is the topology used by Cisco ACI in the data center, not SD-Access campus.)
 - **Overlay**: virtual logical network on top of underlay. Encapsulates user traffic in tunnels (VXLAN, GRE, MPLS).
 - **Fabric**: combination of underlay + overlay + control plane. Cisco SD-Access fabric uses LISP (control), VXLAN (data), Cisco TrustSec (policy).
 
@@ -50,7 +50,7 @@ Official blueprint: https://learningnetwork.cisco.com/s/ccna-exam-topics
 
 **Exam focus:**
 - **Traditional**: SSH/CLI, per-device, scripts, sometimes Cisco Prime.
-- **DNA Center**:
+- **DNA Center** (rebranded **Cisco Catalyst Center** in 2023; same features — both names appear in OCG and exam materials):
   - GUI-driven, intent-based networking.
   - Plug-and-Play onboarding.
   - Software image management at scale.
@@ -60,10 +60,10 @@ Official blueprint: https://learningnetwork.cisco.com/s/ccna-exam-topics
 
 ---
 
-## 6.5 Describe characteristics of REST-based APIs (CRUD, HTTP verbs, data encoding)
+## 6.5 Describe characteristics of REST-based APIs (authentication types, CRUD, HTTP verbs, and data encoding)
 
 **Exam focus:**
-- **REST** = Representational State Transfer. Stateless. Uses HTTP.
+- **REST** = Representational State Transfer. Stateless. Typically uses HTTP (though HTTP is not strictly required to be RESTful).
 - **CRUD → HTTP verbs:**
   - Create → **POST**
   - Read → **GET**
@@ -86,16 +86,19 @@ curl -X GET https://dnac.example.com/dna/intent/api/v1/network-device \
 
 ---
 
-## 6.6 Recognize the capabilities of configuration management mechanisms (Puppet, Chef, Ansible)
+## 6.6 Recognize the capabilities of configuration management mechanisms such as Ansible and Terraform
 
 **Exam focus:**
 
 | Tool | Language | Architecture | Push/Pull | Agent? |
 |---|---|---|---|---|
-| **Ansible** | YAML (playbooks) | Agentless | Push (over SSH) | No |
+| **Ansible** | YAML (playbooks); Jinja2 templates | Agentless | Push (default; pull via Ansible-pull) | No |
+| **Terraform** | HashiCorp Configuration Language (HCL) | Client/server (IaC; talks via APIs) | Push | No |
 | **Puppet** | Puppet DSL (Ruby-based) | Master + agent | Pull (agent polls master every 30 min) | Yes |
 | **Chef** | Ruby (recipes/cookbooks) | Server + workstation + nodes | Pull (chef-client polls) | Yes |
 | **SaltStack** | YAML + Jinja2 | Master + minion | Push or pull | Yes |
+
+> The current CCNA 200-301 (v1.1) blueprint and OCG cover **Ansible and Terraform** for topic 6.6; Puppet/Chef/SaltStack are listed here only for broader context (Puppet appears in the OCG only as an incorrect/distractor answer).
 
 **Why Ansible is popular for networking:**
 - Agentless (no software on switches)
@@ -213,4 +216,4 @@ device:
 - **Cisco DNA Center is the controller for SD-Access**; has REST API.
 - **NETCONF uses SSH (port 830)**, RESTCONF uses HTTP/HTTPS.
 - **Stateless** is a property of REST: the server doesn't keep client session state between requests; each request must contain all needed info (typically a token in the header).
-- **Imperative** ("do this command") vs **declarative** ("be in this state") — Puppet/Ansible/Chef are declarative.
+- **Imperative model** = a series of tasks/steps, like a script ("do this, then this"); **declarative model** = declare the intended end state and let the tool reach/maintain it ("be in this state"). Per the OCG, Terraform uses declarative configuration files; Ansible playbooks act as a program with steps (closer to imperative).

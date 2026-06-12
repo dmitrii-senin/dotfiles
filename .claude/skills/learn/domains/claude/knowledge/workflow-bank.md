@@ -141,7 +141,7 @@ Build and publish Claude Code plugins — the full lifecycle.
 
 ### Session recovery and debugging
 Diagnose and recover from bad Claude Code sessions — context corruption, tool failures, infinite loops.
-**Tip:** `/status` shows tool call counts. If Claude is stuck in a loop, interrupt and restate the goal.
+**Tip:** `/status` shows version, model, account, and connectivity; `/usage` shows session activity stats. If Claude is stuck in a loop, interrupt and restate the goal.
 **Drill:** Write recovery prompts for 3 failure scenarios: loop, wrong file, context exhaustion
 **Tags:** debugging, recovery, failures, diagnosis
 
