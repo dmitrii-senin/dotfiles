@@ -39,13 +39,15 @@ Parse `$ARGUMENTS` as: `<domain> <mode> [rest…]`.
    bare number / `random` / `stats` / `box` / quoted topic is the mode's argument.
    - If an **area** is given but **no mode** → default to **`mm`** on that area
      (`/learn perf cpu` ⇒ mm session on cpu; `/claude prompt` ⇒ mm session on prompt).
-   - If **neither** mode nor area is given → run `status`.
+   - If **neither** mode nor area is given → run the domain's declared `default` mode
+     (`domain.md`), else `status`.
    - If the mode isn't in the domain's enabled `modes` → say so and list what's enabled.
-5. **Run the mode.** Read `methodology/pedagogy.md`, then the mode file — resolved as:
-   `methodology/<mode>.md` if it exists (**universal** modes: `mm`, `flash`, `drill`,
-   `challenge`, `cheatsheet`, `update`), otherwise `domains/<domain>/modes/<mode>.md`
-   (**domain-specific** modes declared in `domain.md`, e.g. `audit`, `subnet`). Then
-   operate on the domain's content + `data/`. State schemas: `methodology/state.md`.
+5. **Run the mode.** Read `methodology/pedagogy.md`, then the mode's methodology file.
+   **Universal** modes map to: `mm`→`mm.md`, `flash`→`srs.md`, `drill`→`drill.md`,
+   `challenge`→`challenge.md`, `cheatsheet`→`cheatsheet.md`, `update`→`update.md`. Any other
+   mode is **domain-specific** → `domains/<domain>/modes/<mode>.md` (declared in `domain.md`,
+   e.g. `audit`, `subnet`). Then operate on the domain's content + `data/`. State schemas:
+   `methodology/state.md`.
 
 If a token is ambiguous, say so and offer 2–3 specific options. Do not guess.
 
@@ -74,19 +76,26 @@ Then:
 ## `status` mode
 
 Read `domain.md`, `data/progress.json`, `data/flashcards.json`, `data/weak-areas.json`,
-recent `records/`, and `mission.md`. Show a compact dashboard:
+recent `records/`, and `mission.md`. Show a compact dashboard, **including only the
+sections relevant to the domain's enabled modes** (don't show "Mental models" for a
+domain without `mm`, etc.):
+
+- Header: `/learn <domain> — <mission one-liner>` + streak. If `domain.md` declares a
+  **schedule**, add the current week / phase / "exam in N weeks".
+- `mm`/`drill` enabled → Mental models / Drills (completed, avg score, weak areas).
+- `flash` enabled → Flashcards (total · mastered · **due today** · retention).
+- `quiz` enabled → weak subtopics from `weak-areas.json`.
+- **Suggested next** — ZPD-based; for scheduled/daily domains surface today's habits
+  (e.g. ccna: "subnet drill · N flashcards due").
 
 ```
-/learn <domain> — <N> sessions · streak <c> (best <b>) · mission: <one-line goal>
-
-Mental models:   ▓▓▓▓░░░░ <done>/<total>   (by difficulty/area)
-Flashcards:      <total> · <mastered> mastered · <due> due today · retention <r>%
-Drills:          avg <x>/3 · weak: <subtopics>
-
-Suggested: <ZPD-based next step>
+/learn ccna — pass CCNA 200-301 by 2026-11-23 · Week 6/26 (Phase 2)
+Flashcards:  129 · 31 mastered · 8 due today · retention 77%
+Weak areas:  subnetting:summarization, ipv6:eui-64
+Suggested:   /ccna subnet 10  ·  /ccna flash review (8 due)
 ```
 
-Empty input (`/learn <domain>`) ⇒ `status` + a suggested next mode.
+Empty input (`/learn <domain>`) ⇒ the domain's `default` mode (or `status`) + a suggestion.
 
 ---
 
