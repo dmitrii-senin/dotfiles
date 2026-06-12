@@ -1,0 +1,310 @@
+[
+  {
+    "id": "feed-handler-001",
+    "front": "What is the CME feed handler's job, in one line, and what latency budget does its hot path live in?",
+    "back": "Join the exchange multicast groups, drain datagrams off the socket, arbitrate the redundant A/B feeds, detect sequence gaps, drive recovery, and hand clean SBE buffers to the book builder. The end-to-end hot path (wire -> recv -> decode -> book -> publish) lives in the 1-100us budget.",
+    "tags": ["feed-handler", "latency-budget", "hot-path"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "feed-handler-002",
+    "front": "How does CME MDP 3.0 protect against UDP packet loss at the first level?",
+    "back": "Each channel's incremental data is disseminated over TWO independent UDP multicast feeds, A and B, carrying identical packets. UDP has no retransmission, so a packet dropped on the way to Feed A is very likely still delivered on Feed B. A/B arbitration is the first line of defense; recovery is only needed when a packet is missing on BOTH feeds.",
+    "tags": ["cme-mdp", "A-B-feeds", "multicast", "redundancy"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "feed-handler-003",
+    "front": "Where do the multicast IPs, source IPs, and ports for each CME channel come from?",
+    "back": "CME's published config.xml, available on the CME FTP/SFTP site (production values require completing certification). Each channel entry defines connections by feed type (Incremental 'I', Instrument Definition, Market Recovery) and feed designation A or B, each with its multicast IP, host/source IP, and port.",
+    "tags": ["cme-mdp", "config-xml", "channels", "connectivity"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "feed-handler-004",
+    "front": "What are the three steps to start receiving a CME multicast group on Linux?",
+    "back": "(1) Create a SOCK_DGRAM socket; (2) bind() to the port with the local address INADDR_ANY (do NOT connect() to the multicast address); (3) join the group with setsockopt(IPPROTO_IP, IP_ADD_MEMBERSHIP, &ip_mreq), where ip_mreq has imr_multiaddr (the group) and imr_interface (the local NIC).",
+    "tags": ["multicast", "ip-add-membership", "sockets", "bind"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "feed-handler-005",
+    "front": "What is IP_MAX_MEMBERSHIPS and why does it matter for a many-channel feed handler?",
+    "back": "It is the kernel cap on multicast group memberships per socket, historically 20. A handler joining many channels must spread the joins across multiple sockets rather than one. Memberships are also dropped automatically when the socket closes.",
+    "tags": ["multicast", "ip-max-memberships", "sockets"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-006",
+    "front": "What happens when a UDP datagram arrives and the socket receive buffer is full?",
+    "back": "The kernel silently discards it -- no error returned to the application. This is the most common cause of UDP loss. You detect it via netstat -su 'receive buffer errors' or /proc/net/snmp 'Udp: RcvbufErrors'.",
+    "tags": ["so-rcvbuf", "udp-drops", "silent-drop"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "feed-handler-007",
+    "front": "When you set SO_RCVBUF on Linux, what does the kernel do to the value, and what limits it?",
+    "back": "The kernel DOUBLES the requested value (for bookkeeping overhead) and getsockopt returns the doubled value. The request is hard-capped at net.core.rmem_max, so you must raise that sysctl AND set SO_RCVBUF -- otherwise the app-level increase silently has no effect.",
+    "tags": ["so-rcvbuf", "rmem_max", "kernel-doubling"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-008",
+    "front": "Describe the framing of an MDP 3.0 UDP packet from the start.",
+    "back": "Packet header = 4-byte packet sequence number + 8-byte sending time (12 bytes). Then one or more messages, each prefixed by a 2-byte (uint16) message size, followed by the SBE message header (block length, template ID, schema ID, version), then the FIX/SBE body. One datagram can hold many messages.",
+    "tags": ["cme-mdp", "packet-structure", "message-framing"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-009",
+    "front": "In MDP 3.0, can you assume one matching event per UDP packet?",
+    "back": "No. MDP 3.0 deliberately decoupled matching events from packet boundaries: a single matching event can span several sequential packets, and one packet can contain several events. The receive loop must parse each datagram as a batch of messages and assemble events across packet boundaries.",
+    "tags": ["cme-mdp", "batch-parsing", "events", "packet-boundaries"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-010",
+    "front": "What is CME's recommended A/B arbitration algorithm?",
+    "back": "Listen to BOTH Incremental Feed A and Feed B, process packets in packet-sequence-number order, and discard any packet whose sequence number has already been processed. Whichever feed delivers a given seq# first wins; the duplicate is dropped.",
+    "tags": ["arbitration", "sequence-number", "dedup"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "feed-handler-011",
+    "front": "When does a CME feed handler have a TRUE gap that requires recovery?",
+    "back": "Only when the SAME packet sequence number is missing from BOTH Feed A and Feed B. A gap on one feed alone is covered by arbitration. When a true gap is detected, assume all affected books may be stale and resynchronize.",
+    "tags": ["gap-detection", "A-B-feeds", "recovery"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-012",
+    "front": "What are the two layers of gap detection in a CME handler, and what does each catch?",
+    "back": "(1) Packet sequence number -- detects loss on the channel as a whole. (2) Per-instrument sequence, tag 83 RptSeq -- detects whether a specific instrument missed an update. The per-instrument layer lets unaffected instruments keep flowing while only affected books recover.",
+    "tags": ["gap-detection", "rptseq", "tag-83", "per-instrument-recovery"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-013",
+    "front": "After a channel gap, 48 of 50 instruments show contiguous RptSeq across the boundary. What do you do?",
+    "back": "The 48 with contiguous RptSeq are provably current -- keep them live. Only the 2 with a RptSeq discontinuity are marked stale/recovering and resynced (via snapshot or natural refresh). This turns a full ~50ms resync into a localized sub-ms one.",
+    "tags": ["gap-detection", "rptseq", "per-instrument-recovery", "correctness"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-014",
+    "front": "Which SBE template does the CME Market Data Snapshot (recovery) message map to, and which template ID?",
+    "back": "It maps to SnapshotFullRefresh, template ID 52, in the SBE MDP core schema. The Market Recovery feed continuously replays a full book snapshot per instrument for books with activity since the start of the week.",
+    "tags": ["snapshot-recovery", "snapshotfullrefresh", "template-52"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-015",
+    "front": "In snapshot recovery, what is tag 369 (LastMsgSeqNumProcessed) and how is it used?",
+    "back": "Tag 369 on a snapshot message corresponds to the incremental-feed packet sequence number that the snapshot reflects. During recovery you queue live increments, then DROP every queued increment with packet seq# < 369 (CME's documented rule is strictly less-than tag 369), apply the snapshot, and replay the remaining queued increments on top. This prevents double-counting.",
+    "tags": ["snapshot-recovery", "tag-369", "reconciliation", "double-counting"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-016",
+    "front": "During snapshot recovery, an instrument appears in BOTH the snapshot and the queued increments. How do you resolve which is newer?",
+    "back": "Compare tag 60 TransactTime on the snapshot vs the queued increment. If the TransactTime values do not match, that instrument must be recovered via the next market-recovery cycle (or concurrent natural refresh). Tag 60 communicates the start transaction time of the last event for the instrument.",
+    "tags": ["snapshot-recovery", "tag-60", "transacttime", "reconciliation"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-017",
+    "front": "What is CME TCP historical replay, and what are its hard limits?",
+    "back": "A unicast recovery mechanism: request a specific missed packet range by start/end packet sequence number using a Market Data Request (35=V). Limits: at most 2000 packets per request, and only the current 24 hours of data. It is explicitly NOT a performance path -- last resort for small gaps.",
+    "tags": ["tcp-replay", "35-V", "recovery", "limits"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-018",
+    "front": "Small known gap (packets 5000-5003 missing on both feeds) vs large gap (5000-9500): replay or snapshot?",
+    "back": "Small contiguous gap -> TCP replay surgically fills the exact range (within the 2000-packet / 24h limits) without a full resync. Large/uncertain gap -> snapshot (Market Recovery) feed, which scales to 'resync everything' but discards queued history.",
+    "tags": ["tcp-replay", "snapshot-recovery", "decision", "recovery"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-019",
+    "front": "What does recvmmsg(2) do and where is its break-even?",
+    "back": "It receives up to N datagrams in ONE syscall via an array of mmsghdr, amortizing the user/kernel crossing. The return value is the number of slots filled (may be < N). The win appears only when the NIC ring is genuinely full -- roughly above ~100k pps; below that, waiting to fill a batch adds latency.",
+    "tags": ["recvmmsg", "batching", "syscall-amortization"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-020",
+    "front": "What is the documented recvmmsg(2) timeout BUG?",
+    "back": "The timeout is checked only AFTER the receipt of each datagram. So if up to N-1 datagrams arrive before the timeout expires but then traffic stops, the call blocks FOREVER -- the timeout is never re-evaluated without a new datagram. Don't rely on it as a hard deadline.",
+    "tags": ["recvmmsg", "timeout-bug", "kernel"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-021",
+    "front": "What does the MSG_WAITFORONE flag do for recvmmsg, and why prefer it over the timeout?",
+    "back": "MSG_WAITFORONE (since Linux 2.6.34) turns on MSG_DONTWAIT after the first message is received -- giving 'block for at least one message, then grab whatever else is immediately available' semantics. It's a practical alternative to the buggy timeout for draining a burst without risking an indefinite block.",
+    "tags": ["recvmmsg", "msg-waitforone", "batching"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-022",
+    "front": "What does SO_BUSY_POLL do and what does it cost?",
+    "back": "Introduced in Linux 3.11, it sets an approximate microsecond budget to busy-poll the NIC on a blocking receive when there's no data, eliminating the interrupt-to-wake transition for lower latency and jitter. It costs CPU (and power) -- it burns a core busy-polling. Default controlled by /proc/sys/net/core/busy_read; raising it needs CAP_NET_ADMIN.",
+    "tags": ["so-busy-poll", "receive-strategy", "busy-polling"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-023",
+    "front": "What problem does SO_PREFER_BUSY_POLL solve over plain SO_BUSY_POLL, and what knobs pair with it?",
+    "back": "Plain busy-poll is opportunistic and a busy NAPI context never enters busy-poll. SO_PREFER_BUSY_POLL (kernel 5.11) lets the softirq NAPI exit early so busy-polling drives processing, keeping device IRQs masked. It pairs with napi_defer_hard_irqs and gro_flush_timeout; if you stop polling, the gro_flush_timeout watchdog revokes the pledge and softirq handling resumes.",
+    "tags": ["so-prefer-busy-poll", "napi", "gro_flush_timeout", "busy-polling"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-024",
+    "front": "What do io_uring SQPOLL and multishot recv each give you on the receive path?",
+    "back": "SQPOLL runs a dedicated kernel thread that polls the submission queue, removing the submit syscall entirely from the hot path (costs a dedicated core). Multishot recv lets ONE SQE produce MANY CQEs without the app re-arming the receive -- strongest for small datagrams. Both can be pinned with IORING_SETUP_SQ_AFF.",
+    "tags": ["io_uring", "sqpoll", "multishot", "receive-strategy"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-025",
+    "front": "Is io_uring definitively faster than epoll for UDP receive?",
+    "back": "No -- the evidence is genuinely mixed and workload-dependent. io_uring tends to win for ping-pong/RPC and small messages and can lose for streaming/large messages; SQPOLL+multishot often ties or modestly beats SO_BUSY_POLL+recvmmsg rather than dominating. It also costs a dedicated core. Settle it on your own trace, end-to-end, with CPU accounted.",
+    "tags": ["io_uring", "epoll", "receive-strategy", "methodology"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-026",
+    "front": "Why does SO_REUSEPORT NOT parallelize a single CME multicast feed by default?",
+    "back": "For UDP the kernel hash-distributes datagrams across the reuseport group by the 4-tuple (src/dst IP+port). A multicast feed is effectively a single source -> one tuple, so the hash pins ALL traffic to one socket. To split you need SO_ATTACH_REUSEPORT_[CE]BPF to steer packets, or partition by channel across threads.",
+    "tags": ["so-reuseport", "multicast", "4-tuple-hash", "scaling"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-027",
+    "front": "For multicast addresses, how does SO_REUSEADDR relate to SO_REUSEPORT?",
+    "back": "For multicast addresses the kernel treats them identically: SO_REUSEADDR behaves exactly like SO_REUSEPORT does for unicast (allowing multiple sockets to bind the same multicast address+port). So for multicast, SO_REUSEADDR effectively implies SO_REUSEPORT.",
+    "tags": ["so-reuseaddr", "so-reuseport", "multicast"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-028",
+    "front": "Why must the receive hot path allocate zero bytes, and what are the cost figures?",
+    "back": "malloc/new cost ~50-200ns even on a fast allocator and can occasionally trap to the kernel (mmap/brk) for 5-50us -- a guaranteed p99 spike. Pre-allocate every buffer at startup. A page fault on a touched-but-not-resident buffer also costs ~1-10us.",
+    "tags": ["zero-allocation", "malloc", "page-fault", "hot-path"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-029",
+    "front": "How do you keep the receive path's pages resident, and why?",
+    "back": "Call mlockall(MCL_CURRENT|MCL_FUTURE) and write-touch every page once at startup to pre-fault them. A page fault on the hot path costs ~1-10us and shows up directly in p99. Verify with `perf stat -e page-faults` showing near-zero faults in steady state.",
+    "tags": ["mlockall", "pre-fault", "page-fault", "lowlat-net"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-030",
+    "front": "Why is the correct backpressure policy for a market-data feed handler 'overwrite' rather than 'block'?",
+    "back": "Blocking the receive loop lets the kernel socket buffer fill and the kernel silently drops packets. Stale data is worse than dropped data for market data, so the producer keeps writing the latest and a slow consumer skips to newest via a latest_sequence atomic. The producer never blocks.",
+    "tags": ["backpressure", "overwrite", "stale-vs-lost", "spsc-ring"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-031",
+    "front": "What does `ethtool -C <nic> rx-usecs N rx-frames M` control, and what's the tradeoff?",
+    "back": "Interrupt coalescing: how long / how many frames the NIC waits before raising an Rx interrupt. rx-usecs 0 rx-frames 1 = per-packet interrupt (min latency, max CPU). rx-usecs 10 rx-frames 16 = adds up to ~10us latency but roughly halves CPU. Acceptable only if your budget is ~100us, not single-digit us.",
+    "tags": ["ethtool", "interrupt-coalescing", "rx-usecs", "nic-tuning"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-032",
+    "front": "Why can SCHED_FIFO 99 on the handler core HURT the receive path, and what's the fix?",
+    "back": "FIFO 99 can starve softirqs on that core -- including the network softirq that delivers packets -- so the thread starves itself. Fix: the two-core-per-feed pattern: one core for NIC IRQs/softirq (set via /proc/irq/<n>/smp_affinity), a separate isolated core for the handler thread.",
+    "tags": ["sched-fifo", "softirq", "irq-affinity", "two-core-per-feed"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-033",
+    "front": "Why must subsequent SBE messages in a CME datagram sometimes be copied to a staging buffer before overlay?",
+    "back": "CME concatenates messages tightly: message N starts at offset + size(N-1), which is frequently NOT 8-byte aligned, while SBE structs with int64_t fields need alignof==8. Overlaying a flyweight on a misaligned address is UB. Keep the receive buffer 64-byte aligned (first message OK) and memcpy unaligned ones into an aligned L1-hot staging buffer first.",
+    "tags": ["alignment", "staging-buffer", "sbe-overlay", "undefined-behavior"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-034",
+    "front": "What are the rough costs of unaligned access crossing a cache line vs a page boundary on modern Intel?",
+    "back": "Within a cache line: essentially no penalty on modern x86. Crossing a cache-line (64B) boundary: a small penalty (a few cycles on modern cores). Crossing a page (4KB) boundary: notably more expensive, especially for stores (page-crossing stores can cost ~100+ cycles). This is why a ~few-ns memcpy to an aligned, L1-hot staging buffer can be cheaper than repeatedly paying the unaligned penalty (and it removes the UB).",
+    "tags": ["alignment", "cache-line", "page-boundary", "perf"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-035",
+    "front": "Why does branching on SBE schema version mispredict during a v1->v2 rollout, and what's the better dispatch?",
+    "back": "At rollout start v2 is ~0.01% of traffic, so `if (version == 2)` mispredicts every v2 message at ~15 cycles each; it mispredicts again as the mix flips. Use a function-pointer table indexed by version -- the indirect call is well-predicted by the BTB because, per instrument, versions don't interleave (an instrument's stream is all-v1 or all-v2).",
+    "tags": ["schema-evolution", "branch-prediction", "function-pointer-table", "btb"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-036",
+    "front": "Why is a switch over the 3-4 hot CME template IDs usually well-predicted?",
+    "back": "The message-type distribution is heavily skewed -- CME documents that the majority of events carry only Market Data Incremental Refresh (35=X) messages, so the book-refresh template dominates -- and the branch predictor learns a skewed pattern quickly. The misprediction trap is the rare/almost-never-taken branch (error check, rare message), not the hot switch.",
+    "tags": ["template-dispatch", "branch-prediction", "skewed-distribution", "perf"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-037",
+    "front": "How should the hot path handle an unknown/new SBE template ID?",
+    "back": "Pre-register all known template IDs at startup; on an unknown ID, bump a cheap per-ID counter and continue. A background thread periodically inspects counters and alerts. Do NOT block, do NOT silently skip (could be SecurityStatus/market-state), and do NOT log on the hot path (a single log line can cost microseconds).",
+    "tags": ["template-id", "unknown-message", "hot-path-logging", "telemetry"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-038",
+    "front": "Why use hardware timestamping (SO_TIMESTAMPING) instead of a userspace clock to measure receive latency?",
+    "back": "SO_TIMESTAMPING gives a NIC-level Rx timestamp -- taken before the packet traverses the kernel stack -- and with PTP (ptp4l/phc2sys) NIC clocks are comparable across hosts. CLOCK_MONOTONIC_RAW (~20ns via vDSO/rdtsc) is right for intra-process stage deltas but cannot see the kernel/NIC portion. The HW-ts vs t_receive gap is exactly your stack + scheduling latency.",
+    "tags": ["hw-timestamping", "so-timestamping", "ptp", "monotonic-raw"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-039",
+    "front": "Why must an SPSC ring's head_ and tail_ be on different cache lines, and what is the cost if they aren't?",
+    "back": "head_ is written by the consumer, tail_ by the producer; on the same line each write invalidates the other core's copy and the MESI line ping-pongs across the interconnect (~40-70ns per round-trip vs ~1ns for an L1 hit). Fix: alignas(64) each index (hardcode 64; GCC omits hardware_destructive_interference_size by default). perf c2c HITM names the address.",
+    "tags": ["false-sharing", "spsc-ring", "alignas", "perf-c2c"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-040",
+    "front": "TMA shows Bad Speculation 18% but branch-misses only ~1% on your A/B dedup loop. What's the likely cause?",
+    "back": "Memory-ordering machine clears -- a load speculatively executed before a conflicting store to the same cache line triggers a pipeline nuke, which is invisible to branch-miss counters. Check machine_clears.memory_ordering (e.g. ~500k/s) on a shared atomic<uint64_t> sequence. Fix: single-producer design for the contended state.",
+    "tags": ["machine-clear", "memory-ordering", "bad-speculation", "atomic-contention"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "feed-handler-041",
+    "front": "What's the recurring methodology mistake in the receive area, and the right order of operations?",
+    "back": "Optimizing the receive syscall when receive isn't the bottleneck. Right order: decompose latency by stage with embedded timestamps (t_receive, t_parsed, t_book_updated, t_published), find the hottest stage, run top-down analysis (`perf stat -M TopdownL1`) on THAT stage to classify the bottleneck, then optimize. Measure before tuning.",
+    "tags": ["methodology", "top-down", "per-stage-timestamps", "measure-first"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-042",
+    "front": "What is the per-instrument sequence field in CME MDP 3.0, by tag number, and what is the packet-level one?",
+    "back": "Per-instrument: tag 83 RptSeq, incremented per instrument so you can detect a gap for a specific SecurityID. Channel-level: the 4-byte packet sequence number in the packet header, monotonic across the channel and used for A/B arbitration and channel gap detection.",
+    "tags": ["rptseq", "tag-83", "packet-sequence", "gap-detection"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-043",
+    "front": "What is the Instrument Definition feed for in CME MDP 3.0?",
+    "back": "It replays Security Definition (35=d) messages for late joiners and mid-week recovery, at a constant configurable packets-per-second rate. Each packet can carry multiple definitions. It is duplicated A/B (Feed B is a backup). On a gap-driven resync you must also check whether new instrument definitions were published.",
+    "tags": ["instrument-definition", "35-d", "recovery", "cme-mdp"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "feed-handler-044",
+    "front": "Why does processing both A and B feeds remain worthwhile even when Feed A consistently leads Feed B by ~30us?",
+    "back": "Arbitration is about loss, not speed. You take whichever feed delivers each seq# first (so you get A's lead on the packets A delivers) but B still rescues the packets that A drops. Dropping B to save CPU would re-expose you to single-feed UDP loss and force recovery. Healthy counters show both A-first and B-first nonzero.",
+    "tags": ["arbitration", "A-B-feeds", "redundancy", "sequence-number"],
+    "difficulty": "intermediate"
+  }
+]

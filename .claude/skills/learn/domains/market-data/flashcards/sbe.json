@@ -1,0 +1,317 @@
+[
+  {
+    "id": "sbe-001",
+    "front": "What are the four fields of the SBE message header, in order, and their total size?",
+    "back": "blockLength, templateId, schemaId, version — each a uint16, totaling 8 bytes (little-endian). templateId selects the message layout; version is the schema version; blockLength is the root-block size (fixed fields only, excluding the header itself).",
+    "tags": ["sbe", "message-header", "blocklength"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "sbe-002",
+    "front": "Does the SBE header's blockLength include the header itself or repeating groups/var-data?",
+    "back": "No to both. blockLength is only the size of the message root block (the fixed fields before any group or var-data). The 8-byte header is a fixed size not counted in blockLength, and groups/var-data come after the root block.",
+    "tags": ["sbe", "blocklength", "root-block"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "sbe-003",
+    "front": "What is in the CME MDP 3.0 binary packet header on the multicast wire?",
+    "back": "12 bytes: a 4-byte packet sequence number (uint32, used for gap detection) followed by an 8-byte sending-time timestamp (uint64, nanoseconds). After it come one or more messages, each framed by a 2-byte (uint16) message-size field, then the 8-byte SBE header, then the body.",
+    "tags": ["sbe", "cme-packet-header", "sequence-number"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "sbe-004",
+    "front": "In CME MDP 3.0, what size is the per-message framing field that separates messages within one datagram?",
+    "back": "2 bytes (uint16) message size, prepended to each message's SBE header. A single packet can contain multiple messages, and a matching event can span multiple packets.",
+    "tags": ["sbe", "framing", "message-size"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "sbe-005",
+    "front": "Why did CME replace FAST with SBE in MDP 3.0?",
+    "back": "SBE uses fixed-length fields, native little-endian byte order, and field alignment, so a client decodes by simple offset arithmetic (compute offset, load) instead of FAST's bit-level unpacking. This enables zero-copy flyweight decode and far lower per-message CPU cost.",
+    "tags": ["sbe", "fast-vs-sbe", "overview"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "sbe-006",
+    "front": "What is SBE's core access pattern, and what breaks if you violate it?",
+    "back": "Sequential streaming access with no backtracking: encode/decode fields strictly in schema order. Reading groups or var-data out of order corrupts the decoder's internal cursor state and silently returns garbage (no exception).",
+    "tags": ["sbe", "sequential-access", "cursor"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "sbe-007",
+    "front": "What is the mandatory ordering of <field>, <group>, and <data> elements in an SBE message?",
+    "back": "All <field> (fixed) elements precede all <group> elements, and all <group> elements precede all <data> (var-length) elements. Var-data may appear only at the end of a message or the end of a group entry.",
+    "tags": ["sbe", "field-ordering", "schema-xml"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "sbe-008",
+    "front": "List the SBE primitive types and their byte sizes.",
+    "back": "char 1B; int8/uint8 1B; int16/uint16 2B; int32/uint32 4B; int64/uint64 8B; float 4B (IEEE-754 binary32); double 8B (IEEE-754 binary64). Default byte order is littleEndian.",
+    "tags": ["sbe", "primitive-types", "byte-sizes"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "sbe-009",
+    "front": "What is the default byte order in SBE, and why is that convenient for a CME feed handler on x86-64?",
+    "back": "littleEndian (settable per type via byteOrder). x86-64 is also little-endian, so integer field reads are plain aligned loads and byte-swapping is a no-op you can compile out with `if constexpr (std::endian::native != std::endian::little)`.",
+    "tags": ["sbe", "endianness", "little-endian"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "sbe-010",
+    "front": "What are SBE's three presence values, and how much wire space does a constant field use?",
+    "back": "required (default), optional, constant. A constant field uses ZERO wire bytes — its value lives only in the schema and the decoder synthesizes it. required always carries a value; optional reserves its fixed slot and signals 'not set' via a nullValue sentinel.",
+    "tags": ["sbe", "presence", "constant"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "sbe-011",
+    "front": "What is the default null sentinel for an optional uint16 field, and what is the valid range?",
+    "back": "Null = 65535 (0xFFFF). Valid range 0..65534. Beware: defining a validValue or enum value of 65535 collides with the implicit null sentinel.",
+    "tags": ["sbe", "null-values", "uint16"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "sbe-012",
+    "front": "What are the default null sentinels for optional int64 and uint64?",
+    "back": "int64 null = -2^63 (-9223372036854775808). uint64 null = 2^64-1 (0xFFFFFFFFFFFFFFFF). A schema may override nullValue explicitly (e.g. CME uses int64 max, 9223372036854775807, as the null mantissa for PRICE9).",
+    "tags": ["sbe", "null-values", "int64", "uint64"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-013",
+    "front": "What are the default null sentinels for optional int8, uint8, int16, int32, uint32?",
+    "back": "int8 = -128 (range -127..127); uint8 = 255 (0..254); int16 = -32768 (-32767..32767); int32 = -2^31 (-2^31+1 .. 2^31-1); uint32 = 2^32-1 = 0xFFFFFFFF (0 .. 2^32-2).",
+    "tags": ["sbe", "null-values", "sentinels"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-014",
+    "front": "What is the null value for an optional char field and for an optional float/double field?",
+    "back": "char null = NUL control character, code 0 (valid printable range hex 20..7E). float/double null = quiet NaN (Not-a-Number), per the IEEE-754 representation.",
+    "tags": ["sbe", "null-values", "char", "nan"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-015",
+    "front": "Does a null optional field mean 'use the default value'?",
+    "back": "No. The encoding layer only signals 'not set' via the sentinel. Default-value handling is an application-layer concern, not specified by SBE. Check the sentinel, then decide what null means for your logic.",
+    "tags": ["sbe", "null-values", "semantics"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "sbe-016",
+    "front": "What is the groupSizeEncoding (group dimension) composite, and what are its size limits?",
+    "back": "blockLength (uint16, the size of ONE group entry's fixed block) + numInGroup (the entry count). numInGroup is uint8 by default (up to 256 entries) or uint16 (up to 65536). A group cannot exceed 65536 entries.",
+    "tags": ["sbe", "group-dimension", "numingroup"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "sbe-017",
+    "front": "How does a group's own blockLength differ from the message header's blockLength?",
+    "back": "The header blockLength is the message root-block size. The group dimension's blockLength is the size of one group ENTRY's fixed block. The per-entry blockLength lets you stride entry-to-entry and skip trailing fields appended in a later schema version.",
+    "tags": ["sbe", "blocklength", "group", "stride"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-018",
+    "front": "What is the varDataEncoding composite, and where may a var-data field appear?",
+    "back": "A length prefix (commonly uint16, up to 65535 bytes; uint32 for larger) followed by `length` raw bytes (varData). Var-data may appear only at the end of a message or the end of a group entry, has no static offset, and advances the decoder cursor.",
+    "tags": ["sbe", "var-data", "length-prefix"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "sbe-019",
+    "front": "Why can't the encoded length of an SBE message be known until decode completes?",
+    "back": "Because var-data fields have no static offset — their size and position depend on every field before them. Until you reach and read the last var-data, the total message length is unknown. This is inherent to the streaming/cursor model.",
+    "tags": ["sbe", "var-data", "message-length"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-020",
+    "front": "How does SBE encode an enum versus a set (bitset)?",
+    "back": "enum: a single value over char or uint8, with <validValue> entries. set/bitset: independent boolean flags packed into a uint8/uint16/uint32/uint64, each <choice> naming a bit position. Both decode to one integer load plus compare/mask.",
+    "tags": ["sbe", "enum", "set", "bitset"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "sbe-021",
+    "front": "What is the null value of an optional SBE enum field?",
+    "back": "The null indicator of its underlying primitive type (e.g. 255 for a uint8-based enum, NUL/0 for a char-based enum). The spec gives enums no separate nullValue attribute of their own.",
+    "tags": ["sbe", "enum", "null-values"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-022",
+    "front": "How does SBE encode a decimal price (spec decimal composite)?",
+    "back": "As a scaled decimal: mantissa × 10^exponent. The `decimal` composite is int64 mantissa + int8 exponent (9 bytes, exponent on wire). decimal64 = int64 mantissa + constant exponent (8 bytes). decimal32 = int32 mantissa + constant exponent (4 bytes).",
+    "tags": ["sbe", "decimal", "mantissa-exponent"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "sbe-023",
+    "front": "How is CME MDP 3.0's MDEntryPx (PRICE9) encoded, and how do you recover the real price?",
+    "back": "An int64 mantissa transmitted on the wire with a CONSTANT exponent of -9 (not sent on the wire). Real price = mantissa / 10^9. PRICE9 reflects CME's 2018 upgrade from 7 to 9 decimal places (older v8 schema used exponent -7).",
+    "tags": ["sbe", "price9", "cme", "decimal"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-024",
+    "front": "Under PRICE9, what real price does an MDEntryPx mantissa of 98745000000 represent?",
+    "back": "98745000000 / 10^9 = 98.745. Keep prices as integer mantissas internally for exact, fast comparisons — never convert to double on the hot path (float divide is ~11-14 cycles and risks denormal assists).",
+    "tags": ["sbe", "price9", "decoding-example"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-025",
+    "front": "What are the four core CME MDP 3.0 templates a book-building feed handler decodes, with IDs?",
+    "back": "46 = MDIncrementalRefreshBook (MBP/MBOFD book updates, high volume); 52 = SnapshotFullRefresh (full snapshot for recovery); 48 = MDIncrementalRefreshTradeSummary (trade prints); 30 = SecurityStatus (instrument/group state: open, halt, pause).",
+    "tags": ["sbe", "cme-templates", "template-id"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "sbe-026",
+    "front": "Where are CME's SBE templates defined, and how often do they change?",
+    "back": "All message types live in one versioned schema file (templates_FixBinary.xml), published on CME's public FTP/SFTP and versioned on each update (refreshed roughly weekly). Decoders dispatch on templateId from the header.",
+    "tags": ["sbe", "cme-schema", "versioning"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "sbe-027",
+    "front": "Name the per-entry fields of MDIncrementalRefreshBook's NoMDEntries (tag 268) group.",
+    "back": "MDEntryPx (270, price), MDEntrySize (271, qty), SecurityID (48), RptSeq (83, per-instrument seq), NumberOfOrders (346), MDPriceLevel (1023, depth level), MDUpdateAction (279), MDEntryType (269). One message can update multiple instruments and levels.",
+    "tags": ["sbe", "nomdentries", "incremental-refresh"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-028",
+    "front": "What is RptSeq (tag 83) in MDP 3.0 and how does it differ from the packet sequence number?",
+    "back": "RptSeq is a per-instrument report sequence number inside NoMDEntries — used for per-book gap detection and snapshot↔incremental reconciliation. The packet sequence number (4-byte header field) is per-datagram, used for multicast-level gap detection.",
+    "tags": ["sbe", "rptseq", "sequence-number"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-029",
+    "front": "What are the MDUpdateAction (279) and MDEntryType (269) enum values you dispatch on?",
+    "back": "MDUpdateAction: New=0, Change=1, Delete=2 (plus Overlay). MDEntryType: Bid=0, Offer=1, Trade=2. Use std::to_underlying (C++23) to switch/index without a cast.",
+    "tags": ["sbe", "mdupdateaction", "mdentrytype", "enum"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "sbe-030",
+    "front": "What is the SBE flyweight decode pattern?",
+    "back": "Typed accessors overlaid directly on the received buffer — no deserialize-to-struct, no memcpy for fixed fields. Fixed root fields use static offsets (base + constant offset, load); post-group fields use a cursor that advances through groups/var-data (Aeron's approach).",
+    "tags": ["sbe", "flyweight", "zero-copy"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-031",
+    "front": "Why do post-group fields need cursor-based accessors instead of compile-time offsets?",
+    "back": "Once a repeating group with a variable entry count appears, every following field's offset depends on numInGroup, so no constant offset works. A cursor tracks the current position and advances past each group/var-data, imposing the 'read in schema order' invariant on all call sites.",
+    "tags": ["sbe", "cursor", "flyweight", "post-group"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-032",
+    "front": "Why is `reinterpret_cast<const Msg*>(buf+off)` and dereferencing it undefined behavior, even when the bytes are correct?",
+    "back": "Two reasons: (1) no Msg object's lifetime ever began in that storage, so accessing one is accessing an object outside its lifetime; (2) it violates strict aliasing. The optimizer may legally break it (e.g. dead-store elimination). It only happens to work on most compilers today.",
+    "tags": ["sbe", "reinterpret-cast", "undefined-behavior", "strict-aliasing"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-033",
+    "front": "What does C++23 std::start_lifetime_as<T>(p) do, and what are its preconditions?",
+    "back": "It implicitly creates an object of implicit-lifetime type T in existing storage at p — running no constructor, touching no bytes — and returns a usable T*, making a buffer overlay defined behavior. Preconditions: T is implicit-lifetime / trivially copyable, and p is aligned for T with at least sizeof(T) bytes.",
+    "tags": ["sbe", "start_lifetime_as", "cpp23"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-034",
+    "front": "When do you choose std::start_lifetime_as vs std::bit_cast for SBE decode?",
+    "back": "start_lifetime_as returns a pointer INTO the buffer (zero copy) — best for a 100+ byte SBE message root. bit_cast COPIES to a local — fine for small (<= register width) fields that optimize away, wasteful for the whole message. Pick by field size.",
+    "tags": ["sbe", "start_lifetime_as", "bit_cast", "cpp23"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-035",
+    "front": "Why can messages 2..N in a CME datagram be misaligned for start_lifetime_as, and what are the two fixes?",
+    "back": "CME concatenates messages tightly, so message N starts right after N-1 at an offset usually not 8-byte aligned — but a struct with int64 fields needs alignof 8. Fixes: (a) memcpy each message to an aligned staging buffer before overlay, or (b) declare the flyweight byte-packed (#pragma pack(1)) and accept unaligned reads.",
+    "tags": ["sbe", "alignment", "concatenation", "staging-buffer"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-036",
+    "front": "On modern Intel, how does the cost of an unaligned access compare for staying within a cache line, splitting a cache line, and crossing a page?",
+    "back": "Within a cache line: effectively free. Splitting a cache-line boundary: a small extra penalty (on recent cores roughly a couple of cycles for loads). Crossing a 4 KiB page boundary: markedly more expensive (especially for stores). This informs whether copy-to-aligned-staging beats relying on unaligned tolerance for misaligned SBE messages.",
+    "tags": ["sbe", "alignment", "unaligned-access", "perf"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-037",
+    "front": "What is the one rule for backward-compatible SBE schema evolution?",
+    "back": "Append optional fields ONLY at the end of a block (the root block or a group entry's block). Never remove, reorder, resize, or retype an existing field — decoding is positional, so any of those shifts every later offset and breaks old and new decoders.",
+    "tags": ["sbe", "schema-evolution", "append-only"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-038",
+    "front": "When a field is appended to a template, how does an older decoder still read newer messages correctly?",
+    "back": "blockLength grows on the wire. The old decoder uses actingBlockLength and actingVersion from the header to stop at the block boundary it knows, returning the null value for fields it doesn't know about — so it never reads past its known block. Appended fields must be optional for this.",
+    "tags": ["sbe", "schema-evolution", "acting-version", "blocklength"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-039",
+    "front": "How do you reach the first repeating group when the wire blockLength is larger than the one your codec was built with?",
+    "back": "Jump to `header + wireBlockLength` (the blockLength read from the message header), not your compiled constant. This 'skip by wire blockLength' is what lets you reach groups regardless of fields appended to the root after you compiled.",
+    "tags": ["sbe", "blocklength", "skip", "forward-compat"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-040",
+    "front": "Can you add a field to an SBE composite type for backward compatibility? Can you add a whole new message type?",
+    "back": "Composite: no — extending a composite in place is not backward compatible; it requires a new template/schema version. New message type: yes — assign a new templateId; decoders dispatch on templateId and can skip unknown IDs non-disruptively.",
+    "tags": ["sbe", "schema-evolution", "composite", "template-id"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-041",
+    "front": "Why is a per-message branch on schema version a misprediction generator, and what's the fix?",
+    "back": "A v1->v2 transition starts at ~0% v2 messages, so the predictor assumes 'not taken' and eats ~15 cycles on every v2 message once they appear. Fix: a function-pointer table indexed by version (indirect call predicted via the BTB, predictable because versions don't interleave per instrument).",
+    "tags": ["sbe", "dispatch", "branch-prediction", "version"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-042",
+    "front": "On the hot path, how should a feed handler treat an unknown templateId?",
+    "back": "Pre-register all known IDs at startup; on an unknown ID, skip the message using the wire blockLength and bump a counter — never log inline (a log call can block and blow tail latency). Inspect the counter on a background thread.",
+    "tags": ["sbe", "dispatch", "unknown-template", "tail-latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "sbe-043",
+    "front": "Why should an SBE hot-path decoder avoid C++ exceptions, and what replaces them?",
+    "back": "Exception unwinding pulls in unwind tables that bloat I-cache, and a throw on a malformed message can spike tail latency. Use C++23 std::expected<T, E> to return either a decoded value or a structured parse error — error becomes data, not control-flow unwinding. Pair with [[unlikely]] for code layout.",
+    "tags": ["sbe", "std-expected", "no-exceptions", "tail-latency"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-044",
+    "front": "What guardrails verify a handwritten SBE flyweight matches the schema?",
+    "back": "static_assert(sizeof(Root) == expectedBlockLength) and static_assert(offsetof(...)) against schema offsets; -Wpadded to catch silent struct padding; round-trip encode/decode tests; and integration tests against real CME pcaps (CME DataMine). A 1-byte padding error (bool before double) silently misaligns every later field.",
+    "tags": ["sbe", "validation", "static-assert", "correctness"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "sbe-045",
+    "front": "What does std::byteswap (C++23) require and provide for a templated big-endian SBE codec?",
+    "back": "It reverses byte order of an integral type, is constexpr, and requires an integral argument (non-integral is a compile error). Combined with std::endian (C++20), `if constexpr (std::endian::native != target) value = std::byteswap(value);` gives a portable conditional swap that compiles to nothing on a matching-endian platform.",
+    "tags": ["sbe", "byteswap", "endianness", "cpp23"],
+    "difficulty": "intermediate"
+  }
+]

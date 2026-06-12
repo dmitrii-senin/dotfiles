@@ -1,0 +1,352 @@
+[
+  {
+    "id": "measurement-001",
+    "front": "What is the hot-path latency budget for the CME feed-handler pipeline this domain targets?",
+    "back": "1-100 microseconds for wire -> SBE decode -> instrument dispatch -> book update -> publish. A ~10us anchor for decode+book on a tuned host; I/O wake-up and publish add the rest.",
+    "tags": ["latency-budget", "hot-path"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "measurement-002",
+    "front": "Why is a latency number like 'p99 = 14us' meaningless on its own?",
+    "back": "Because it omits the two endpoints (which timestamps bound the interval) and the offered load. t_receive->t_published vs t_birth->t_consumed are different intervals; and latency rises with rate, so the load level is half the fact.",
+    "tags": ["measurement-boundary", "offered-load"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "measurement-003",
+    "front": "Name the six per-stage timestamps in the seed feed-handler pipeline.",
+    "back": "t_birth (generator/exchange), t_receive (after recv), t_parsed (after SBE decode), t_book_updated, t_published, t_consumed.",
+    "tags": ["timestamping", "per-stage"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "measurement-004",
+    "front": "What is the seed's total per-message timestamping overhead, and what fraction of a 10us budget is it?",
+    "back": "~120ns total (6 stamps x ~20ns each via vDSO clock_gettime), under 1% of a 10us budget.",
+    "tags": ["instrumentation-overhead", "timestamping"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "measurement-005",
+    "front": "Which clock should you use for interval measurement on the hot path, and why not CLOCK_REALTIME?",
+    "back": "CLOCK_MONOTONIC_RAW. CLOCK_REALTIME (wall-clock) can jump on NTP steps and produce negative deltas; MONOTONIC_RAW is not slewed by NTP/adjtime.",
+    "tags": ["clock-monotonic-raw", "ntp-slew"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "measurement-006",
+    "front": "What is the vDSO and why does it make clock_gettime cheap?",
+    "back": "A kernel page mapped read-only into the process. clock_gettime reads the TSC in userspace and applies a mult/shift, avoiding the syscall/ring transition. Typical cost ~15-30ns for MONOTONIC_RAW on modern x86-64.",
+    "tags": ["vdso", "clock-monotonic-raw"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "measurement-007",
+    "front": "Historically, why was CLOCK_MONOTONIC_RAW surprisingly SLOWER than other clocks on x86 before it got vDSO support?",
+    "back": "On x86 it lacked vDSO handling and fell back to a real syscall, so it was slower despite doing less adjustment work. CLOCK_MONOTONIC_RAW was added to the x86 vDSO in Linux 5.3 (2019), bringing it down to tens of ns.",
+    "tags": ["clock-monotonic-raw", "vdso"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-008",
+    "front": "Why is bare rdtsc unreliable for timing a tiny code region?",
+    "back": "rdtsc is NOT serializing. Out-of-order execution can read the counter before earlier instructions retire or after later ones start, corrupting tight measurements by ~10-30%.",
+    "tags": ["rdtsc", "out-of-order"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-009",
+    "front": "Per the Intel SDM, what instruction sequence is roughly equivalent to RDTSCP?",
+    "back": "LFENCE; RDTSC. Both wait for all prior instructions to complete locally before reading the counter (a one-directional barrier).",
+    "tags": ["rdtscp", "lfence", "serializing"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-010",
+    "front": "Why keep CPUID out of the measured region when using cpuid;rdtsc?",
+    "back": "CPUID is a full serializing barrier but costs ~100-250 cycles with high variance; that variance would pollute the measurement. Use it to bound the region, not inside it.",
+    "tags": ["cpuid", "serializing", "micro-benchmark"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-011",
+    "front": "What CPU flags must be present for rdtsc to be a reliable clock across frequency changes?",
+    "back": "constant_tsc and nonstop_tsc (an 'invariant TSC') in /proc/cpuinfo. Without them the counter rate changes with P-states.",
+    "tags": ["rdtsc", "invariant-tsc", "clocksource"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-012",
+    "front": "Why is the mean a poor latency metric for market data?",
+    "back": "Latency distributions are right-skewed; the mean is dragged toward the fast bulk and hides the long tail. 'Average 6us' can coexist with 'p99 40us', and a strategy reacting to every update is exposed to the tail.",
+    "tags": ["mean-vs-median", "tail-latency"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "measurement-013",
+    "front": "What does the gap between p50 and p99 tell you diagnostically?",
+    "back": "Low p50 + high p99 (wide gap) = a TAIL problem (pauses, contention, cold cache, page fault). p50 and p99 rising TOGETHER = systemic saturation (out of capacity).",
+    "tags": ["p99", "distribution-shape", "tail-diagnosis"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-014",
+    "front": "At 500k msg/s, how many updates per second land in the p999 tail, and why does that matter?",
+    "back": "0.1% of 500k = ~500 slow updates/sec. At high rates 'rare' stops being rare, so the p999 tail is a continuous stream of real, money-relevant slow updates.",
+    "tags": ["p999", "tail-latency", "scale"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-015",
+    "front": "What two properties make HdrHistogram safe to use on the hot path?",
+    "back": "Constant memory footprint (no allocation on record) and constant-time recording (~3-6ns/record on modern Intel) - it directly computes the bucket index, no searching.",
+    "tags": ["hdrhistogram", "hot-path-safe"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "measurement-016",
+    "front": "How does HdrHistogram achieve high dynamic range at controlled relative error?",
+    "back": "A float-like layout: exponentially-growing buckets (the 'exponent') each containing a fixed number of linear sub-buckets (the 'mantissa'). 3 significant digits => <=0.1% quantization at any value.",
+    "tags": ["hdrhistogram", "significant-digits"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-017",
+    "front": "What is the footprint of an HdrHistogram tracking 0-3.6e9 at 3 significant digits?",
+    "back": "~185KB, fixed regardless of how many samples are recorded.",
+    "tags": ["hdrhistogram", "constant-footprint"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-018",
+    "front": "What is coordinated omission?",
+    "back": "A measurement bias: when the system stalls, the samples that WOULD show the stall are never recorded because the measuring loop is itself blocked. The result is skewed toward 'good' values, hiding the true tail.",
+    "tags": ["coordinated-omission", "measurement-bias"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-019",
+    "front": "Which HdrHistogram method corrects coordinated omission at record time, and how?",
+    "back": "recordValueWithExpectedInterval(value, expectedInterval). When a recorded value exceeds the expected sampling interval, it auto-synthesizes the missing decreasing samples that the stall omitted.",
+    "tags": ["coordinated-omission", "hdrhistogram"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-020",
+    "front": "Why must you use only one of recordValueWithExpectedInterval and copyCorrectedForCoordinatedOmission?",
+    "back": "They are the at-recording and post-recording forms of the same correction; applying both double-corrects and overstates the tail.",
+    "tags": ["coordinated-omission", "hdrhistogram"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-021",
+    "front": "What is IPC and what does IPC < 1.0 indicate?",
+    "back": "Instructions Per Cycle. Superscalar cores can retire 4-6 uops/cycle but real code lands 1.0-2.5; IPC < 1.0 means the pipeline is stalled (the cause - frontend vs backend - needs top-down to resolve).",
+    "tags": ["ipc", "perf-stat"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "measurement-022",
+    "front": "Why must perf stat comparisons use a fixed replay (e.g. the same CME pcap)?",
+    "back": "Cycle/instruction counts are only comparable run-to-run if the input is identical. Replaying the same pcap makes IPC, cache-miss, and branch-miss deltas between builds meaningful.",
+    "tags": ["perf-stat", "reproducible-replay"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-023",
+    "front": "What are the four TMA Level-1 buckets and what must they sum to?",
+    "back": "Frontend Bound, Backend Bound, Bad Speculation, Retiring. They account for every pipeline slot and sum to 100%. The largest bucket tells you what to fix.",
+    "tags": ["tma", "topdown"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-024",
+    "front": "In TMA, Backend Bound dominating with high LLC-load-misses on the feed handler means what?",
+    "back": "The working set exceeds cache - e.g. 50 order books updating at once spilling out of L2/L3. It points to a data-layout fix, not a code-layout fix.",
+    "tags": ["tma", "backend-bound", "cache"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-025",
+    "front": "If TMA shows high Bad Speculation but a LOW branch-miss rate, what should you suspect?",
+    "back": "Machine clears (memory-ordering violations / false sharing), not ordinary branch mispredicts. perf stat -e machine_clears.memory_ordering confirms it.",
+    "tags": ["tma", "bad-speculation", "machine-clears"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-026",
+    "front": "What is the default perf record sampling frequency, and what does raising it cost?",
+    "back": "1000 Hz. Raising it increases interrupts and the observer effect (measurement steals cycles from the workload), perturbing the timing you're trying to measure. ~5% overhead is a common acceptable ceiling.",
+    "tags": ["perf-record", "sampling-frequency", "observer-effect"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-027",
+    "front": "What is skid in perf sampling, and what fixes it?",
+    "back": "The recorded instruction pointer is where the PMU interrupt landed, not where the event occurred (possibly dozens of instructions away), so the profile blames the wrong instruction. PEBS (Intel) / IBS (AMD) fix it via hardware-written precise IP (<=1 instruction skid).",
+    "tags": ["skid", "pebs", "precise-events"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-028",
+    "front": "How do you request precise (PEBS) sampling in a perf event name?",
+    "back": "Append the :p modifier (e.g. cycles:pp). More p's request lower skid: 0=arbitrary, 1=constant, 2=requested 0, 3=must be 0 skid. PEBS also reduces overhead since the kernel is interrupted only when the PEBS buffer fills.",
+    "tags": ["pebs", "perf-record", "precise-events"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-029",
+    "front": "What does perf c2c detect, and what is the key signal it reports?",
+    "back": "Cache-line contention / false sharing. The key signal is HITM (Hit Modified) - a load that misses local L1 and finds the line modified in another core's cache. High REMOTE HITM (across NUMA nodes) strongly indicates false sharing.",
+    "tags": ["perf-c2c", "hitm", "false-sharing"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-030",
+    "front": "Why should you run perf c2c record for only ~3-10 seconds?",
+    "back": "Longer windows blur concurrent (in-time) false sharing together with accesses that are actually disjoint in time, weakening the signal.",
+    "tags": ["perf-c2c", "false-sharing"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-031",
+    "front": "After perf c2c gives you a cache-line offset, how do you find the exact struct field?",
+    "back": "Use pahole on the binary to decode the struct layout at cache-line granularity and match the offset to the member (addr2line for the instruction pointer through inlines).",
+    "tags": ["perf-c2c", "pahole", "false-sharing"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-032",
+    "front": "Which CPU governor should you set before benchmarking, and what does schedutil do to results?",
+    "back": "Set 'performance'. Dynamic governors like schedutil re-evaluate and switch P-states under load, introducing frequency-transition jitter and run-to-run variance that pollutes latency measurements; 'performance' pins the CPU at max frequency.",
+    "tags": ["cpu-governor", "benchmark-stability"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-033",
+    "front": "How does comparing cycles vs ref-cycles reveal frequency throttling?",
+    "back": "If cycles < ref-cycles, the core ran below the TSC reference frequency during the run (throttled/below base), so the measurement is suspect.",
+    "tags": ["benchmark-stability", "throttling"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-034",
+    "front": "Why does disabling the SMT (hyperthread) sibling of a pinned core help latency?",
+    "back": "It gives the thread the full ROB instead of a statically partitioned half and removes shared-resource (L1d, execution ports, DSB) contention, measurably lowering the p99 tail latency. Standard practice in low-latency/HFT shops.",
+    "tags": ["smt", "benchmark-stability", "tail-latency"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-035",
+    "front": "Roughly how many samples do you need for a stable p99 vs a stable p999?",
+    "back": "Hundreds to thousands per window for a stable p99; on the order of tens of thousands for p999. A p99 from 50 samples is essentially noise (governed by the single slowest point).",
+    "tags": ["sample-size", "p999-confidence"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-036",
+    "front": "Why can't you average per-host or per-minute p99 values to get an aggregate p99?",
+    "back": "Percentiles are not additive/averageable. You must merge the underlying counts - e.g. add the HdrHistograms together and read the percentile from the merged histogram. Averaging usually understates the true tail.",
+    "tags": ["percentile-aggregation", "histogram-merge"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-037",
+    "front": "Name four burst-specific metrics beyond p50/p99/p999.",
+    "back": "Spike depth (how high p99 climbs during the burst), recovery time (time to return to baseline after), queue/ring high-water mark, and drop/overwrite count.",
+    "tags": ["burst-metrics", "spike-depth", "recovery-time"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-038",
+    "front": "Why is ring/queue depth a better early-warning signal than latency during a burst?",
+    "back": "Queue depth is a LEADING indicator; latency is LAGGING. The ring high-water mark climbs before p99 does, giving the earliest warning of impending saturation/overflow.",
+    "tags": ["high-water-mark", "queue-depth", "burst-metrics"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-039",
+    "front": "How much host-stack jitter does software receive timestamping include, and what removes it?",
+    "back": "Typically several dozen us, sometimes up to ~200us. NIC hardware timestamping (SO_TIMESTAMPING with SOF_TIMESTAMPING_RX_HARDWARE) stamps at L1/L2 from the NIC's PTP Hardware Clock, ~1-10ns resolution.",
+    "tags": ["hardware-timestamping", "host-stack-jitter"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-040",
+    "front": "What two daemons synchronize a NIC PTP Hardware Clock and the system clock under IEEE 1588?",
+    "back": "ptp4l (syncs the NIC's PHC to the PTP master) and phc2sys (syncs the system clock to the PHC). Check NIC support with ethtool -T.",
+    "tags": ["ptp", "phc", "hardware-timestamping"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-041",
+    "front": "What clock accuracy and timestamp granularity does MiFID II RTS 25 require for HFT activity?",
+    "back": "100 microsecond maximum divergence from UTC (accuracy) and 1 microsecond timestamp granularity. NTP cannot meet this; it needs PTP/GPS-disciplined hardware clocks, traceable to UTC.",
+    "tags": ["rts-25", "mifid", "ptp"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-042",
+    "front": "How do you distinguish an OS-jitter latency spike from a queue-latency spike?",
+    "back": "OS jitter: ISOLATED spike (one message late, neighbors fine), correlates with a system event, queue depth stays low. Queue latency: CORRELATED across consecutive messages with the ring high-water rising. A fixed-period spike independent of rate is OS/timer/IRQ; a rate-dependent ramp is queueing.",
+    "tags": ["os-jitter", "queue-latency", "tail-diagnosis"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-043",
+    "front": "What single config change eliminates the page-fault class of OS jitter on the hot path?",
+    "back": "mlockall plus pre-faulting all buffers at startup - a hot-path page fault costs ~1-10us and shows up directly in p99.",
+    "tags": ["mlockall", "os-jitter", "page-fault"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-044",
+    "front": "Why must throughput and latency be measured in separate tests?",
+    "back": "They are different numbers measured differently: saturate the input to find max throughput, but measure latency at a FIXED sub-saturation rate. A batching design can have high throughput yet bad per-message latency. Always report 'X us at Y msg/s'.",
+    "tags": ["throughput", "latency", "offered-load"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-045",
+    "front": "What is the 'saturation knee' on a latency-vs-load curve, and why is it your real capacity?",
+    "back": "The offered rate at which p99 bends sharply upward because the handler can no longer keep up and queues grow unbounded (latency -> infinity, per Little's Law as utilization -> 1). Capacity is the knee with headroom above the worst burst, not a single-point latency number.",
+    "tags": ["saturation-knee", "latency-vs-load", "capacity"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-046",
+    "front": "What is the seed's break-even point for recvmmsg batching, and what happens below it?",
+    "back": "The seed uses ~100k packets/sec as a working anchor, but the real break-even is hardware/workload-dependent: it's the rate at which the socket queue reliably backlogs so one call returns several messages. Below it, batching ADDS latency (you wait to fill a batch); the win is only amortizing syscall overhead when the queue is consistently full.",
+    "tags": ["receive-strategy", "crossover", "recvmmsg"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-047",
+    "front": "When comparing receive strategies or book layouts, why report the distribution rather than the mean?",
+    "back": "Strategies differ most in the TAIL. recvmmsg+busy-poll may win p99 while io_uring wins the mean; the AoS/SoA winner depends on the message mix. A single mean hides the tradeoff that actually matters.",
+    "tags": ["ab-testing", "distribution-reporting", "crossover"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-048",
+    "front": "What is the 'profile the full path first' rule and why does it matter before optimizing receive?",
+    "back": "Decompose end-to-end latency by stage before optimizing. If 80% of latency is the book update, optimizing the receive path is premature - you'd shave a small slice while the dominant cost is untouched.",
+    "tags": ["profile-first", "decomposition"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "measurement-049",
+    "front": "Why must a measurement harness gate latency changes behind a correctness check?",
+    "back": "A faster handler can silently build the WRONG book (especially under packet loss). Correctness is a measured signal: final book must match a reference snapshot AND gap/snapshot recovery must restore correct state under injected loss - otherwise you've optimized a bug.",
+    "tags": ["correctness-validation", "perf-gate", "gap-recovery"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "measurement-050",
+    "front": "What tool injects packet loss to test gap/snapshot recovery, and what do you measure during recovery?",
+    "back": "tc netem (e.g. 'tc qdisc add dev eth0 root netem loss 0.1%'). Measure recovery time AND correctness after recovery together, plus gaps detected vs recovered and drop/overwrite counts.",
+    "tags": ["fault-injection", "tc-netem", "gap-recovery"],
+    "difficulty": "advanced"
+  }
+]

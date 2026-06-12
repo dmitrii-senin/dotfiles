@@ -1,0 +1,317 @@
+[
+  {
+    "id": "ownership-001",
+    "front": "What does 'reliable market data' mean for a feed handler (since UDP loss is guaranteed)?",
+    "back": "The published book is correct (matches the exchange), complete (no silently-missing levels/instruments), timely (within the latency budget), and recoverable (a gap is detected and repaired without corrupting downstream state). It does NOT mean zero packet loss.",
+    "tags": ["reliability", "ownership", "correctness"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "ownership-002",
+    "front": "Why is 'stale worse than lost' for market data, and what does that imply for a slow consumer?",
+    "back": "A stale book misleads a strategy into trading on wrong prices; a dropped update can be detected and recovered. So a slow consumer should skip to the latest book (overwrite policy) and the producer must never block. Backpressure that stalls the hot path is a correctness bug, not a throttle.",
+    "tags": ["reliability", "overwrite", "backpressure"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "ownership-003",
+    "front": "What are CME Globex equity/rate futures trading hours and the daily break (Central Time)?",
+    "back": "Sunday 17:00 CT open through Friday 16:00 CT close, with a daily maintenance break 16:00-17:00 CT Monday-Thursday (used for settlement and system maintenance). The hour break is when resting day orders are cancelled and books transition.",
+    "tags": ["trading-day", "lifecycle", "central-time"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "ownership-004",
+    "front": "Why does the trade date come from the session, not the calendar day, on CME Globex?",
+    "back": "The start of the Globex session (afternoon/evening) marks the beginning of the next trading day. Orders entered Sunday evening are dated for and cleared on Monday. A handler must assign trade date by session, not by wall-clock calendar date.",
+    "tags": ["trading-day", "trade-date", "lifecycle"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "ownership-005",
+    "front": "What is the 'no-cancel' (lockdown) period in CME Globex Pre-Open?",
+    "back": "The final ~30-second window before the open. New orders may still be entered, but no previously entered order may be modified or cancelled. During Pre-Open an indicative opening price (IOP) is disseminated; the first match occurs at the open.",
+    "tags": ["pre-open", "no-cancel", "lifecycle"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "ownership-006",
+    "front": "Which FIX/SBE message communicates CME market and instrument states, and at what scopes?",
+    "back": "The Security Status message, FIX MsgType 35=f, SBE template SecurityStatus. It applies at two scopes: Group (a whole product group transitions together) and Instrument (a single instrument).",
+    "tags": ["security-status", "market-state", "FIX-35f"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "ownership-007",
+    "front": "In the SecurityStatus message, which tag carries the trading status, and what value means Open?",
+    "back": "Tag 326-SecurityTradingStatus carries the trading status enum; value 17 = 'Ready to trade (start of session)'. The trading event is conveyed in tag 1174-SecurityTradingEvent.",
+    "tags": ["security-status", "tag-326", "market-state"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "ownership-008",
+    "front": "What is the precedence rule for CME Security Status messages, and why does it matter to a handler?",
+    "back": "The last Security Status message sent takes precedence. A single group-level message can flip every instrument in the group (e.g. all to 326=17, 'Ready to trade (start of session)'). A handler that processes them out of order or drops one will publish a wrong state.",
+    "tags": ["security-status", "last-message-wins", "ownership"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "ownership-009",
+    "front": "What are the field sizes of the MDP 3.0 binary packet header, and the per-message framing?",
+    "back": "A 4-byte uint32 packet sequence number and an 8-byte uint64 sending time (nanoseconds). Each SBE message inside the packet is framed by a 2-byte uint16 message size field. One packet can carry many messages for many instruments.",
+    "tags": ["packet-header", "wire-format", "sequence-number"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "ownership-010",
+    "front": "Distinguish the MDP 3.0 packet sequence number from RptSeq (tag 83).",
+    "back": "The packet sequence number is the 4-byte header field that drives A/B arbitration and gap detection across the whole channel. RptSeq (tag 83) is a per-instrument message sequence number inside the SBE body, sequencing updates for one SecurityID.",
+    "tags": ["sequence-number", "rptseq", "tag-83"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-011",
+    "front": "Why does CME send incremental data on two feeds (A and B), and which arrives first?",
+    "back": "Redundancy against UDP loss. Order between feeds is non-deterministic and outside CME's control (depends on network path) — any packet can arrive first on either feed. CME strongly recommends processing both.",
+    "tags": ["arbitration", "A-B-feeds", "redundancy"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "ownership-012",
+    "front": "What is the recommended CME A/B feed arbitration algorithm?",
+    "back": "Listen to both A and B; process packets by packet sequence number; discard any sequence already processed (the duplicate from the slower feed); a sequence gap means a packet was lost on BOTH feeds and triggers recovery.",
+    "tags": ["arbitration", "deduplication", "gap-detection"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "ownership-013",
+    "front": "When is a sequence gap a true loss requiring recovery vs handled by A/B?",
+    "back": "If a packet is missing on one feed but present on the other, arbitration fills it with zero recovery traffic. A gap is a true loss only when the packet sequence number is missing from BOTH A and B.",
+    "tags": ["gap-detection", "arbitration", "recovery"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "ownership-014",
+    "front": "What is the MDP 3.0 Admin Heartbeat, its MsgType, and its interval?",
+    "back": "FIX MsgType 35=0, consisting of only a standard technical header plus a FIX message header. Sent on the real-time and recovery feeds during periods of no activity at a configurable interval, currently 30 seconds.",
+    "tags": ["heartbeat", "35-0", "liveness"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "ownership-015",
+    "front": "What is the difference between heartbeats and gap detection as monitoring signals?",
+    "back": "Heartbeats (35=0, every 30s in quiet periods) are a LIVENESS signal — they say the feed is alive when nothing is trading. Gap detection (via packet sequence numbers) is a DATA-LOSS signal. Silence past the heartbeat timeout = dead feed; a sequence gap = lost data on a live feed. Two distinct alerts.",
+    "tags": ["heartbeat", "gap-detection", "monitoring"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "ownership-016",
+    "front": "What does the Market Recovery (snapshot) feed contain, and when do you use it?",
+    "back": "A full snapshot of every book that has had activity since the start of the week (SnapshotFullRefresh template for MBP/MBOLD). Use it to recover after a true A+B gap or as a late joiner. CME requires its use be recovery-only — disconnect once recovered.",
+    "tags": ["snapshot-recovery", "recovery", "late-joiner"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "ownership-017",
+    "front": "What is tag 369-LastMsgSeqNumProcessed and how is it used in recovery?",
+    "back": "It is the incremental packet sequence number that a recovery snapshot is consistent with. During recovery you drop all queued incrementals with packet seq < 369 and apply those with seq >= 369, so the snapshot and the live stream stitch together without double-counting.",
+    "tags": ["snapshot-recovery", "tag-369", "reconciliation"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-018",
+    "front": "During snapshot recovery, an instrument is in both the snapshot and your queued incrementals but tag 60-TransactTime differs. What do you do?",
+    "back": "The snapshot is not yet consistent for that instrument — you must process the next Market Recovery feed iteration for it. You cannot just apply the snapshot and resume, because the differing TransactTime means activity occurred that the snapshot does not yet reflect.",
+    "tags": ["snapshot-recovery", "tag-60", "reconciliation"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-019",
+    "front": "Why prefer per-instrument recovery over pausing the whole handler during a gap?",
+    "back": "Per-instrument recovery lets unaffected instruments keep flowing while only the gapped instruments rebuild. A global pause turns one instrument's gap into a fleet-wide latency spike, violating the latency SLO for instruments that were never affected.",
+    "tags": ["per-instrument-recovery", "snapshot-recovery", "latency"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-020",
+    "front": "What does a Channel Reset signal, and how is it carried on the wire?",
+    "back": "It signals the exchange-side order books on a channel are corrupted (a dual-component failure) and must be rebuilt. It is carried on the Incremental feed as a Market Data Incremental Refresh with tag 269-MDEntryType=J (SBE template ChannelReset).",
+    "tags": ["channel-reset", "269-J", "book-corruption"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "ownership-021",
+    "front": "How does a Channel Reset (269=J) differ from a sequence gap in how you handle it?",
+    "back": "A gap can be patched via A/B arbitration or snapshot recovery from a known sequence. A Channel Reset cannot be patched — you must discard ALL book state for that channel and rebuild from snapshots, and notify downstream consumers to flush their mirror.",
+    "tags": ["channel-reset", "269-J", "runbook"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-022",
+    "front": "On the MDP 3.0 UDP feeds at Sunday startup, what is sent before recovery data begins?",
+    "back": "CME sends Heartbeat (35=0) messages at a 30-second interval on the UDP Market Recovery and Instrument Definition feeds until recovery data transmission begins; once recovery data starts, heartbeats stop.",
+    "tags": ["startup", "heartbeat", "weekly-lifecycle"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "ownership-023",
+    "front": "What value does tag 980-SecurityUpdateAction carry in Security Definition (35=d) messages during Sunday startup, and why is it notable?",
+    "back": "It carries 'A' (Add) on all Security Definition messages during Sunday startup — even for instruments that existed during the previous week's session. So a handler must treat every startup definition as an Add, not assume continuity from last week.",
+    "tags": ["startup", "35-d", "tag-980"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-024",
+    "front": "Why pre-allocate book and dispatch structures from the Sunday definition set rather than on first trade?",
+    "back": "Allocating on the hot path during Monday's open is a malloc latency bomb (50-200ns, occasionally 5-50us if it hits the kernel). CME SecurityIDs are dense integers, so an array-indexed dispatch can be pre-sized off the definition set for O(1) lookup with zero hot-path allocation.",
+    "tags": ["startup", "allocation", "instrument-definition"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-025",
+    "front": "What does CME price banding do, and does it stop market orders?",
+    "back": "Price banding rejects price-based orders priced outside a band around the CME Last Price (buys above last+band, sells below last-band) — it stops orders that go 'too far'. It does NOT affect market orders, which can only match up to the best bid/offer, not beyond.",
+    "tags": ["price-banding", "market-integrity", "velocity-logic"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "ownership-026",
+    "front": "What does CME Velocity Logic monitor, and how does it differ from price banding?",
+    "back": "Velocity Logic monitors price movements that go 'too far, too fast' within a small rolling look-back window. Price banding catches orders that go too far; Velocity Logic catches the market moving too fast. An order can pass banding but trigger Velocity Logic.",
+    "tags": ["velocity-logic", "market-integrity", "price-banding"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "ownership-027",
+    "front": "What happens to an instrument when Velocity Logic triggers, and how is it communicated?",
+    "back": "Matching is immediately suspended and the instrument enters a Reserved/Pre-Open state: orders can be submitted/modified/cancelled and an indicative opening price is published, but no matches occur; trading then resumes. The state change is communicated via the Security Status (35=f) message.",
+    "tags": ["velocity-logic", "reserved-state", "security-status"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-028",
+    "front": "When a lead-month futures instrument triggers Velocity Logic, what is the blast radius?",
+    "back": "If the lead month belongs to an equities, metals, energy, treasury, or FX instrument group, the ENTIRE group transitions to Pre-Open; otherwise just that instrument goes to the Reserved state. Corresponding options also pause and mass quotes are cancelled.",
+    "tags": ["velocity-logic", "blast-radius", "reserved-state"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-029",
+    "front": "What are the market-wide circuit breaker levels for CME equity index futures during the day?",
+    "back": "7%, 13%, and 20%, coordinated with the cash-market stock circuit breakers. The 7% and 13% levels each trigger a 10-minute halt; reaching 20% closes the market for the trading day. Overnight, equity futures have a 7% limit and stay open trading at that limit.",
+    "tags": ["circuit-breaker", "equity-index", "market-integrity"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-030",
+    "front": "Why publish the market state downstream during a Velocity Logic pause, even though your book is valid?",
+    "back": "During the pause the book is valid but NOT matching. A strategy that sees a frozen top-of-book without the state could mistake it for a tradeable price. A correct book in the wrong state is still a wrong signal — the state must travel with the book.",
+    "tags": ["velocity-logic", "reserved-state", "ownership"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-031",
+    "front": "What is an SLI, expressed as a formula, and what are good SLIs for a feed handler?",
+    "back": "An SLI is a quantitative measure of service level, typically (good events) / (total events). Good MD SLIs: tick-to-publish latency (fraction of updates published within X us), book correctness (fraction of sessions ending with zero divergence), and recovery time (fraction of gaps recovered within Y ms).",
+    "tags": ["SLI", "sre", "reliability-target"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "ownership-032",
+    "front": "What is an SLO, and what is an error budget?",
+    "back": "An SLO is a target value (or range) for an SLI over a time window (commonly 28 or 30 days). The error budget is 1 - SLO: a 99.9% SLO permits a 0.1% budget of bad events. When the budget is exhausted, risky changes are frozen until the service is back in budget.",
+    "tags": ["SLO", "error-budget", "sre"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "ownership-033",
+    "front": "For a market-data latency SLI, why use percentiles (p99/p999) rather than the average?",
+    "back": "The mean hides tail latency — most updates are fast, but the few slow ones are what hurt. A high-order percentile (p99/p999) shows the plausible worst case, which is exactly what a strategy trades against. The median emphasizes only the typical case.",
+    "tags": ["SLI", "percentiles", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "ownership-034",
+    "front": "Why must a latency SLI distinguish successful from failed paths in market data?",
+    "back": "Because a fast error is not a good response: a corrupted book published quickly ('fast then wrong') must count as a budget burn, not a success. A latency SLI that counts a published-but-incorrect update as good is measuring the wrong thing.",
+    "tags": ["SLI", "correctness", "latency"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-035",
+    "front": "What are the four golden signals of monitoring, and how do they map to a feed handler?",
+    "back": "Latency (tick-to-publish per stage, as percentiles), Traffic (packets/sec and messages/sec per channel), Errors (gaps, recoveries, channel resets, decode failures, book-parity divergences), Saturation (socket rcvbuf occupancy, ring depth, isolated-core utilization).",
+    "tags": ["golden-signals", "monitoring", "dashboard"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "ownership-036",
+    "front": "Why is saturation called a 'leading indicator', and how do you exploit that for a feed handler?",
+    "back": "Latency increases are an early symptom of saturation: a rising p99 over a short (~1-minute) window signals queues filling before you actually drop. Alerting on that window-p99 lets you act before the rcvbuf overflows, rather than after you've lost data.",
+    "tags": ["saturation", "golden-signals", "alerting"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-037",
+    "front": "How do you read 'high latency + high saturation + low errors' vs 'low latency + high errors + low saturation'?",
+    "back": "High latency + high saturation + low errors = overloaded but coping (capacity problem; add resources or optimize). Low latency + high errors + low saturation = a logic/correctness or dependency bug, not capacity (check code paths and upstream, not core counts).",
+    "tags": ["golden-signals", "diagnosis", "monitoring"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-038",
+    "front": "Why must feed-handler capacity be sized for the burst rather than the average?",
+    "back": "MD is bursty by an order of magnitude or more — quiet periods of tens of thousands of msgs/sec spike toward ~10^6/sec at the open or on news. Sizing for the average guarantees drops exactly when correctness matters most. Every queue (NIC ring, rcvbuf, internal ring) and core budget must absorb the peak.",
+    "tags": ["capacity-planning", "burst", "queue-sizing"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-039",
+    "front": "When does recvmmsg batching pay off, and why is the burst the regime where it can help?",
+    "back": "recvmmsg amortizes per-syscall overhead only when several datagrams are actually queued and returned per call; at low rates it degenerates to one packet per call and can add latency. The open/news bursts are the high-pps regime where the NIC ring fills and batching can win, but the break-even is workload- and kernel-specific (recent kernels can even make recvmmsg slower than recvmsg) and must be benchmarked. (recvmmsg(2); see feed-handler.)",
+    "tags": ["recvmmsg", "capacity-planning", "burst"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-040",
+    "front": "Name the core trading-day runbooks a feed-handler owner should rehearse.",
+    "back": "Sunday cold start (definitions before books); sequence gap (A/B exhausted -> per-instrument snapshot recovery -> reconcile via tag 369 -> disconnect); Channel Reset 269=J (discard channel books, recover, notify downstream); dead feed (heartbeat silence -> failover); Velocity Logic/Reserved (burst + state change); daily 16:00 CT break (quiet, don't false-alarm).",
+    "tags": ["runbook", "incident-response", "trading-day"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-041",
+    "front": "What single step must end every recovery runbook, and why?",
+    "back": "A parity check: confirm books match the exchange, instrument count matches the schedule, and no instrument is stuck mid-recovery. 'Recovered' without a parity check is a hope, not a confirmation — you could be publishing a wrong-but-confident book.",
+    "tags": ["runbook", "parity-check", "verification"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-042",
+    "front": "Why should a 'data silence' alert be state-aware?",
+    "back": "A one-minute data silence is normal at 16:30 CT (the daily maintenance break, no data flowing) but a P1 at 09:35 CT (mid-session). The alert needs the market state (and heartbeat age and channel) as context so it pages on real outages and stays quiet during expected lulls.",
+    "tags": ["state-aware-alerting", "monitoring", "ownership"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-043",
+    "front": "Why alert on error-budget burn RATE rather than raw error count?",
+    "back": "A few gaps overnight is noise; the same gap rate sustained through the open will blow the session SLO. Burn-rate alerting catches the trend that will exhaust the budget, avoiding both false pages on harmless blips and missed slow-burns. (Google SRE burn-rate alerting.)",
+    "tags": ["burn-rate", "error-budget", "alerting"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-044",
+    "front": "Why does a feed handler optimize the tail (p999) on one isolated core instead of scaling out like a web service?",
+    "back": "A strategy trades against p999, not the mean, and you cannot horizontally scale a single deterministic ordered feed — adding receivers reintroduces shared-book contention and ordering complexity. A request-reply service optimizes the mean and scales out; a feed handler optimizes the tail on a fixed core.",
+    "tags": ["tail-latency", "career-bridge", "sre-transfer"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "ownership-045",
+    "front": "Which SRE practices transfer from Big Tech to MD ownership unchanged, and which assumptions must be abandoned?",
+    "back": "Transfer unchanged: SLI/SLO/error-budget framework, the four golden signals, runbooks, and blameless incident review. Abandon: horizontal scale-out (replace with one isolated fast core), mean-latency SLIs (replace with p999 correctness-aware SLIs), and 'request success rate' as the SLI (replace with book correctness + tick-to-publish latency).",
+    "tags": ["career-bridge", "sre-transfer", "ownership"],
+    "difficulty": "advanced"
+  }
+]

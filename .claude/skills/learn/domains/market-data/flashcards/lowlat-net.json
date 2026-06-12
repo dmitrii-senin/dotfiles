@@ -1,0 +1,296 @@
+[
+  {
+    "id": "lowlat-net-001",
+    "front": "Why is the host/kernel/NIC layer on the critical path for a feed handler, and what does it mostly affect — p50 or p99?",
+    "back": "The wire-to-book hot path lives in 1-100us, and most of the TAIL comes from the OS/NIC, not your code: a stray interrupt on the hot core, a page fault (1-10us), a malloc that hits the kernel (5-50us), a frequency transition, a remote-NUMA access (~2x local DRAM). p50 is mostly throughput/cache layout; p99 is mostly what the OS does to you. Host tuning makes these jitter sources go away before the trading day.",
+    "tags": ["lowlat-net", "host-tuning", "jitter", "p99"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "lowlat-net-002",
+    "front": "Trace the default interrupt-driven receive path and say why it adds variance, not just latency.",
+    "back": "Packet arrives -> NIC raises IRQ -> kernel runs the hardware-IRQ handler -> schedules a NAPI softirq -> softirq polls the ring and pushes frames up the stack -> your blocked thread is woken. Each hop adds latency, and variance because the IRQ may land on a busy core and the wakeup may queue behind other work. The two structural fixes are interrupt coalescing (fewer interrupts) and busy-poll/kernel-bypass (remove the interrupt-to-wakeup hop).",
+    "tags": ["lowlat-net", "interrupts", "napi", "softirq"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "lowlat-net-003",
+    "front": "What do ethtool -C rx-usecs and rx-frames do, and how do they combine?",
+    "back": "rx-usecs is the microseconds to wait after a packet arrives before raising an RX interrupt; rx-frames is the max frames to accumulate before interrupting. They act as an OR -- whichever fires first delivers the interrupt. The usecs timer typically starts only AFTER the first packet arrives.",
+    "tags": ["lowlat-net", "ethtool", "coalescing"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "lowlat-net-004",
+    "front": "What ethtool -C settings give minimum receive latency, and what's the cost?",
+    "back": "ethtool -C <dev> rx-usecs 0 rx-frames 1 -> per-packet interrupts, minimum latency, maximum CPU/interrupt rate. Relaxing to e.g. rx-usecs 10 rx-frames 16 trades a small added latency for a large drop in interrupt load, acceptable when the overall budget is generous (e.g. 100us). Settings are NOT persistent across reboots/link events -- bake them into a NetworkManager/systemd profile.",
+    "tags": ["lowlat-net", "ethtool", "coalescing", "rx-usecs"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "lowlat-net-005",
+    "front": "What does adaptive-rx coalescing do, and why do low-latency shops usually turn it off?",
+    "back": "adaptive-rx lets the driver auto-compute coalescing from the live packet rate (low rate -> low latency, high rate -> high throughput), tuned by pkt-rate-low/high and sample-interval. For sub-50us paths, turn it OFF and pin fixed minimal values: the adaptive algorithm adds its own variance ramping up/down, and the up-ramp during a burst is exactly when you don't want added delay. Predictability beats the average-case win.",
+    "tags": ["lowlat-net", "ethtool", "adaptive-rx", "determinism"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "lowlat-net-006",
+    "front": "Why pin the hot thread to a core, and what does pinning alone NOT give you?",
+    "back": "The scheduler load-balances by default; a migrated thread lands on a cold core (cold L1/L2, cold branch predictors) and pays a cache-refill spike. Pin with pthread_setaffinity_np / sched_setaffinity (or taskset -c N) to keep the working set hot and remove migration jitter. Pinning alone is NOT isolation -- the scheduler can still place other threads on your core unless you also isolate it (isolcpus). Pin + isolate together.",
+    "tags": ["lowlat-net", "cpu-affinity", "taskset", "pinning"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "lowlat-net-007",
+    "front": "What does mlockall(MCL_CURRENT | MCL_FUTURE) do, and why is it needed even with no swap?",
+    "back": "It locks all current and future pages of the process (code, data, stack, shared libs, mmaps) resident in RAM so they can't be reclaimed -- a hot-path page fault costs ~1-10us and lands in p99. It's needed even with NO swap because clean read-only pages (program text) can still be dropped under memory pressure and re-faulted from disk. Locks are dropped on execve and not inherited across fork.",
+    "tags": ["lowlat-net", "mlockall", "page-faults", "zero-alloc"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "lowlat-net-008",
+    "front": "Why is mlockall not enough by itself, and what is pre-faulting?",
+    "back": "mlockall keeps mapped pages resident, but pages that aren't mapped yet still fault on first touch. Pre-faulting = at startup, write to (touch) every buffer and grow+touch the stack with a large dummy array so the pages are actually mapped BEFORE the time-critical phase. Goal: zero major/minor faults once trading starts. Note MCL_FUTURE doesn't make hot-path allocation safe -- it makes a later mmap/malloc FAIL if it exceeds the lock limit, so still allocate everything at startup.",
+    "tags": ["lowlat-net", "mlockall", "prefault", "page-faults"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "lowlat-net-009",
+    "front": "Why is isolcpus alone insufficient for true CPU isolation, and what are the three knobs?",
+    "back": "isolcpus= only removes cores from the scheduler's load-balancing domain -- the timer tick and RCU callbacks STILL fire, polluting L1i and adding context-switch overhead. Full isolation = isolcpus= (no general scheduling) + nohz_full= (drop the periodic timer tick when one task is runnable) + rcu_nocbs= (offload RCU callbacks to housekeeping cores). Typical: isolcpus=4-7 nohz_full=4-7 rcu_nocbs=4-7.",
+    "tags": ["lowlat-net", "isolcpus", "nohz_full", "rcu_nocbs"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "lowlat-net-010",
+    "front": "What conditions must hold for nohz_full to actually stop the timer tick on a core?",
+    "back": "nohz_full only silences the tick when EXACTLY ONE task is runnable on the core -- a second runnable thread re-enables the tick to multitask. Even then the tick can't be eliminated 100% (expect a ~1 Hz residual). Also nohz_full is incompatible with a varying intel_pstate -- you must fix the CPU frequency. Verify by watching LOC (local timer interrupts) in /proc/interrupts stay nearly frozen.",
+    "tags": ["lowlat-net", "nohz_full", "tickless", "cpu-isolation"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-011",
+    "front": "How do you steer NIC interrupts off the hot core, and what stops them coming back?",
+    "back": "Write the housekeeping-core CPU mask to /proc/irq/<n>/smp_affinity (or smp_affinity_list) for the NIC's IRQs. Disable irqbalance (or exclude the isolated set via IRQBALANCE_BANNED_CPUS) so it doesn't migrate IRQs back. Even on an isolated core, hardware IRQs and the softirqs/timers/workqueues they spawn can otherwise land there and steal cycles + trash cache.",
+    "tags": ["lowlat-net", "irq-affinity", "smp_affinity", "irqbalance"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "lowlat-net-012",
+    "front": "What is the two-core-per-feed pattern and why does it exist?",
+    "back": "One housekeeping (non-isolated) core takes the NIC IRQ + RX softirq; one isolated core runs the pinned processing thread (often SCHED_FIFO). This keeps the receive interrupt and the receive PROCESSING from contending. It exists because a busy-looping SCHED_FIFO thread on the SAME core as the NIC softirq starves the softirq and stalls receive.",
+    "tags": ["lowlat-net", "two-core-pattern", "irq-affinity", "sched-fifo"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "lowlat-net-013",
+    "front": "What is SCHED_FIFO and what is its main hazard for a feed handler?",
+    "back": "A POSIX real-time policy where the thread runs until it blocks/yields and is never preempted by normal (SCHED_OTHER) tasks -- eliminates scheduler jitter. Set via chrt -f 99 or pthread_setschedparam. Hazard: a busy-looping high-priority SCHED_FIFO thread can STARVE kernel softirqs (incl. the NIC RX softirq) and per-core kthreads on its core, stalling receive or tripping RT-throttling (sched_rt_runtime_us). Fix: two-core split.",
+    "tags": ["lowlat-net", "sched-fifo", "softirq-starvation", "real-time"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "lowlat-net-014",
+    "front": "What is RSS, and why can't it help a single CME multicast group?",
+    "back": "Receive-Side Scaling spreads packets across multiple NIC RX queues/cores by hashing header fields (typically a 4-tuple Toeplitz hash) into an indirection table. But RSS CANNOT split a single flow -- all packets with the same hashed tuple land on one queue/one core. A CME multicast group is effectively one src/dst tuple, so RSS pins it to a single core, which becomes the burst bottleneck.",
+    "tags": ["lowlat-net", "rss", "multicast", "toeplitz"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "lowlat-net-015",
+    "front": "Name three mechanisms to spread a single hot multicast group across cores.",
+    "back": "(1) ethtool -N <dev> rx-flow-hash udp4 sd to hash on IPs only (more entropy across groups); (2) n-tuple flow steering: ethtool -U <dev> flow-type udp4 ... action <queue> to place specific groups on specific queues/cores; (3) multiple receivers with SO_REUSEPORT. Each parallel path then introduces its own book-contention/correctness question. RSS is also NUMA-blind -- steer the queue's IRQ to the NIC-local node and pin the consumer there.",
+    "tags": ["lowlat-net", "flow-steering", "rx-flow-hash", "so-reuseport"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-016",
+    "front": "How do hugepages reduce TLB pressure, and roughly what does a TLB miss cost?",
+    "back": "With 4 KiB pages a 2 MiB working set needs 512 PTEs; the dTLB (often ~64 entries on Intel) can't cover it, and each TLB miss triggers a page-table walk (~7-10ns). A single 2 MiB hugepage covers the same region with ONE TLB entry and no walks on the hot path.",
+    "tags": ["lowlat-net", "hugepages", "tlb", "page-walk"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "lowlat-net-017",
+    "front": "Explicit HugeTLB (MAP_HUGETLB) vs Transparent Hugepages (MADV_HUGEPAGE) -- which for a low-latency book/shm ring, and why?",
+    "back": "Prefer EXPLICIT HugeTLB: mmap(..., MAP_HUGETLB | MAP_HUGE_2MB, ...) (or hugetlbfs) reserves non-swappable pages from a pre-allocated pool -- deterministic. THP via madvise(MADV_HUGEPAGE) is best-effort: the kernel may decline, or later split/merge causing background jitter and TLB shootdowns. Many low-latency shops disable system-wide THP and use explicit pages. Allocate explicit pages early (near boot) before memory fragments; 1 GiB pages need hugepagesz=1G on the boot line.",
+    "tags": ["lowlat-net", "hugepages", "map_hugetlb", "thp"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "lowlat-net-018",
+    "front": "On a multi-socket box, what three things must share a NUMA node for a feed handler, and what's the rough remote penalty?",
+    "back": "The NIC (its PCIe slot attaches to one socket), the receive/processing thread, and the memory it touches (socket buffers, book arrays, shm ring) must all be on the same NUMA node. Remote DRAM (other socket, across the interconnect) costs roughly ~2x local DRAM latency. Pin with numactl --cpunodebind=N --membind=N, or per-thread affinity + first-touch on the right node. Read the NIC node from /sys/class/net/<dev>/device/numa_node.",
+    "tags": ["lowlat-net", "numa", "numactl", "locality"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "lowlat-net-019",
+    "front": "What is the first-touch NUMA trap for a shared-memory IPC ring?",
+    "back": "Linux allocates a page on the node of the FIRST process/thread that touches (faults) it. If the producer faults the shm ring pages, they live on the producer's node; a consumer on the other socket then pays the remote-DRAM penalty on every read. Fix: fault the pages from a thread pinned to the intended node, or pin producer + consumer to the same node.",
+    "tags": ["lowlat-net", "numa", "first-touch", "shm"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-020",
+    "front": "How do you get a true NIC hardware receive timestamp via SO_TIMESTAMPING?",
+    "back": "setsockopt SO_TIMESTAMPING with SOF_TIMESTAMPING_RX_HARDWARE | SOF_TIMESTAMPING_RAW_HARDWARE. The stamp is delivered as ancillary data in recvmsg: cmsg_level=SOL_SOCKET, cmsg_type=SCM_TIMESTAMPING, in ts[2] of the scm_timestamping struct (ts[0]=software, ts[1]=deprecated). Use the _NEW variant (scm_timestamping64) for y2038 safety. RX hardware stamps require an enabling flag set or the kernel won't generate them.",
+    "tags": ["lowlat-net", "so-timestamping", "hardware-timestamp", "scm-timestamping"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-021",
+    "front": "How do you check whether a NIC supports hardware timestamping, and what is the PHC index?",
+    "back": "ethtool -T <dev> reports the hardware tx/rx timestamping capabilities (hardware-receive = SOF_TIMESTAMPING_RX_HARDWARE, etc.) and the PTP Hardware Clock (PHC) index. The PHC index maps to the /dev/ptp* device naming (first PHC is index 0). The PHC is the on-NIC clock that hardware stamps are taken against.",
+    "tags": ["lowlat-net", "ethtool-T", "phc", "hardware-timestamp"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-022",
+    "front": "What do ptp4l and phc2sys each synchronize in a linuxptp setup?",
+    "back": "ptp4l disciplines the NIC's PTP Hardware Clock (PHC) to the grandmaster over the network (run ptp4l -H -s for hardware-timestamped slave mode; logged states s0->s1->s2=locked, sub-100ns offsets = good sync). phc2sys synchronizes the SYSTEM clock to the PHC, because the NIC clock and system clock are independent (phc2sys -s <dev> -w waits for ptp4l and pulls the TAI<->UTC offset).",
+    "tags": ["lowlat-net", "ptp", "ptp4l", "phc2sys"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-023",
+    "front": "Why does PTP run on TAI while the system clock is UTC, and what handles the offset?",
+    "back": "PTP/IEEE 1588 normally operates on the International Atomic Time (TAI) timescale, while the Linux system clock is kept in UTC. The two differ by the accumulated leap-second offset (currently 37 seconds). phc2sys's -w option (or -a) retrieves the TAI-to-UTC offset from ptp4l so the system clock is set correctly.",
+    "tags": ["lowlat-net", "ptp", "tai", "utc"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-024",
+    "front": "What is the operational rule about running ptp4l/phc2sys, and what power-management gotcha hurts PTP accuracy?",
+    "back": "Run only ONE instance of ptp4l and one of phc2sys PER interface -- multiple writers fight over the clock and put it out of sync. Power-management (deep C-states / PCIe ASPM) can take 100us+ to wake the NIC and PCIe bus, wrecking PHC accuracy and causing phc2sys timeouts; pin C-states on timing-critical hosts.",
+    "tags": ["lowlat-net", "ptp", "phc2sys", "c-states"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-025",
+    "front": "Rank Onload, ef_vi, TCPDirect, and DPDK by latency and integration effort.",
+    "back": "Onload: userspace TCP/UDP/multicast stack via LD_PRELOAD, NO app changes, ~1us. TCPDirect: zero-copy BSD-like API, lower latency than Onload, moderate code changes. ef_vi: lowest-level raw-frame API, direct datapath, lowest latency (hardware path into hundreds-of-ns), most code (Onload is built on it). DPDK: vendor-neutral industry standard, ~2-3us typical, poll-mode drivers, but takes EXCLUSIVE control of the NIC (interface disappears from normal Linux tools).",
+    "tags": ["lowlat-net", "kernel-bypass", "onload", "dpdk"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "lowlat-net-026",
+    "front": "What does kernel bypass cost you, and when is it premature?",
+    "back": "Bypass removes the interrupt-to-wakeup hop but BURNS a core busy-polling and changes your operational picture (under DPDK the NIC vanishes from standard Linux tools; Onload still cooperates with the kernel). It's premature if you haven't profiled the WHOLE path -- if 80% of latency is the book update, a faster receive saves nothing meaningful. Profile first.",
+    "tags": ["lowlat-net", "kernel-bypass", "onload", "methodology"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-027",
+    "front": "Why is the standard kernel stack a problem at exchange microburst rates?",
+    "back": "The standard Linux networking stack generally can't handle traffic rates above ~1 million packets/sec, which microbursts at large exchanges routinely exceed, and it adds syscall/copy/interrupt overhead per packet. Kernel bypass moves the datapath into user space to hit line rate (10 Gbps+) without drops and to get sub-microsecond latencies on commodity hardware.",
+    "tags": ["lowlat-net", "kernel-bypass", "packet-rate", "microburst"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "lowlat-net-028",
+    "front": "What is the NIC RX ring, how do you size it, and how do its drops differ from socket-buffer drops?",
+    "back": "The RX ring is the hardware-side descriptor buffer between the NIC and the kernel/softirq (set count via ethtool -G <dev> rx N). Too small -> a microburst overruns it and packets drop BEFORE reaching your socket buffer (counted as rx_dropped/rx_missed in ethtool -S, NOT RcvbufErrors). Socket-buffer overruns show separately in netstat -su RcvbufErrors. Raising SO_RCVBUF will not fix a ring overrun. Size both for the BURST, not the average.",
+    "tags": ["lowlat-net", "nic-ring", "ethtool-g", "packet-loss"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "lowlat-net-029",
+    "front": "Why disable GRO/LRO on a market-data receive NIC?",
+    "back": "GRO/LRO (Generic/Large Receive Offload) coalesce multiple received segments into one large buffer before delivery -- great for bulk TCP throughput, but they ADD latency (wait to merge) and are wrong for UDP multicast where each datagram is an independent MDP packet you want immediately. LRO is also lossy/irreversible (can't reconstruct frame boundaries). Disable: ethtool -K <dev> gro off lro off.",
+    "tags": ["lowlat-net", "offloads", "gro", "lro"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-030",
+    "front": "How does GRO corrupt per-packet latency measurement?",
+    "back": "GRO merges several received segments into one buffer before handing them up, so the coalesced messages share (roughly) one delivery/timestamp moment. Per-message receive timestamps then cluster at near-identical values instead of reflecting each packet's true arrival, hiding real inter-packet latency. For accurate per-packet timing, GRO/LRO must be off.",
+    "tags": ["lowlat-net", "gro", "measurement", "offloads"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-031",
+    "front": "What is SO_BUSY_POLL and what does it trade away?",
+    "back": "It makes the socket-read path SPIN polling the NIC driver's RX queue for a few us instead of sleeping and waiting for the IRQ->softirq->wakeup chain, removing the interrupt-to-wakeup latency (~single-digit us win) at the cost of a fully-burned core. Set per-socket via setsockopt(SO_BUSY_POLL) or globally via net.core.busy_poll/busy_read; newer kernels expose NAPI/epoll busy-poll. It's the cheapest 'bypass-like' win -- no special NIC or userspace stack needed.",
+    "tags": ["lowlat-net", "so-busy-poll", "napi", "busy-polling"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-032",
+    "front": "Why does busy-polling double as a defense against C-state wakeup latency?",
+    "back": "A spinning (busy-polling) core stays in C0 and never enters a deep idle C-state, so it never pays the us-scale C-state EXIT latency. Without it, a core that briefly idles between packets drops into a deep C-state and the first packet after the idle gap is penalized by the slow wake. So busy-poll removes both the interrupt-to-wakeup hop AND the cold-idle penalty.",
+    "tags": ["lowlat-net", "busy-polling", "c-states", "jitter"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-033",
+    "front": "How does a noisy hyperthread sibling hurt the hot core, and how do you remove it?",
+    "back": "An HT sibling shares L1/L2/DSB/execution ports with your hot thread; noise on the sibling can add roughly 15-30% tail jitter and halves the effective ROB/L1d available to your thread. Disable the sibling of the pinned core: echo 0 > /sys/devices/system/cpu/cpuN/online. This gives your thread the full ROB and private L1d. (Deep CPU theory: cross-link to /perf.)",
+    "tags": ["lowlat-net", "hyperthreading", "tail-latency", "perf-crosslink"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-034",
+    "front": "What two frequency/idle knobs stabilize hot-core timing, and what does schedutil cost?",
+    "back": "(1) Cap C-states (intel_idle.max_cstate=1 / processor.max_cstate=1, or hold the core busy) so idle exit doesn't add us. (2) Pin the governor to performance (cpupower frequency-set -g performance) and tame turbo variability so cycle timing is stable. The schedutil governor adds ~10-50us frequency-transition latency that pollutes both production p99 and benchmark variance.",
+    "tags": ["lowlat-net", "c-states", "frequency", "governor"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-035",
+    "front": "How do you decompose wire-to-application latency into 'network' vs 'host', and why does it matter?",
+    "back": "Take the NIC hardware RX timestamp (SCM_TIMESTAMPING ts[2]) and a CLOCK_MONOTONIC_RAW stamp the instant your thread returns from recv; their difference is the HOST receive cost (softirq + wakeup + copy or busy-poll spin). A growing host fraction points at on-box jitter (interrupts, page faults, C-state wakeups, NUMA-remote buffers) -- the part YOU own. A growing network fraction points off-box (switch/path/exchange) -- escalate. Without the split you risk tuning the wrong layer.",
+    "tags": ["lowlat-net", "latency-decomposition", "hardware-timestamp", "attribution"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-036",
+    "front": "p99 wire-to-book jumped 10us overnight; the host (NIC-stamp-to-recv) split is unchanged but wire-to-NIC grew. Where's the problem?",
+    "back": "The added latency is in the NETWORK, off your box (switch, path, an aggregation hop, or exchange-side) -- not in your host stack, since the host split didn't move. The correct action is to escalate to the network team with the timestamp evidence rather than re-tune isolcpus/coalescing. This is exactly why the network-vs-host decomposition exists.",
+    "tags": ["lowlat-net", "latency-decomposition", "attribution", "methodology"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-037",
+    "front": "Why must the host-tuning knobs be treated as one system, and what's a concrete example of one masking another?",
+    "back": "The knobs compound and can fight each other. Example: perfectly tuned interrupt coalescing is invisible if an un-steered NIC IRQ still lands on the hot core -- the IRQ jitter dominates regardless of coalescing. A coherent box does ALL of: isolate cores, pin thread (SCHED_FIFO, no HT sibling), steer IRQs to a housekeeping core on the NIC-local node, fixed minimal coalescing + GRO/LRO off, ring+SO_RCVBUF sized for burst, mlockall+prefault, explicit hugepages, numactl-bind, governor performance + capped C-states, PTP-disciplined clock.",
+    "tags": ["lowlat-net", "systemic-tuning", "checklist", "methodology"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-038",
+    "front": "Why must you re-read every ethtool/sysctl value after setting it?",
+    "back": "Drivers SILENTLY IGNORE unsupported coalesce/offload options (or return an error), so a knob you 'set' may not have actually taken. Always read it back (ethtool -c / -g / -k, sysctl, /sys) and assert the value. Capture the whole config as code (a startup script that sets then reads back and asserts) so the box is reproducible, and snapshot per-core perf stat / turbostat / /proc/interrupts before market open.",
+    "tags": ["lowlat-net", "validation", "ethtool", "reproducibility"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "lowlat-net-039",
+    "front": "Where should the hot thread NOT be placed relative to NUMA and hyperthreading?",
+    "back": "Not on a core whose memory/NIC is on a different NUMA node (you'd pay ~2x remote DRAM and remote-NIC penalties), and not on a hyperthread sibling of another busy core (shared L1/L2/ports cause 15-30% tail jitter). Pick a core on the NIC-local NUMA node with its HT sibling offlined, isolated and IRQ-free.",
+    "tags": ["lowlat-net", "cpu-affinity", "numa", "hyperthreading"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "lowlat-net-040",
+    "front": "Which mmap flags help prefault and lock a mapping, and how do they relate to mlock?",
+    "back": "MAP_POPULATE prefaults (populates) the page tables at mmap time to avoid later fault stalls (best-effort; mmap doesn't fail if it can't). MAP_LOCKED marks the region locked like mlock(2) and tries to prefault the whole range (also best-effort). Both reduce hot-path faults, but for guaranteed residency the canonical pattern is still mlockall(MCL_CURRENT|MCL_FUTURE) plus explicit touch-loops to prefault heap and stack.",
+    "tags": ["lowlat-net", "mmap", "map_populate", "prefault"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-041",
+    "front": "A pinned SCHED_FIFO handler on the same core as the NIC RX softirq intermittently stops receiving for milliseconds. Why, and the fix?",
+    "back": "The busy-looping SCHED_FIFO (real-time) thread is never preempted by the normal-priority RX softirq path on that core, so it starves the softirq -- the NIC's received packets aren't drained, and the kernel may also kick in RT throttling. Fix: the two-core-per-feed pattern -- move the NIC IRQ/softirq to a separate housekeeping core via smp_affinity, leaving the SCHED_FIFO thread alone on the isolated core.",
+    "tags": ["lowlat-net", "sched-fifo", "softirq-starvation", "two-core-pattern"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "lowlat-net-042",
+    "front": "You can switch kernel UDP receive (~6us) to Onload (~1us), but profiling shows receive is only 20% of the total path. Worth it?",
+    "back": "By Amdahl's law the ~5us receive saving cuts only ~5us off a path where receive is 20% -- meaningful but not transformative, and it costs a burned busy-poll core plus operational change. Worth it if receive latency (or its jitter/p99) is a binding constraint or if you also need the higher packet-rate headroom; not worth it if the book-update/publish stages dominate -- optimize the bigger stage first. Profile the whole path before deciding.",
+    "tags": ["lowlat-net", "kernel-bypass", "onload", "methodology"],
+    "difficulty": "advanced"
+  }
+]

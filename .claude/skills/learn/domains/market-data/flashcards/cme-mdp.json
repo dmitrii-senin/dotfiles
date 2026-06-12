@@ -1,0 +1,317 @@
+[
+  {
+    "id": "cme-mdp-001",
+    "front": "What encoding does CME MDP 3.0 use on the wire, and what did it replace?",
+    "back": "Simple Binary Encoding (SBE) over UDP multicast. MDP 3.0 replaced the older FAST encoding (rollout in the mid-2010s). It carries FIX 5.0 SP2 message semantics but encodes them as fixed-position little-endian binary.",
+    "tags": ["mdp3", "overview", "sbe", "fast"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cme-mdp-002",
+    "front": "What is the size and layout of the CME MDP 3.0 binary packet header?",
+    "back": "12 bytes: a 4-byte packet sequence number (uint32, little-endian) for gap detection, then an 8-byte sending time (uint64, nanoseconds since Unix epoch). It precedes one or more messages in the datagram.",
+    "tags": ["mdp3", "packet-header", "sequence-number"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cme-mdp-003",
+    "front": "How are individual messages framed within an MDP 3.0 packet, after the 12-byte packet header?",
+    "back": "Each message is preceded by a 2-byte (uint16) message-size field, then its 8-byte SBE message header (blockLength, templateId, schemaId, version), then the message body. Multiple messages can follow in one datagram.",
+    "tags": ["mdp3", "framing", "message-size"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cme-mdp-004",
+    "front": "In MDP 3.0, what is the relationship between packets, messages, and matching events?",
+    "back": "They are decoupled. One UDP packet can carry multiple messages for multiple instruments, and one matching event can span several sequential packets. Packet boundaries are NOT message or event boundaries.",
+    "tags": ["mdp3", "event-independence", "packet"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cme-mdp-005",
+    "front": "What is the template ID of MDIncrementalRefreshBook in the current CME SBE schema (e.g. v1.10)?",
+    "back": "46. It carries real-time book updates (MBP and MBO full-depth) and is the dominant message type — CME notes most events consist solely of Market Data Incremental Refresh (35=X) messages. Note: in an older schema it was template 32 — template IDs are schema-version-specific.",
+    "tags": ["mdp3", "template-id", "incremental-refresh"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cme-mdp-006",
+    "front": "What is the template ID of SnapshotFullRefresh, and on which feed is it used?",
+    "back": "Template 52. It carries a full-book snapshot per instrument and is disseminated on the Market Recovery (snapshot) feed for book recovery.",
+    "tags": ["mdp3", "template-id", "snapshot"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cme-mdp-007",
+    "front": "In the current CME schema, what is template 48 named (the seed calls it 'MDIncrementalRefreshTrade')?",
+    "back": "MDIncrementalRefreshTradeSummary (template 48). The modern schema renamed the trade message to TradeSummary; it reports executed trades with summary and optional order-level detail.",
+    "tags": ["mdp3", "template-id", "trade-summary"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cme-mdp-008",
+    "front": "What is the template ID of SecurityStatus, and what does the message do?",
+    "back": "Template 30. It communicates instrument/group market-state changes (halt, close, pre-open, cross, ready-to-trade, etc.) that drive the trading-day state machine.",
+    "tags": ["mdp3", "template-id", "security-status"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cme-mdp-009",
+    "front": "What are the MDUpdateAction (tag 279) enum values in CME MDP 3.0?",
+    "back": "New=0, Change=1, Delete=2, DeleteThru=3, DeleteFrom=4, Overlay=5 (null sentinel 255). They tell the book engine how to apply each entry at the given MDPriceLevel.",
+    "tags": ["mdp3", "mdupdateaction", "book-update"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cme-mdp-010",
+    "front": "Which MDUpdateAction values imply shifting price levels, and which does not?",
+    "back": "New (0) inserts a level (shift levels at/below down) and Delete (2) removes a level (shift below up). Change (1) only updates qty/orders at an existing level — no shift. Getting the shift wrong double-counts or drops a level.",
+    "tags": ["mdp3", "mdupdateaction", "price-level", "book-build"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cme-mdp-011",
+    "front": "What are the book-management MDEntryType (tag 269) char values in MDP 3.0?",
+    "back": "Bid='0', Offer='1', ImpliedBid='E', ImpliedOffer='F', BookReset='J'. Only these touch the bid/offer ladder; other MDEntryType values are trades or statistics.",
+    "tags": ["mdp3", "mdentrytype", "book"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cme-mdp-012",
+    "front": "What MDEntryType char represents a Trade, and what are some statistic entry types?",
+    "back": "Trade='2'. Statistics include OpenPrice='4', SettlementPrice='6', SessionHigh='7', SessionLow='8', VWAP='9', ClearedVolume='B', OpenInterest='C', ElectronicVolume='e'. None of these touch the order book.",
+    "tags": ["mdp3", "mdentrytype", "statistics", "trade"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cme-mdp-013",
+    "front": "How is a price encoded in CME MDP 3.0 (e.g. MDEntryPx tag 270)?",
+    "back": "As a fixed-point decimal: a signed int64 mantissa times 10^exponent. In current schemas the exponent is a constant -9 (PRICENULL9), so price = mantissa x 10^-9. Earlier schemas used exponent -7.",
+    "tags": ["mdp3", "price-encoding", "mantissa-exponent"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cme-mdp-014",
+    "front": "What is the NULL sentinel value for an optional MDP 3.0 price field, and why does CME use fixed-point not float?",
+    "back": "NULL = int64 max = 9223372036854775807 (0x7FFFFFFFFFFFFFFF). CME uses fixed-point (mantissa x 10^exp) to avoid the binary-floating-point rounding errors that occur converting prices to/from IEEE doubles.",
+    "tags": ["mdp3", "price-encoding", "pricenull", "fixed-point"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cme-mdp-015",
+    "front": "Why keep MDP 3.0 prices as scaled integers rather than converting to double on the hot path?",
+    "back": "Integer comparison is exact and cheap; dividing the mantissa by 10^9 puts a 35-90 cycle FP divide on every price access (port 0, non-pipelined on Skylake). Keep prices as int64 end-to-end. See /perf cpu for divider cost.",
+    "tags": ["mdp3", "price-encoding", "performance", "perf-xref"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-016",
+    "front": "What are the CME MDP 3.0 A and B feeds, and how do they relate?",
+    "back": "Two independent UDP multicast feeds carrying identical incremental content with identical packet sequence numbers. CME recommends consuming both and arbitrating (first copy of each seq wins, discard the duplicate). A drop on one line is filled by the other.",
+    "tags": ["mdp3", "ab-feeds", "arbitration", "redundancy"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "cme-mdp-017",
+    "front": "When do you declare a real packet gap when arbitrating A/B feeds?",
+    "back": "Only when BOTH feeds have moved past the missing packet sequence number. Sequence checking is per-feed independent; you wait until A and B both exceed the expected seq before reporting loss, since one line may still deliver it.",
+    "tags": ["mdp3", "arbitration", "gap-detection", "ab-feeds"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cme-mdp-018",
+    "front": "How does gap detection work on the MDP 3.0 incremental feed?",
+    "back": "Track next-expected packet sequence number per channel. If an arriving packet's seq (after A/B arbitration) is greater than expected, packets were lost on both lines. Assume all books on the channel may be stale until recovery confirms otherwise.",
+    "tags": ["mdp3", "gap-detection", "sequence-number"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cme-mdp-019",
+    "front": "What is tag 83 RptSeq, and how does it differ from the packet sequence number?",
+    "back": "RptSeq is a per-instrument report sequence that increments by 1 for each update to that security. The packet seq is channel-wide ('did I lose a datagram?'); RptSeq is per-instrument ('is this instrument's stream intact?'), enabling surgical per-instrument recovery.",
+    "tags": ["mdp3", "rptseq", "per-instrument", "sequencing"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cme-mdp-020",
+    "front": "After a packet gap, how does RptSeq let you avoid a full-channel book rebuild?",
+    "back": "Instruments whose RptSeq stays contiguous were not affected by the gap and can keep updating live; only instruments with an RptSeq jump need resync. This per-instrument recovery keeps a 1-packet loss from blacking out the whole channel.",
+    "tags": ["mdp3", "rptseq", "surgical-recovery"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-021",
+    "front": "What is tag 5799 MatchEventIndicator, and what does its high bit mean?",
+    "back": "A per-message bitfield marking matching-event boundaries for transactional apply. The high bit is EndOfEvent (set on the last message of the event). Other bits flag last-of-category: LastTradeMsg, LastVolumeMsg, LastQuoteMsg, LastStatsMsg, LastImpliedMsg, plus RecoveryMsg.",
+    "tags": ["mdp3", "matcheventindicator", "end-of-event"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cme-mdp-022",
+    "front": "Why should a feed handler publish per-event (on EndOfEvent) rather than per-message?",
+    "back": "An event can span multiple packets and updates are only consistent at EndOfEvent. Implied-book updates are sent last in an event; if they spill to a later packet, the earlier packet has no EndOfEvent. Publishing early shows consumers a torn/inconsistent book.",
+    "tags": ["mdp3", "matcheventindicator", "transactional", "implied"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-023",
+    "front": "What is tag 369 LastMsgSeqNumProcessed on a SnapshotFullRefresh message?",
+    "back": "The incremental-feed packet sequence number that the snapshot reflects. During recovery, you discard queued incrementals with packet seq <= LastMsgSeqNumProcessed and apply the rest on top of the snapshot.",
+    "tags": ["mdp3", "snapshot-recovery", "lastmsgseqnumprocessed"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cme-mdp-024",
+    "front": "Describe the MDP 3.0 snapshot recovery procedure at a high level.",
+    "back": "Join the incremental feed and queue its packets; join the Market Recovery (snapshot) feed; for each SnapshotFullRefresh, set the book, drop queued incrementals with packet seq <= tag 369, apply the rest. Process one full snapshot loop (from the loop's seq 1) to recover every instrument.",
+    "tags": ["mdp3", "snapshot-recovery", "reconciliation"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-025",
+    "front": "How does a client know it has recovered all instruments via the snapshot loop, and detect new ones added mid-recovery?",
+    "back": "The snapshot loop order is not guaranteed; completeness requires processing one full iteration starting at the loop's seq 1. Tag 911 TotNumReports gives the loop size — compare across iterations to catch instruments added during recovery.",
+    "tags": ["mdp3", "snapshot-recovery", "totnumreports"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-026",
+    "front": "What are the limits of MDP 3.0 TCP historical replay (targeted recovery)?",
+    "back": "Maximum 2,000 messages per Market Data Request (35=V), and only the current day's messages can be resent. Best for small current-day gaps; large or cross-day gaps require snapshot recovery instead.",
+    "tags": ["mdp3", "tcp-replay", "recovery-limits"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cme-mdp-027",
+    "front": "What are the three tiers of the MDP 3.0 recovery hierarchy, from cheapest to heaviest?",
+    "back": "(1) A/B feed arbitration — handles single-line loss, no request needed. (2) TCP historical replay — small current-day gaps (<=2000 msgs). (3) Snapshot / Market Recovery feed — large gaps, stale state, or cross-day full rebuilds.",
+    "tags": ["mdp3", "recovery-hierarchy", "ab-feeds", "tcp-replay", "snapshot"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cme-mdp-028",
+    "front": "How are instrument definitions disseminated in MDP 3.0, and what is special about SecurityID?",
+    "back": "As Security Definition (35=d) messages on a dedicated Instrument Definition feed (A primary, B backup) replayed at a constant configurable rate. SecurityID is a 32-bit integer assigned densely per instrument group — which is why handlers index books by array[SecurityID] rather than a hash map.",
+    "tags": ["mdp3", "instrument-definition", "securityid", "dense-ids"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cme-mdp-029",
+    "front": "How is market data partitioned in MDP 3.0, and what multicast lanes does each unit carry?",
+    "back": "By channel (a market data group serving a product set). Each channel carries three feed types — incremental, snapshot (market recovery), and instrument definition — each on separate A and B multicast addresses, so ~6 joins per channel.",
+    "tags": ["mdp3", "channels", "multicast-lanes"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cme-mdp-030",
+    "front": "What is config.xml in CME MDP 3.0, and where is it published?",
+    "back": "The authoritative map of each channel's multicast address:port per lane (inc/snap/def x A/B). CME publishes it (with the SBE schema templates_FixBinary.xml) on its FTP (cmegroup.com/ftp) and SFTP (sftpng.cmegroup.com) sites, updated periodically. A stale config.xml is a silent outage.",
+    "tags": ["mdp3", "config-xml", "ftp", "operations"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cme-mdp-031",
+    "front": "What is the CME MDP 3.0 implied book, how deep is it, and how is it flagged?",
+    "back": "A separate 2-deep best bid/ask for implied-eligible futures (top 2 levels only). Flagged via MDEntryType ImpliedBid='E' / ImpliedOffer='F'; instruments are designated implied-eligible on the Security Definition by tag 1022 MDFeedType=GBI. Implied data is never sent in MBO format.",
+    "tags": ["mdp3", "implied-book", "2-deep", "mdfeedtype-gbi"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "cme-mdp-032",
+    "front": "Where do implied-book updates appear within a matching event, and why does it matter?",
+    "back": "Implied updates are always the LAST update of an event. If they spill into a later packet, the earlier packet carries no EndOfEvent. A handler that publishes before EndOfEvent would show a book missing its implied changes.",
+    "tags": ["mdp3", "implied-book", "event-ordering", "matcheventindicator"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-033",
+    "front": "When is a Trade Summary (MDEntryType '2') entry disseminated, and what's the exception for spread legs?",
+    "back": "Only when at least one actual (non-implied) order participates in the trade. For legs of spread trades, no Trade '2' is sent — an ElectronicVolume update (MDEntryType='e') is sent instead.",
+    "tags": ["mdp3", "trade-summary", "spread-legs"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-034",
+    "front": "What is tag 5797 AggressorSide, and what is special about the first order-detail entry?",
+    "back": "AggressorSide indicates which side triggered the trade: 0=none, 1=Buy, 2=Sell. When an aggressor is defined, the first Order Detail entry is the aggressor order, and its quantity equals the summary-level fill quantity (tag 271).",
+    "tags": ["mdp3", "trade-summary", "aggressor-side"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-035",
+    "front": "How do NumberOfOrders (tag 346) and NoOrderIDEntries (tag 37705) reconcile in a Trade Summary across split packets?",
+    "back": "Order-level detail can split across packets. Across all splits, total tag 346 NumberOfOrders equals total tag 37705 NoOrderIDEntries reported for the match, and the OrderID sequence corresponds to the NumberOfOrders sequence in the trade entries.",
+    "tags": ["mdp3", "trade-summary", "noorderidentries", "reconciliation"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-036",
+    "front": "What are key SecurityTradingStatus (tag 326) values in MDP 3.0 SecurityStatus messages?",
+    "back": "TradingHalt=2, Close=4, NewPriceIndication=15, ReadyToTrade=17, NotAvailableForTrading=18, PreOpen=21, PreCross=24, Cross=25, PostClose=26, NoChange=103 (NoValue=255).",
+    "tags": ["mdp3", "security-status", "trading-status"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-037",
+    "front": "What is tag 1174 SecurityTradingEvent, and what are its values?",
+    "back": "It qualifies the SecurityTradingStatus. Values: NoCancel=1, ResetStatistics=4, ImpliedMatchingOn=5, ImpliedMatchingOff=6, EndOfWorkup=7.",
+    "tags": ["mdp3", "security-status", "security-trading-event"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-038",
+    "front": "What does a SecurityStatus message appearing inside an event imply for the handler?",
+    "back": "There may be ANOTHER set of incremental refresh data blocks after the state change. The handler must keep reading to EndOfEvent rather than stopping at the status message.",
+    "tags": ["mdp3", "security-status", "event-ordering"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-039",
+    "front": "How does CME signal a Channel Reset, and what must the client do?",
+    "back": "An MDIncrementalRefresh with MDEntryType='J' (BookReset) and tag 1180 ApplID present, mapped to the ChannelReset template (id 4). The client must empty every order book and clear statistics for the impacted channel, then accept the resent book/stats. Daily stats like settlements are NOT resent.",
+    "tags": ["mdp3", "channel-reset", "bookreset"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-040",
+    "front": "How does a Channel Reset differ from the weekly packet-sequence reset?",
+    "back": "Channel Reset (MDEntryType='J') is an unscheduled corruption recovery (e.g. CME dual-component failure) requiring books to be wiped and rebuilt from resent data. The weekly reset is the normal Sunday start-of-week event where each channel's packet seq simply returns to 1.",
+    "tags": ["mdp3", "channel-reset", "weekly-reset"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-041",
+    "front": "What happens at CME MDP 3.0 Sunday startup before the weekly market open?",
+    "back": "All instrument definitions, price limits, and banding are disseminated on the incremental A/B feeds; definitions carry tag 980 SecurityUpdateAction=A (Add) for every instrument. CME sends Heartbeat (35=0) every 30 seconds on the recovery and definition feeds until recovery data begins.",
+    "tags": ["mdp3", "sunday-startup", "weekly-lifecycle", "heartbeat"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-042",
+    "front": "Why must gap-detection state reset at the weekly rollover, and what bug occurs if it doesn't?",
+    "back": "Each channel's packet sequence number resets to 1 weekly. A next-expected-seq carried from last week (e.g. 4.2M) will false-positive a giant gap when the new week starts at seq 1. Treat the weekly reset as a known boundary, not a loss.",
+    "tags": ["mdp3", "weekly-reset", "gap-detection", "lifecycle"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-043",
+    "front": "How does CME extend the SBE schema safely, and how must your decoder advance to repeating groups?",
+    "back": "Appending a field increases the message's blockLength and bumps version but keeps the same templateId/schemaId; a new message gets a new templateId. The decoder must trust the on-wire blockLength (never a hardcoded constant) to jump to the first repeating group, so a v1 codec can still read a v2 message's shared prefix.",
+    "tags": ["mdp3", "schema-evolution", "blocklength", "versioning"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-044",
+    "front": "Why is branching on schema 'version' per message a hot-path mistake, and what's the fix?",
+    "back": "A v1->v2 cutover starts near 0% v2 messages, so 'if (version >= N)' mispredicts on essentially every v2 message (~15 cycles each). Use a version-indexed function-pointer table instead — predictable because versions don't interleave per instrument. See /perf cpu on branch vs indirect-call prediction.",
+    "tags": ["mdp3", "schema-evolution", "dispatch", "perf-xref"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "cme-mdp-045",
+    "front": "For the 1-100us budget, which work belongs on the MDP 3.0 hot path vs the cold path?",
+    "back": "Hot path (per packet): A/B arbitrate, gap-detect, frame messages, dispatch on templateId, apply book updates, accumulate to EndOfEvent, publish. Cold path (rare): recovery (snapshot/TCP), channel reset, schema rollover, status transitions. Keep the common case (template 46, no gap) straight-line; push rare branches behind [[unlikely]]/noinline. Never log or allocate on the hot path.",
+    "tags": ["mdp3", "hot-cold-split", "latency-budget", "design"],
+    "difficulty": "advanced"
+  }
+]

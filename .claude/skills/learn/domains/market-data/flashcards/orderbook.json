@@ -1,0 +1,317 @@
+[
+  {
+    "id": "orderbook-001",
+    "front": "In a limit order book, how are the bid and offer sides sorted, and which entry is 'best' on each?",
+    "back": "Bids sorted descending — best bid = highest price. Offers sorted ascending — best offer = lowest price. The gap between best bid and best offer is the spread.",
+    "tags": ["orderbook", "spread", "microstructure"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "orderbook-002",
+    "front": "What are CME's three order-book dissemination granularities?",
+    "back": "MBP (Market by Price): quantity aggregated per price level, capped at a max depth (commonly 10, 'MBP-10'). MBOFD (Market by Order Full Depth): every individual order at every level with an anonymous OrderID. MBOLD (Market by Order Limited Depth): top 10 orders per side.",
+    "tags": ["orderbook", "mbp", "mbo", "cme-mdp"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "orderbook-003",
+    "front": "What does an MBP price level aggregate into a single entry, and what does that lose vs MBO?",
+    "back": "MBP collapses all orders at a price into {price, total_qty, num_orders}. You lose individual order sizes and exact queue position — MBO is required to know precisely how much is ahead of you in the queue.",
+    "tags": ["orderbook", "mbp", "mbo", "queue-position"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "orderbook-004",
+    "front": "CME MDIncrementalRefreshBook (template 46): what is MDUpdateAction (tag 279) and what are its enum values?",
+    "back": "Tag 279 is the book-mutation verb: 0=New, 1=Change, 2=Delete, 3=DeleteThru, 4=DeleteFrom, 5=Overlay, null=255. Handlers must process ALL valid values, not just New/Change/Delete.",
+    "tags": ["orderbook", "mdupdateaction", "tag-279", "cme-mdp"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "orderbook-005",
+    "front": "CME MDP 3.0: what does MDEntryType (tag 269) encode, and what are the outright bid/offer values?",
+    "back": "Tag 269 encodes the entry side/kind. 0=Bid, 1=Offer (outright), plus trade and statistics types. Implied liquidity uses E=Implied Bid, F=Implied Offer.",
+    "tags": ["orderbook", "mdentrytype", "tag-269", "cme-mdp"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "orderbook-006",
+    "front": "What is MDPriceLevel (tag 1023) and why does it make MBP book updates O(depth) instead of O(log depth)?",
+    "back": "Tag 1023 is the 1-based depth index (1=best) the action applies to. CME hands you the level index directly, so you shift a contiguous array rather than searching for the price — the exchange maintains the price ordering, you trust it.",
+    "tags": ["orderbook", "mdpricelevel", "tag-1023", "array-shift"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "orderbook-007",
+    "front": "On a New at MDPriceLevel=N in an MBP book, what array operation do you perform?",
+    "back": "Shift levels N..maxdepth-1 down by one, write the new level at index N-1, and drop whatever fell past the max depth. (Delete shifts up; Change just overwrites index N-1's quantity.)",
+    "tags": ["orderbook", "mdpricelevel", "new-action", "array-shift"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "orderbook-008",
+    "front": "Why does a flat sorted array beat std::map for a bounded MBP-10 book?",
+    "back": "The whole side (<=10 levels) fits in 1-2 cache lines, so scans/shifts hit L1 only. std::map is a red-black tree: each node is a separate allocation reached by pointer-chasing (multiple cache misses per lookup) plus allocation on the hot path. O(n) shift on cache-hot elements beats O(log n) on a pointer-chased tree.",
+    "tags": ["orderbook", "flat-array", "std-map", "cache"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-009",
+    "front": "How do you dispatch SecurityID to an order book in O(1) without a hash map, and why is it valid for CME?",
+    "back": "CME SecurityIDs are dense-ish integers, so a pre-allocated array indexed directly by id (no hashing, no collisions, no rehash) gives O(1) dispatch. For sparse id spaces, map SecurityID->compact slot once at startup and index the dense slot array.",
+    "tags": ["orderbook", "instrument-dispatch", "securityid", "array-index"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-010",
+    "front": "Why store order books contiguously and index by offset rather than keeping an array of OrderBook* pointers?",
+    "back": "8 pointers can share one 64B cache line; a burst touching those instruments bounces/invalidates that dispatch line repeatedly (false-sharing-like). Contiguous storage indexed by offset avoids the shared-line invalidation.",
+    "tags": ["orderbook", "instrument-dispatch", "cache", "false-sharing"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-011",
+    "front": "CME snapshot recovery: which field links the SnapshotFullRefresh (template 52) back to the incremental feed, and what does it equal?",
+    "back": "LastMsgSeqNumProcessed (tag 369). It equals the incremental-feed packet sequence number that the snapshot reflects.",
+    "tags": ["orderbook", "snapshot", "tag-369", "recovery"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-012",
+    "front": "Snapshot->incremental transition: how do you avoid double-counting AND avoid gaps?",
+    "back": "Buffer incrementals while snapshotting, build the book from the snapshot, then drop every buffered incremental with packet seq < tag 369 (LastMsgSeqNumProcessed) and apply the rest in order. CME's rule is strictly less-than ('drop all cached Incremental feed updates with a packet sequence number < tag 369'); the boundary packet (seq == 369) and everything after is retained to fill the gap. Getting < vs <= wrong reintroduces double-counting or a gap.",
+    "tags": ["orderbook", "snapshot", "transition", "tag-369"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-013",
+    "front": "Why must you process a full snapshot iteration starting at the snapshot's own packet seq=1, and how do you detect new instruments mid-recovery?",
+    "back": "Snapshot loop iterations are not ordered, so a full iteration from seq=1 is required for completeness. Compare tag 911-TotNumReports across iterations to detect instruments that appeared during recovery.",
+    "tags": ["orderbook", "snapshot", "recovery", "tag-911"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-014",
+    "front": "CME MDP 3.0 has two gap-detection sequence numbers. What are they and how do they differ?",
+    "back": "Packet sequence number (binary packet header): per-channel; a gap means some book on the channel may be stale. RptSeq (tag 83): per-instrument; a gap means only that instrument is stale, enabling selective recovery of just the affected books.",
+    "tags": ["orderbook", "gap-detection", "rptseq", "tag-83"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-015",
+    "front": "What is the advantage of per-instrument RptSeq (tag 83) gap detection over packet-level detection?",
+    "back": "Selective recovery: if a lost packet held updates for 2 of 10 instruments, RptSeq lets you recover only those 2; packet-level detection would force resync of all 10. Other instruments' messages remain valid.",
+    "tags": ["orderbook", "rptseq", "tag-83", "selective-recovery"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-016",
+    "front": "What happens to RptSeq (tag 83) on a CME channel reset, and how should the book engine treat it?",
+    "back": "RptSeq resets to 1 per instrument. Treat the reset as 'discard and rebuild,' NOT as a gap — do not fire snapshot recovery for the reset-to-1, or you storm the recovery feed every reset.",
+    "tags": ["orderbook", "channel-reset", "rptseq", "tag-83"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-017",
+    "front": "AoS vs SoA for a price-level array: which wins for a search-dominated workload and why?",
+    "back": "SoA wins when search dominates: a price scan touches only the prices array (N*8B) instead of dragging every field of each struct into cache. AoS wins when updates dominate (a level's fields stay on one line). Decide by the real message mix and benchmark.",
+    "tags": ["orderbook", "aos", "soa", "cache-layout"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-018",
+    "front": "Why does the AoS-vs-SoA distinction nearly vanish for CME MBP-10 but matter for MBO?",
+    "back": "MBP-10 is <=10 levels (~one cache line per side) so the whole side is L1-resident either way. Wide MBO books (hundreds of levels) make the cache-lines-touched difference real, so layout matters there.",
+    "tags": ["orderbook", "aos", "soa", "mbp", "mbo"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-019",
+    "front": "What is the '64-byte contract' for a PriceLevel struct, and how does field order cost you a cache line?",
+    "back": "Memory moves in 64B cache lines. A 32B level packs 2/line; 72B spans 2 lines per access. A bool before a double forces 7B of alignment padding — 8B of a 64B line wasted. Use static_assert(sizeof(PriceLevel)==expected) and -Wpadded to catch regressions.",
+    "tags": ["orderbook", "struct-layout", "cache-line", "padding"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-020",
+    "front": "How does CME wire-encode prices, and why must the book store them as scaled integers, not doubles?",
+    "back": "Prices are a signed integer mantissa scaled by a display factor (power of ten) from the Security Definition. Store int64 ticks: comparisons are exact and cheap, sorting is integer-stable, and you avoid the FP divide / denormal assist. Convert to double only at the display edge.",
+    "tags": ["orderbook", "price-representation", "scaled-integer", "fixed-point"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-021",
+    "front": "Why does storing price as a double sometimes break the 'strictly descending bids' invariant, and how does int64 fix it?",
+    "back": "Floating-point rounding/representation means two distinct ticks can compare equal or out of order by a hair (no exact equality). int64 ticks compare exactly with no epsilon and no NaN edge cases, so the invariant becomes a trivial integer compare.",
+    "tags": ["orderbook", "price-representation", "invariants", "floating-point"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-022",
+    "front": "How does CME represent implied liquidity in the book, and what are its key constraints?",
+    "back": "Implied entries use MDEntryType E=Implied Bid, F=Implied Offer. CME provides a 2-deep implied best bid/ask for implied-eligible instruments. Implied is MBP-only — not sent in MBO/MBOFD/MBOLD format.",
+    "tags": ["orderbook", "implied-prices", "mdentrytype", "implied-book"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-023",
+    "front": "Merging implied + outright into one book: what is the real tradeoff, and is it a perf concern?",
+    "back": "Merging gives the strategy a single consolidated top-of-book but doubles effective book width; separate halves the width and pushes the merge to the consumer. Because implied is MBP-only and 2-deep, the cache cost is small — the decision is mainly semantic (consumer's need), not performance.",
+    "tags": ["orderbook", "implied-prices", "book-width", "design"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-024",
+    "front": "What is MDUpdateAction=5 (Overlay) used for in MBP?",
+    "back": "Overlay restates a level in a single instruction, notably when the best price changes (sent as one overlay at MDPriceLevel=1). It is a single-instruction restate rather than a New+Delete pair.",
+    "tags": ["orderbook", "overlay", "tag-279", "cme-mdp"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-025",
+    "front": "How does MBOLD book management differ fundamentally from MBP/MBOFD, and what is the recovery implication?",
+    "back": "MBOLD uses an overlay model: each conflated Market Data Snapshot (FIX tag 35=W, mapping to the SnapshotRefreshTopOrders SBE template — distinct from MBP's SnapshotFullRefresh, template 52) fully restates the top-10 order book rather than applying deltas. So MBOLD needs no gap-recovery machinery — a missed overlay is corrected by the next full restatement. Recovery complexity belongs to the delta-driven views (MBP, MBOFD).",
+    "tags": ["orderbook", "mbold", "overlay", "book-management"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-026",
+    "front": "Why is the MDUpdateAction switch usually well-predicted, and where is the branch-prediction danger?",
+    "back": "The action mix is skewed (most updates are Change/New), so the predictor locks the pattern in <100 iterations. Danger is rare-but-real branches (error checks, rare actions): ~15 cycles the one time taken. Don't make counted shift-loops branchless — the predictor nails counted loops.",
+    "tags": ["orderbook", "branch-prediction", "dispatch", "perf-cpu"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-027",
+    "front": "When is a branchless SBE null-value check worth it on the book hot path?",
+    "back": "Only when the null rate sits in the misprediction-prone ~10-50% band. SBE uses sentinels (e.g. INT64_MAX = field absent); a branchless select wins there. At 0% or near-100% null the branch is perfectly predicted and branchless is pure overhead — measure the rate first.",
+    "tags": ["orderbook", "branchless", "sbe-null", "perf-cpu"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-028",
+    "front": "How is std::flat_map (C++23) structured, and what are its lookup vs insert complexities?",
+    "back": "It holds two parallel sorted vectors (keys, values) instead of a tree. Lookup is O(log n) binary search over contiguous memory; insert/erase are O(n) (elements shift); back-insertion of already-sorted data is O(1) amortized. Iteration is cache-linear.",
+    "tags": ["orderbook", "flat-map", "cpp23", "sorted-vector"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-029",
+    "front": "Why does a hand-rolled index-addressed array typically beat std::flat_map on the CME MBP hot path?",
+    "back": "flat_map searches by price (O(log n) binary search), but tag 1023 (MDPriceLevel) already gives you the level index — so flat_map reintroduces a search CME already did for you. flat_map becomes attractive only for wide MBO books where you must actually search by price/OrderID.",
+    "tags": ["orderbook", "flat-map", "mdpricelevel", "tag-1023"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-030",
+    "front": "Two limitations of std::flat_map vs a node-based map that matter for choosing it in a book engine?",
+    "back": "It cannot hold non-movable/non-copyable types, and it has weaker exception safety because it moves/copies elements rather than just rewiring pointers. For a trivially-copyable PriceLevel these don't bite, but they rule it out for non-movable payloads.",
+    "tags": ["orderbook", "flat-map", "cpp23", "exception-safety"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-031",
+    "front": "In a CME MBO book, what are OrderID and MDOrderPriority (tag 37707), and how stable is each?",
+    "back": "OrderID: anonymous, assigned sequentially by the match engine, stable for the life of the order. MDOrderPriority (tag 37707): positions an order among same-instrument, same-side, same-price orders (lowest->highest). Priority can change on modify/refresh; OrderID does not.",
+    "tags": ["orderbook", "mbo", "orderid", "tag-37707"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-032",
+    "front": "What is the critical sorting rule for MBO orders, and what bug does ignoring it cause?",
+    "back": "Sort by PRICE first, then by tag 37707 (MDOrderPriority) within a price — priority is NOT globally sequential across prices. Sorting globally by 37707 alone interleaves orders from different prices incorrectly.",
+    "tags": ["orderbook", "mbo", "mdorderpriority", "sorting"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-033",
+    "front": "For MBO, which message/template and which action tags apply, and what's special about iceberg refreshes?",
+    "back": "MBOFD updates are carried in the Market Data Incremental Refresh message, which maps to the MDIncrementalRefreshBook template (template 46); the verb is OrderUpdateAction (tag 37708) or MDUpdateAction (279) depending on the template variant. Native iceberg refreshes keep the SAME OrderID — don't treat a refresh as a new order.",
+    "tags": ["orderbook", "mbo", "orderupdateaction", "tag-37708"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-034",
+    "front": "What is CME's default matching rule, at what price does a trade print, and what alternative do some CME products use?",
+    "back": "Default: price-time priority (FIFO) — best price first, ties broken by arrival time; the trade prints at the resting (maker's) price. Some CME products use pro-rata: fills allocated proportional to size at a price.",
+    "tags": ["orderbook", "price-time-priority", "fifo", "pro-rata"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-035",
+    "front": "Under FIFO matching, why does queue position have economic value, and what is the book-handler implication?",
+    "back": "Earlier in the queue at a price = fill first; faster submission buys better position. A feed handler that mis-models queue position (e.g. from a desync'd MBO book) directly mis-prices the strategy's edge — book correctness is PnL, not pedantry.",
+    "tags": ["orderbook", "queue-position", "fifo", "microstructure"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-036",
+    "front": "Why is the top-of-book quote misleading for sizing a large order?",
+    "back": "Best bid/ask are only the immediately executable prices for small size. A large order walks up/down multiple levels, so the effective fill price depends on depth and queue depletion — you need a correct multi-level book to estimate slippage.",
+    "tags": ["orderbook", "depth", "price-impact", "microstructure"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-037",
+    "front": "Under burst load, why does the book working set leave L1, and how does prefetch help?",
+    "back": "~50 instruments x ~20 levels x ~64B ~= 64KB exceeds L1 (~32-48KB) when many instruments update at once (spills to L2 ~256KB). Software-prefetch the NEXT message's book (__builtin_prefetch(books[next_id])) to hide ~5ns L2 latency behind the current update.",
+    "tags": ["orderbook", "cache-pressure", "prefetch", "working-set"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-038",
+    "front": "When does software prefetch of the next book actually help, and when is it useless?",
+    "back": "Helps ~10-20% when instrument arrival order is random (defeats the HW prefetcher). Near-zero when access is sequential — the hardware prefetcher already handles strided/sequential patterns. Always measure before adding it.",
+    "tags": ["orderbook", "prefetch", "cache", "perf-mem"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-039",
+    "front": "Why must the book engine allocate zero bytes after init, and what's the p99 cost of getting it wrong?",
+    "back": "It's on the 1-100us hot path. Any new/malloc risks a 50-200ns allocator call or a 5-50us kernel mmap/page-fault visible in p99. Pre-allocate all book/level arrays at startup, pre-fault, and mlockall the book memory.",
+    "tags": ["orderbook", "zero-allocation", "hot-path", "p99"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-040",
+    "front": "Which timestamp/clock attributes the book stage's latency, and roughly what does it cost per call?",
+    "back": "A cheap monotonic clock via clock_gettime — vDSO-accelerated to a userspace read (no syscall) when the clocksource is the TSC, so on the order of tens of ns. CLOCK_MONOTONIC_RAW additionally avoids NTP/adjtime slewing (man clock_gettime(2)) but only got vDSO acceleration in newer kernels (x86 ~Linux 5.3); before that it cost a syscall, which is why CLOCK_MONOTONIC is often preferred on the hot path. Stamp t_book_updated and feed per-stage deltas into HdrHistogram for p50/p99/p999.",
+    "tags": ["orderbook", "measurement", "hdrhistogram", "perf-methodology"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-041",
+    "front": "The book stage's p99 spikes every ~10ms while p50 is flat — how do you classify it with perf top-down?",
+    "back": "Run perf stat -M TopdownL1 on the stage. Backend-Bound points to data layout / D-cache; Frontend-Bound points to code layout / I-cache; Bad-Speculation points to mispredicts. Combine with per-stage timestamps to separate allocation/page-fault/scheduler causes. Don't guess — measure.",
+    "tags": ["orderbook", "measurement", "topdown", "perf-methodology"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-042",
+    "front": "List the cheap, checkable correctness invariants for an MBP book.",
+    "back": "Bids strictly descending; offers strictly ascending; no crossed book (best bid < best offer) outside transient events; depth <= instrument's tag-264 MarketDepth; per-level qty >= 0; RptSeq monotonic per instrument.",
+    "tags": ["orderbook", "invariants", "correctness", "tag-264"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-043",
+    "front": "A persistent crossed book after recovery most likely signals which two bugs?",
+    "back": "(1) The snapshot-transition bug — forgot to drop buffered incrementals with packet seq < tag 369 (double-applied an update). (2) An unhandled MDUpdateAction value (e.g. ignored DeleteThru/DeleteFrom). Diff the reconstructed book against the next clean snapshot to localize.",
+    "tags": ["orderbook", "correctness", "crossed-book", "tag-369"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "orderbook-044",
+    "front": "How do you verify book correctness offline, including under packet loss?",
+    "back": "Run a known message trace and diff the final book against the expected snapshot; replay real CME pcaps (DataMine); inject loss with tc netem and confirm gap recovery rebuilds the identical book.",
+    "tags": ["orderbook", "verification", "pcap", "fault-injection"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "orderbook-045",
+    "front": "At the market open every instrument's RptSeq jumps to 1 and your gap detector flags 50 gaps — what happened and how do you handle it?",
+    "back": "You missed the channel-reset / market-state event. RptSeq resetting to 1 is a reset, not a gap. Detect the reset (Channel Reset admin event / SecurityStatus state change) explicitly, clear the books, and short-circuit the gap-recovery path instead of storming the recovery feed.",
+    "tags": ["orderbook", "channel-reset", "market-state", "lifecycle"],
+    "difficulty": "advanced"
+  }
+]

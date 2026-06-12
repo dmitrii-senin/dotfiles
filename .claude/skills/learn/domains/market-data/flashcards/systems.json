@@ -1,0 +1,303 @@
+[
+  {
+    "id": "systems-001",
+    "front": "What is the rough latency of an L1 cache hit vs a DRAM access on x86-64, in cycles and ns?",
+    "back": "L1 hit ~4-5 cycles (~1-2ns); DRAM ~100+ cycles (~50-100ns). L2 ~12-15 cycles (~4-5ns), L3/LLC ~40 cycles (~10-17ns). At 3GHz, 100ns is ~300 cycles, so one DRAM miss is a real chunk of a tight per-message budget.",
+    "tags": ["cache-hierarchy", "latency", "hot-path"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "systems-002",
+    "front": "How big is a cache line on x86-64, and why is it the most important number for data layout?",
+    "back": "64 bytes (on AArch64 it is implementation-defined: 64B on most Cortex-A/Neoverse cores, 128B on Apple Silicon). Everything moves between caches in 64-byte lines, so a 48-byte PriceLevel wastes 16 bytes/line and halves effective cache capacity, while a 72-byte one touches 2 lines per access.",
+    "tags": ["cache-line", "data-layout"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "systems-003",
+    "front": "Why is `reinterpret_cast<const Msg*>(buf+off)` undefined behavior on a network buffer, even on x86?",
+    "back": "The bytes contain no live object of type Msg even if the representation is valid; the cast does not create one. `std::launder` does not fix it either. C++23 `std::start_lifetime_as<T>` is the defined-behavior replacement.",
+    "tags": ["start_lifetime_as", "ub", "flyweight", "c++23"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "systems-004",
+    "front": "What does C++23 `std::start_lifetime_as<T>(p)` do, and what are its two preconditions?",
+    "back": "It implicitly creates a T in existing storage (no constructor runs) and returns a usable T*. Preconditions: T must be an implicit-lifetime type, and p must meet alignof(T) — otherwise UB.",
+    "tags": ["start_lifetime_as", "c++23", "alignment", "implicit-lifetime"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "systems-005",
+    "front": "When does `std::bit_cast` beat `std::start_lifetime_as` for an SBE field, and vice versa?",
+    "back": "bit_cast copies to a local and is often optimized away for small structs (<= register width). start_lifetime_as returns a pointer into the buffer with no copy, so it wins for the 100+ byte SBE message root.",
+    "tags": ["bit_cast", "start_lifetime_as", "zero-copy", "sbe"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "systems-006",
+    "front": "Why must the hot path allocate zero bytes after init, even with jemalloc/tcmalloc?",
+    "back": "Even fast allocators cost ~50-200ns per call and can occasionally trap into the kernel (mmap/brk) for microseconds — a multi-us p99 spike. Pre-allocate everything at startup; construct in place with placement-new or start_lifetime_as.",
+    "tags": ["allocator", "no-alloc-hot-path", "p99"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "systems-007",
+    "front": "What does `mlockall(MCL_CURRENT | MCL_FUTURE)` guarantee, and what does it NOT do?",
+    "back": "It locks all current and future pages into RAM so they are never paged out. It does NOT pre-fault the stack — you must additionally touch a large automatic array at startup so CoW/demand-zero faults can't fire mid-message.",
+    "tags": ["mlockall", "page-fault", "pre-fault", "real-time"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "systems-008",
+    "front": "Why must you never `fork()` after `mlockall()` in a low-latency process?",
+    "back": "Copy-on-write reintroduces page faults on the next write, causing high latency. Also, memory locks are not inherited by the child and are cleared on execve. The man page warns against fork even from a low-priority thread in the same process.",
+    "tags": ["mlockall", "fork", "cow", "page-fault"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-009",
+    "front": "What is false sharing, and what is its cost vs an uncontended L1 hit?",
+    "back": "Two variables on the same 64-byte line written by different cores cause the line to bounce between L1 caches over the interconnect (MESI), ~40-70ns per round-trip vs ~1ns for an uncontended L1 hit.",
+    "tags": ["false-sharing", "mesi", "cache-coherence"],
+    "difficulty": "beginner"
+  },
+  {
+    "id": "systems-010",
+    "front": "In an SPSC ring, which two fields are the classic false-sharing bug and how do you fix it?",
+    "back": "`head_` (written by consumer) and `tail_` (written by producer) on the same cache line. Fix: put them on separate lines with `alignas(64)`. On a 2-core setup this can be a 3-10x throughput difference.",
+    "tags": ["spsc", "false-sharing", "alignas"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "systems-011",
+    "front": "What is `std::hardware_destructive_interference_size`, its value on x86-64, and why does GCC warn about it?",
+    "back": "The C++17 'minimum offset to avoid false sharing' constant (in <new>); 64 on x86-64. GCC's -Winterference-size fires when the constant is used in a header or module export, because its value can vary between compiler versions or with -mtune/-march (you can pin it via --param destructive-interference-size).",
+    "tags": ["interference-size", "alignas", "c++17", "abi"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "systems-012",
+    "front": "On x86-TSO, which single memory reordering does the hardware allow?",
+    "back": "Only store→load (a later load passing an earlier store to a different address). Load→load, store→store, and load-with-older-store are all already ordered.",
+    "tags": ["x86-tso", "memory-order", "reordering"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-013",
+    "front": "Why are acquire/release atomics 'free' on x86 but seq_cst is not?",
+    "back": "Plain atomic loads/stores (relaxed/acquire/release) compile to ordinary MOV — TSO already provides the ordering, so only the compiler is constrained. seq_cst must forbid store→load, which costs an XCHG/LOCK-prefixed store or MFENCE.",
+    "tags": ["x86-tso", "acquire-release", "seq_cst", "memory-order"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-014",
+    "front": "State the minimal correctness argument for an SPSC ring's publish/observe of a slot.",
+    "back": "Producer writes the slot, then store-releases `tail_`. Consumer load-acquires `tail_`, then reads the slot. That single release/acquire pair establishes happens-before; seq_cst is unnecessary.",
+    "tags": ["spsc", "acquire-release", "lock-free"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-015",
+    "front": "What extra cost does extending an SPSC ring to MPSC introduce, and what's the common alternative?",
+    "back": "A CAS loop on the producer index: each producer compare_exchanges the slot and retries on failure; LOCK-prefixed CAS is costlier than a plain store and contends across producers. Alternative: N independent SPSC rings + consumer-side fan-in (no CAS).",
+    "tags": ["mpsc", "cas", "contention"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "systems-016",
+    "front": "What is the correct slow-consumer policy for the shared-memory market-data bus, and why?",
+    "back": "Overwrite, not backpressure. The producer never blocks; a lagging consumer skips to the latest via a `latest_sequence` atomic. Stale data is worse than dropped for MD, and a blocked producer would back-pressure the whole pipeline.",
+    "tags": ["shm", "overwrite-policy", "ipc"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "systems-017",
+    "front": "How does a late-joining consumer attach to the shm ring without reading a half-written slot?",
+    "back": "The producer publishes a monotonic `latest_sequence` (store-release) only after each slot is fully written. The joining consumer load-acquires `latest_sequence`, snaps its read cursor there, and proceeds — the shm analogue of CME snapshot recovery.",
+    "tags": ["shm", "late-join", "sequence", "recovery"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-018",
+    "front": "For a price-level search over 20 levels, how much memory does SoA touch vs AoS, and why?",
+    "back": "SoA touches only the price array: 20×8B = 160B ≈ 2.5 cache lines. AoS loads each whole struct: 20×40B = 800B ≈ 12.5 lines. SoA wins on search; but on field-update AoS gives all fields in one line.",
+    "tags": ["aos", "soa", "order-book", "cache-miss"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "systems-019",
+    "front": "For an order book, when does AoS beat SoA?",
+    "back": "When updates dominate the message mix (more modifies than searches): once you locate a level, AoS has all its fields in one cache line, while SoA needs 4-5 separate array indexes (4-5 potential misses).",
+    "tags": ["aos", "soa", "order-book", "message-mix"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "systems-020",
+    "front": "Why does software prefetch help the instrument-dispatch array but usually not the 20-level price scan?",
+    "back": "The flat price scan is sequential, so the hardware prefetcher already covers it. The dispatch array is accessed at random SecurityIDs — prefetching `books[next_id]` while processing the current message hides the L2 access (~5ns).",
+    "tags": ["prefetch", "dispatch", "hardware-prefetcher"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "systems-021",
+    "front": "What `__builtin_prefetch` locality hint do you use for reused book levels vs touch-once message headers?",
+    "back": "locality=3 (keep in all caches) for data reused like book levels; locality=0 (streaming, evict soon) for touch-once data like the message header. rw=0 for read, rw=1 for write.",
+    "tags": ["prefetch", "builtin_prefetch", "locality"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-022",
+    "front": "Why do huge pages help a 50-instrument book, and how many TLB entries does a 2MB page replace?",
+    "back": "50 instruments × ~64KB needs ~800 4KB pages, far beyond the ~64-entry L1 dTLB, so you'd page-walk constantly (~7-10ns each). One 2MB huge page covers that whole working set with a single TLB entry — no hot-path page walks.",
+    "tags": ["huge-pages", "tlb", "page-walk"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "systems-023",
+    "front": "Difference between `mmap(MAP_HUGETLB)` and `madvise(MADV_HUGEPAGE)` for huge pages?",
+    "back": "MAP_HUGETLB allocates from a pre-reserved pool and guarantees huge pages (best for the shm ring); MADV_HUGEPAGE is a THP hint the kernel may ignore under memory pressure, 2MB only, anonymous/tmpfs. Reserve the pool near boot before memory fragments.",
+    "tags": ["huge-pages", "MAP_HUGETLB", "MADV_HUGEPAGE"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-024",
+    "front": "Why is the SBE template-ID switch over ~4 message types predicted well?",
+    "back": "Because the distribution is skewed (~80% MDIncrementalRefreshBook (46), ~15% trade (48), ~5% other), the branch predictor locks onto the pattern in <100 iterations. Uniform 25/25/25/25 would have ~2x the branch-misses.",
+    "tags": ["branch-prediction", "dispatch", "template-id"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "systems-025",
+    "front": "Why does 'branch on schema version' mispredict during a v1→v2 rollout?",
+    "back": "A v1→v2 rollout starts at ~0.01% v2 messages. The predictor assumes the v2 path is not-taken and pays ~15 cycles every time a v2 message arrives. Fix: function-pointer/jump-table dispatch indexed by version.",
+    "tags": ["branch-prediction", "schema-version", "misprediction"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-026",
+    "front": "Why does an indirect call through a version table predict better than a switch during a v1→v2 transition?",
+    "back": "An indirect call is predicted by the BTB (target history), not the conditional PHT. Because an instrument sends one version at a time (versions don't interleave per-instrument), the BTB target is stable, so the call predicts well.",
+    "tags": ["indirect-call", "btb", "jump-table", "schema-version"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-027",
+    "front": "What is the data-dependency drawback of a `cmov`-style branchless select?",
+    "back": "The CPU must compute BOTH sides before selecting, so it can't speculate past an expensive side (e.g., a cache-missing operand). A branch can speculate past the unlikely side; cmov cannot.",
+    "tags": ["branchless", "cmov", "data-dependency"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-028",
+    "front": "At what null-rate does a branchless SBE null-value check actually beat a branched one?",
+    "back": "Around ~10% (unpredictable). At 0% or 50% the branch predictor is already perfect, so branchless is pure overhead. Counted loops (insertion shift) should stay branched — the predictor handles them perfectly.",
+    "tags": ["branchless", "sentinel", "null-value", "crossover"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-029",
+    "front": "How big is the L1 instruction cache, and what bloats it for an SBE codec?",
+    "back": "~32KB/core. Template-heavy codecs are the risk: 4 message types × ~10 accessors is fine at a few KB, but inlining error handling/logging can push the hot loop to tens of KB and cause I-cache misses (~15 cycles each, frontend-bound).",
+    "tags": ["icache", "code-layout", "template-bloat"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-030",
+    "front": "Which attributes keep cold paths out of the hot loop, and what build feature reorders by call frequency?",
+    "back": "`[[gnu::noinline]]` on cold paths (gap recovery, snapshot, error logging) and `[[gnu::hot]]` on the dispatch function. LTO+PGO reorders functions by call frequency for I-cache locality (Buck2 supports both).",
+    "tags": ["icache", "noinline", "lto", "pgo"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-031",
+    "front": "Why does SIMD price-search require SoA, and where else does SIMD pay in the pipeline?",
+    "back": "SIMD needs contiguous data; only SoA stores prices contiguously, so you can load 4 into an AVX2 register and _mm256_cmpeq_epi64 all at once (gather on AoS is slow). It also pays for cross-instrument signals (e.g., spreads across 50 instruments).",
+    "tags": ["simd", "avx2", "soa"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-032",
+    "front": "Why can a single AVX-512 instruction in a rare error path hurt your scalar p99?",
+    "back": "Heavy AVX-512 triggers a frequency license downclock; transitioning back can throttle the core for hundreds of microseconds. Keep wide SIMD to bulk paths and emit `vzeroupper` before returning to scalar code.",
+    "tags": ["avx-512", "frequency-throttle", "vzeroupper"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-033",
+    "front": "Why are concatenated SBE messages in a CME datagram often unaligned, and what breaks?",
+    "back": "Message N starts at off + size(N-1), tightly packed, often not 8-byte aligned, while structs with int64_t fields want alignof==8. `start_lifetime_as` on an unaligned pointer is UB.",
+    "tags": ["alignment", "start_lifetime_as", "ub", "sbe"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-034",
+    "front": "What is the production fix for unaligned SBE message overlay, and the relevant boundary costs?",
+    "back": "Align the receive buffer to 64B (first message aligned); memcpy any unaligned subsequent message to an aligned, L1-hot staging buffer before overlay. Unaligned within a line is free; crossing a cache line ~5ns; crossing a page ~20ns.",
+    "tags": ["alignment", "staging-buffer", "line-crossing"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-035",
+    "front": "What is the NUMA first-touch policy and how does it bite the shm bus?",
+    "back": "An mmap'd page is placed on the node of whichever process first faults it. If the producer faults the ring and the consumer is on another socket, the consumer pays remote DRAM (~2x, ~100ns vs ~40ns) on every read.",
+    "tags": ["numa", "first-touch", "shm"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-036",
+    "front": "How do you pin producer and consumer to one NUMA node, and which counter confirms remote DRAM traffic?",
+    "back": "`numactl --membind=0 --cpunodebind=0 ./binary` pins both memory and execution to node 0. Confirm remote access with `perf stat -e node-load-misses` and inspect per-node allocation with `numastat -p <pid>`.",
+    "tags": ["numa", "numactl", "node-load-misses"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-037",
+    "front": "In SBE, why can't fields after the first repeating group use compile-time offsets?",
+    "back": "SBE lays out root block, then group iterations, then var-data, in that fixed order. The first variable-length group makes all following offsets runtime-dependent. Solution: a cursor (next()) that advances through groups; var-data read last as it mutates position.",
+    "tags": ["sbe", "cursor", "repeating-group", "var-data"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-038",
+    "front": "What are SBE precedence (access-order) checks, and when should you enable them?",
+    "back": "Generated runtime checks (-Dsbe.generate.access.order.checks=true) that catch out-of-order flyweight access, which otherwise silently corrupts decode. They have significant overhead, so enable in tests, disable in production.",
+    "tags": ["sbe", "precedence-checks", "cursor"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-039",
+    "front": "What does `recvmmsg(2)` buy you, and does it wait for `vlen` messages?",
+    "back": "It receives up to vlen datagrams in one syscall (array of mmsghdr), amortizing syscall overhead. It returns the number actually filled (3 if only 3 are ready) — a non-blocking call does NOT wait for vlen.",
+    "tags": ["recvmmsg", "batching", "syscall-amortization"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "systems-040",
+    "front": "What is the documented `recvmmsg` timeout bug, and why avoid the timeout on a hot path?",
+    "back": "The timeout is checked only after each received datagram, so if up to vlen-1 arrive then traffic stops, the call can block forever. For hot paths use a 0/NULL non-blocking call and busy-poll in userspace.",
+    "tags": ["recvmmsg", "timeout", "busy-poll"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "systems-041",
+    "front": "What does the CME MDP 3.0 binary packet header contain, and how big is it?",
+    "back": "12 bytes: a 4-byte (uint32) packet sequence number + an 8-byte (uint64) sending-time timestamp. Each message after it is framed with a 2-byte (uint16) message-size field, then the SBE header.",
+    "tags": ["cme-mdp", "packet-header", "sequence-number"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "systems-042",
+    "front": "What four fields are in the SBE message header, and what byte order does CME MDP 3.0 use on the wire?",
+    "back": "Block Length, Template ID, Schema ID, Version. CME MDP 3.0 SBE is native little-endian on the wire — a no-op load on x86-64.",
+    "tags": ["sbe", "message-header", "little-endian", "cme-mdp"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "systems-043",
+    "front": "Why does `recvmmsg` batching sometimes make p50 worse below ~100k pps?",
+    "back": "The win comes from amortizing syscall overhead when the NIC ring is full. Below the break-even (~100k pps), few datagrams are ready, so batching adds latency (waiting/extra work) rather than removing syscalls. Use a single non-blocking receive at low rate.",
+    "tags": ["recvmmsg", "batching", "pps", "break-even"],
+    "difficulty": "advanced"
+  }
+]
