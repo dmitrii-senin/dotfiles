@@ -26,6 +26,7 @@ ICON_DIR=$'\xef\x81\xbc'   # U+F07C nf-fa-folder_open
 ICON_BRANCH=$'\xee\x9c\xa5' # U+E725 nf-dev-git_branch
 ICON_REPO=$'\xef\x82\x9b'  # U+F09B nf-fa-github
 ICON_MODEL=$'\xef\x82\x85' # U+F085 nf-fa-cogs
+ICON_EFFORT=$'\xef\x83\xa4' # U+F0E4 nf-fa-tachometer
 ICON_CTX=$'\xef\x83\xa7'   # U+F0E7 nf-fa-bolt
 ICON_COST=$'\xef\x85\x95'  # U+F155 nf-fa-dollar
 ICON_5H=$'\xef\x89\x92'    # U+F252 nf-fa-hourglass_half
@@ -169,6 +170,7 @@ mcp_health() {
 cwd=$(echo "$input"          | jq -r '.workspace.current_dir // .cwd // empty')
 model=$(echo "$input"        | jq -r '.model.display_name // empty')
 model="${model#Claude }"
+effort=$(echo "$input"       | jq -r '.effort.level // empty')
 repo_owner=$(echo "$input"   | jq -r '.workspace.repo.owner // empty')
 repo_name=$(echo "$input"    | jq -r '.workspace.repo.name // empty')
 git_worktree=$(echo "$input" | jq -r '.workspace.git_worktree // empty')
@@ -240,6 +242,10 @@ line2=""
 if [ -n "$model" ]; then
     line2+=$(powerline_seg "$SAPPHIRE_BG" "$CRUST_FG" "$prev" "$ICON_MODEL $model")
     prev=$SAPPHIRE_BG
+fi
+if [ -n "$effort" ]; then
+    line2+=$(powerline_seg "$PEACH_BG" "$CRUST_FG" "$prev" "$ICON_EFFORT $effort")
+    prev=$PEACH_BG
 fi
 if [ -n "$used_pct" ]; then
     bar=$(render_bar 5 "$used_pct")
