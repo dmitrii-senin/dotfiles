@@ -165,6 +165,14 @@ Tags provide fast "goto definition" for any language. `C-]` jumps to the definit
 **Drill:** (1) Set up a complex layout: two tabs, each with 2-3 splits showing different files, with some folds collapsed. (2) Run `:mksession /tmp/test_session.vim` to save. (3) Close Neovim entirely. (4) Reopen Neovim and `:source /tmp/test_session.vim` to restore. Verify windows, tabs, folds, and cursor positions match. (5) Modify the layout and save again (`:mksession!` to overwrite). (6) Create sessions for two different projects and practice switching between them.
 **Tags:** sessions, mksession, source, layout-persistence, project-switching, sessionoptions
 
+### C++ include path navigation
+`gf` ("go file") opens the filename under the cursor. On an `#include "foo.h"` line it jumps straight to the local header; on `#include <vector>` it needs help finding the system path. Neovim resolves filenames using `:set path` -- a comma-separated list searched in order, with `**` meaning recursive. For C++ work, set `path+=/usr/include,/usr/local/include,**` (or use a project-local `.nvim.lua` to add toolchain-specific paths like `--sysroot` results from clangd). When `gf` lands on a header you don't want to keep in the buffer list, use `<C-w>f` to open it in a split, or `<C-w>gf` to open it in a new tab. For SBE-generated headers buried under `build/sbe-generated/`, adding that directory to `path` makes the include chain walk-by-keystroke. `gd` via LSP supersedes `gf` when clangd is attached and the cursor is on a symbol, but `gf` is the right tool when the cursor is on the include path itself.
+**Key concepts:** gf, <C-w>f, <C-w>gf, :set path, include resolution, system vs project headers, recursive path globs, SBE generated header trees
+**Tip:** Use `:checkpath` to see which `#include` lines in the current buffer Neovim cannot resolve via `path`. This catches missing search directories before you waste keystrokes on `gf` failures. For project-local include paths, set them in a `.nvim.lua` file: `vim.opt_local.path:append("build/sbe-generated/**,src/cme/**")`. Combine with `set suffixesadd+=.h,.hpp,.hxx` so you can `gf` on a bare type name without the extension.
+**Tool anchor:** `gf` on an include path; `<C-w>f` to open in a split; `:checkpath` to validate path settings; `:set path?` to inspect current
+**Drill:** Open a C++ source file with a mix of `#include "local.h"` and `#include <system>` directives. Run `:checkpath` and identify any unresolved includes. Update `path` to cover the missing directories. Now walk an include chain three levels deep using `gf` on each successive header. For an SBE codec file, add the generated header directory to `path` and verify you can `gf` from the dispatcher into a generated message accessor without leaving keystroke flow.
+**Tags:** gf, include-path, system-headers, checkpath, SBE-generated, header-navigation, C++
+
 ## advanced
 
 ### Window layout management

@@ -42,7 +42,7 @@ as: **identification** = right approach, **next step** = optimal/idiomatic seque
 
 ## Cheatsheets
 default: `motions`
-available: `motions`, `navigation`, `telescope`, `lsp-keymaps`, `vim-api`
+available: `motions`, `navigation`, `telescope`, `lsp-keymaps`, `vim-api`, `cpp-symbol-nav`
 
 ## Config anchor
 Real config: `~/x/dotfiles/.config/nvim/` (symlinked from `~/.config/nvim/`). Edit only

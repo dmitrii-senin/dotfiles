@@ -72,7 +72,7 @@ Completion triggers automatically on `.`, `::`, `->` etc. via autotrigger.
 | `<Leader>cf` | format file (normal) or range (visual) |
 | (auto) | format on save via conform.nvim |
 
-Formatters: C/C++ = clang-format (Google style), Lua = stylua, Python = ruff, Rust = rustfmt, JS/TS/JSON/YAML = prettier.
+Formatters: C/C++ = clang-format (Google style), Python = ruff, Rust = rustfmt, Lua = stylua.
 
 ## Treesitter text objects
 
