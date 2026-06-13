@@ -33,5 +33,12 @@ behavior). Flag anything not attributable to one of these as `⚠ unsourced`.
 - **Linux kernel docs / source** — scheduler (CFS/EEVDF), io_uring, huge pages, preemption (kernel).
 - **`man` pages** — syscalls, `vdso(7)`, `sched(7)`, `numa(7)` (kernel).
 
+## System tuning (NUMA / affinity / NIC)
+- **`numactl(8)`, `numa(7)`, `set_mempolicy(2)`/`mbind(2)`, libnuma `numa(3)`** — NUMA policy, placement, `numastat` (mem, kernel).
+- **`ethtool(8)`** — NIC rings, coalescing, offloads, RSS/ntuple, `-S` counters, `-T` timestamping (kernel).
+- **Linux kernel `Documentation/networking/scaling.rst`** — RSS / RPS / RFS / XPS steering (kernel).
+- **Linux kernel `Documentation/networking/timestamping.rst`** + **linuxptp (`ptp4l`/`phc2sys`)** — SO_TIMESTAMPING, PHC, PTP (kernel).
+- **Red Hat / SUSE low-latency tuning guides, `tuned` profiles** (`network-latency`, `latency-performance`) — consolidated knob sets (kernel).
+
 > When a precise figure matters and isn't in the authored `knowledge/` banks, attribute
 > it to one of the above. If you can't, say so and recommend which resource to check.

@@ -9,6 +9,7 @@ Invoked as `/learn <domain> flash [area] [review|add|box|stats]`.
 - *(none)* or `review` → review due cards (the default; `flash` and `flash review` are identical)
 - `add` → author a new card into the deck (see below)
 - `box` / `stats` → the dashboard (see below)
+- `audit` → find near-duplicate cards (see below)
 
 ---
 
@@ -83,6 +84,34 @@ Author a card into the deck. Accept a one-liner argument or prompt for the fact;
 a `front`/`back` (for a command → "what does this do?" + explanation; for a concept →
 name + explanation). Confirm with the user, then append to the deck with `box: 1`,
 `due_date: today`, `created: today`, and a unique `id`.
+
+---
+
+## `flash audit`
+
+Surface near-duplicate cards by Jaccard similarity on tokenized fronts. Read-only —
+prints candidate pairs only, never mutates. Use periodically (quarterly, or after a
+big bank import) to plan cleanup passes.
+
+Invoked as `/learn <domain> flash audit [--threshold N] [--chapter X] [--area X]`.
+Default threshold is 0.5 (≥ half of unique non-stopword tokens overlap). Run the
+helper:
+
+```bash
+python3 ~/.claude/skills/learn/audit.py <domain> [--threshold 0.5] [--chapter X] [--area X]
+```
+
+For each pair above threshold, the script suggests which card to keep (earliest id)
+and which to drop. Then **walk the pairs with the user**: not every high-Jaccard pair
+is a real duplicate (cards on related commands often share vocabulary). For each
+flagged pair, decide: **merge** (combine fronts/backs, keep one id), **remove** one,
+or **keep both** (the rationale "they ask different questions" is a valid answer).
+Apply the same rule the cleanup record captures (`records/0002-flashcards-vs-practice-modes.md`
+in domains that have it): **flashcards hold knowledge; practice modes hold skill**.
+
+Removals/merges touch the active deck (`data/flashcards.json`) and, if the user
+wants the change to persist across re-injection, the source bank under `flashcards/`.
+Per `SKILL.md`'s edit policy: diff-first + confirm; never auto-commit.
 
 ---
 

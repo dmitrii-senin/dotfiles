@@ -698,5 +698,33 @@
     "back": "WC batches writes in WC buffers (4 entries, 64 bytes each on Skylake) and flushes as full-line writes. No caching of reads. Weak ordering (writes can be reordered). Used for GPU framebuffers, DMA buffers. Much higher write throughput than UC but reads are always uncached (~DRAM latency).",
     "tags": ["memory-types", "WC", "write-combining"],
     "difficulty": "advanced"
+  },
+  {
+    "id": "mem-101",
+    "front": "What is the difference between numactl --cpunodebind and --physcpubind?",
+    "back": "--cpunodebind=N confines threads to ALL cores of NUMA node N (scheduler may still migrate among them). --physcpubind=C1,C2 pins to exact physical cores. Use --cpunodebind for node-local placement with scheduling freedom; --physcpubind for hard core pinning. Both are independent of the memory policy (--membind).",
+    "tags": ["NUMA", "numactl", "cpu-binding"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-102",
+    "front": "What libnuma API calls place memory and threads on a specific NUMA node from code?",
+    "back": "numa_alloc_onnode(size, node): allocate on a given node. numa_run_on_node(node): bind the calling thread's CPUs to a node. numa_set_preferred(node)/numa_set_membind(): set allocation policy. numa_alloc_interleaved(): spread pages across nodes. Link with -lnuma. These give per-allocation control that numactl (process-wide) cannot.",
+    "tags": ["NUMA", "libnuma", "code-api"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "mem-103",
+    "front": "How do you verify the NUMA policy that actually applied to a running process?",
+    "back": "numactl --show prints the effective policy of the current context (run it inside the launcher wrapper before exec). For a live process, read /proc/<pid>/numa_maps (per-VMA node residency) and numastat -p <pid> (numa_hit/numa_foreign/other_node). Trusting launch flags is unsafe: a policy set after pages were faulted does nothing for that memory.",
+    "tags": ["NUMA", "numactl", "verification"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "mem-104",
+    "front": "Why do low-latency systems disable kernel.numa_balancing (AutoNUMA)?",
+    "back": "AutoNUMA periodically unmaps pages to sample access via NUMA hinting faults, then migrates pages toward the accessing node. On a pinned hot path this causes microsecond stalls (the hinting faults) plus a window of transient remote access during migration -- pure jitter that fights your explicit placement. Set kernel.numa_balancing=0 and place memory yourself. Symptom: other_node in numastat drifts upward over time.",
+    "tags": ["NUMA", "autonuma", "numa_balancing", "jitter"],
+    "difficulty": "advanced"
   }
 ]

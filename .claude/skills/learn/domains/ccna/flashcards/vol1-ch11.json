@@ -18,28 +18,10 @@
       "topic": "subnetting-concepts"
     },
     {
-      "id": "v1c11-03",
-      "front": "Formula: how many SUBNETS does N borrowed bits create?",
-      "back": "2^N subnets. Example: borrow 3 bits → 2^3 = 8 subnets.",
-      "topic": "subnetting-math"
-    },
-    {
-      "id": "v1c11-04",
-      "front": "Formula: how many USABLE HOSTS per subnet does H host bits give?",
-      "back": "2^H − 2. Subtract 2 for the network (all-zero host) and broadcast (all-ones host) addresses. Example: /24 has 8 host bits → 2^8 − 2 = 254 usable hosts.",
-      "topic": "subnetting-math"
-    },
-    {
       "id": "v1c11-05",
       "front": "What is VLSM and what problem does it solve?",
       "back": "Variable Length Subnet Masking — using different subnet masks within the same classful network. Solves address waste: a point-to-point link gets a /30 (2 hosts), a small LAN a /27 (30 hosts), a large LAN a /23 (510 hosts). Pre-VLSM (classful), every subnet had to use the same mask.",
       "topic": "vlsm"
-    },
-    {
-      "id": "v1c11-06",
-      "front": "What's the relationship between prefix length and subnet mask?",
-      "back": "Prefix length = number of leading 1-bits in the mask. /24 = 255.255.255.0. /27 = 255.255.255.224. /30 = 255.255.255.252. /16 = 255.255.0.0. Each /1 increase doubles the number of subnets and halves the host count.",
-      "topic": "subnetting-math"
     },
     {
       "id": "v1c11-07",
@@ -49,8 +31,8 @@
     },
     {
       "id": "v1c11-j01",
-      "front": "IPv4 address classes A/B/C/D/E — first-octet ranges, leading bit pattern, default prefix, and use.",
-      "back": "A: 0-127, leading 0xxx, /8, unicast (huge nets). B: 128-191, 10xx, /16, unicast (medium). C: 192-223, 110x, /24, unicast (small). D: 224-239, 1110, multicast (no prefix concept). E: 240-255, 1111, experimental/reserved. Class A 127.0.0.0/8 is loopback (not a usable host range).",
+      "front": "IPv4 address classes A/B/C/D/E — first-octet range, leading bit pattern, default prefix, network count, hosts per network, and use.",
+      "back": "A: 1-126, 0xxx, /8, 2^7-2 = 126 nets, ~16.7M hosts, unicast (huge). 0 reserved; 127 = loopback. B: 128-191, 10xx, /16, 2^14 = 16,384 nets, 65,534 hosts, unicast (medium). C: 192-223, 110x, /24, 2^21 = ~2M nets, 254 hosts, unicast (small). D: 224-239, 1110, multicast (no prefix concept). E: 240-255, 1111, experimental/reserved.",
       "topic": "ipv4-classes"
     },
     {

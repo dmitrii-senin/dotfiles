@@ -698,5 +698,54 @@
     "back": "Use vmtouch: vmtouch -v /path/to/file shows how many pages are cached. fincore (from util-linux) lists cached page counts for files. pcstat (Go tool) gives per-file cache percentage. Programmatically: mincore() syscall checks residency of mapped pages. To drop cache: echo 3 > /proc/sys/vm/drop_caches.",
     "tags": ["filesystems", "page-cache", "diagnostics"],
     "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-101",
+    "front": "How do you view and resize a NIC's RX/TX ring (descriptor) buffers, and what does too small a ring cause?",
+    "back": "ethtool -g eth0 shows current and preset-maximum ring sizes; ethtool -G eth0 rx 4096 sets the RX ring. The ring holds packets the NIC has DMA'd before software drains them; too small a ring drops micro-bursts (e.g., market open), visible as rx_no_buffer_count / rx_missed_errors in ethtool -S. Larger rings absorb bursts at the cost of a few microseconds of buffering.",
+    "tags": ["networking", "ethtool", "ring-buffer", "tuning"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-102",
+    "front": "Why disable GRO/LRO offloads on a market-data feed NIC, and how?",
+    "back": "GRO (Generic Receive Offload) and LRO (Large Receive Offload) coalesce multiple received segments before passing them up the stack, holding packets for tens of microseconds to aggregate -- harmful when every datagram is a discrete message that must be processed immediately. Disable: ethtool -K eth0 gro off lro off. View offloads with ethtool -k eth0. Trades a little CPU for lower, more predictable latency.",
+    "tags": ["networking", "ethtool", "offloads", "latency"],
+    "difficulty": "intermediate"
+  },
+  {
+    "id": "kern-103",
+    "front": "How do you deterministically steer a specific multicast flow to a chosen NIC RX queue?",
+    "back": "RSS hashing cannot guarantee which queue/core a flow lands on. Use ntuple flow steering: ethtool -N eth0 flow-type udp4 dst-port <p> action <q> directs that flow to queue q. Enable ntuple first (ethtool -K eth0 ntuple on). Then pin queue q's MSI-X IRQ to a housekeeping core via /proc/irq/<N>/smp_affinity to keep NET_RX off the isolated handler core.",
+    "tags": ["networking", "ethtool", "ntuple", "flow-steering"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-104",
+    "front": "What do the ethtool -S counters rx_missed_errors, rx_no_buffer_count, and rx_fifo_errors indicate?",
+    "back": "These are NIC-level RX drop counters. rx_no_buffer_count / rx_missed_errors: the host RX ring had no free descriptors when a packet arrived (software too slow / ring too small). rx_fifo_errors: the NIC's on-chip FIFO overflowed before DMA (often PCIe/host-bandwidth bound). Increments here implicate the NIC ring, NOT the wire or the socket layer.",
+    "tags": ["networking", "ethtool", "drop-counters", "diagnostics"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-105",
+    "front": "How do you localize a packet-loss gap to the wire vs the NIC vs the kernel/socket?",
+    "back": "Wire/upstream loss: sequence gap with NO local counter movement (check A/B feed arbitration, switch). NIC-ring drop: ethtool -S rx_missed_errors/rx_no_buffer_count/rx_fifo_errors increment. Kernel/socket drop: /proc/net/udp 'drops', netstat -su 'receive errors', /proc/net/softnet_stat column 2 (backlog drops). Localize first, then fix the implicated layer.",
+    "tags": ["networking", "drop-localization", "diagnostics", "reliability"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-106",
+    "front": "What does ethtool -T report, and why does it matter for latency measurement?",
+    "back": "ethtool -T eth0 reports the NIC's timestamping capabilities and its PTP Hardware Clock (PHC) index. Hardware RX timestamps (SOF_TIMESTAMPING_RX_HARDWARE) are taken at the NIC before the kernel touches the packet, so (app_recv_time - hw_rx_time) isolates host-stack latency from wire latency, immune to scheduling/syscall jitter. Many virtual NICs report no HW timestamping -- verify before relying on it.",
+    "tags": ["networking", "ethtool", "timestamping", "latency"],
+    "difficulty": "advanced"
+  },
+  {
+    "id": "kern-107",
+    "front": "What roles do ptp4l and phc2sys play in NIC time synchronization?",
+    "back": "ptp4l (linuxptp) runs the PTP/IEEE-1588 protocol to discipline the NIC's PTP Hardware Clock (/dev/ptp0) to a grandmaster on the network. phc2sys then copies PHC time into the system clock (or vice versa). Result: sub-microsecond, cross-host comparable timestamps -- essential for measuring wire latency between machines and for accurate event ordering across a trading system.",
+    "tags": ["networking", "PTP", "ptp4l", "phc2sys", "timing"],
+    "difficulty": "advanced"
   }
 ]

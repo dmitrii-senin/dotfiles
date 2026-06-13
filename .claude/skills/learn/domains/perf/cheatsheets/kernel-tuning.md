@@ -77,6 +77,37 @@ echo never > /sys/kernel/mm/transparent_hugepage/enabled
 
 Or via boot param: `transparent_hugepage=never`
 
+**NUMA placement (numactl):**
+
+| Command | Effect |
+|---------|--------|
+| `numactl --hardware` (`-H`) | Show nodes, per-node CPUs, free memory, inter-node distances |
+| `numactl --show` | Print the **effective** policy of the current context |
+| `numactl --cpunodebind=0 --membind=0 ./app` | Run on node 0's CPUs, allocate strictly on node 0 |
+| `numactl --physcpubind=2,3 --membind=0 ./app` | Pin to exact cores 2,3; memory on node 0 |
+| `numactl --interleave=all ./app` | Round-robin pages across nodes (bandwidth) |
+| `numactl --preferred=0 ./app` | Prefer node 0, fall back if full |
+
+`--cpunodebind` allows migration within the node; `--physcpubind` is exact. numactl sets the
+**default policy at exec** — it does not relocate already-touched pages.
+
+**Diagnose placement:**
+
+```bash
+numastat -p $(pgrep app)              # numa_hit / numa_foreign / other_node per process
+cat /proc/$(pgrep app)/numa_maps      # per-VMA node residency
+sysctl kernel.numa_balancing          # 0 = AutoNUMA off (set 0 for low-latency: migration = jitter)
+```
+
+**In code (libnuma, `-lnuma`):**
+
+```cpp
+#include <numa.h>
+numa_run_on_node(0);                       // bind calling thread's CPUs to node 0
+void* p = numa_alloc_onnode(size, 0);      // allocate on node 0
+// or per-region: mbind(p, len, MPOL_BIND, &nodemask, maxnode, MPOL_MF_MOVE);
+```
+
 ---
 
 ## 4. Network
@@ -113,6 +144,47 @@ ethtool -C eth0 adaptive-rx off adaptive-tx off
 ethtool -L eth0 combined 2          # set number of queues
 echo 4 > /proc/irq/N/smp_affinity  # pin queue IRQ to core 2
 ```
+
+**RX/TX rings — absorb bursts (raise before growing socket buffers):**
+
+```bash
+ethtool -g eth0                     # show current + preset-max ring sizes
+ethtool -G eth0 rx 4096             # enlarge RX ring (drops show as rx_no_buffer_count)
+```
+
+**Offloads — disable aggregation for per-packet latency:**
+
+```bash
+ethtool -k eth0 | grep -E 'generic-receive|large-receive'
+ethtool -K eth0 gro off lro off     # GRO/LRO hold packets tens of µs to coalesce
+```
+
+**RSS + deterministic flow steering:**
+
+```bash
+ethtool -x eth0                              # view hash + indirection table
+ethtool -K eth0 ntuple on
+ethtool -N eth0 flow-type udp4 dst-port 14310 action 3   # steer this feed to queue 3
+# then pin queue 3's IRQ to a housekeeping core via /proc/irq/N/smp_affinity
+```
+
+**Hardware timestamping / PTP:**
+
+```bash
+ethtool -T eth0                     # report HW timestamp caps + PHC index (verify before use)
+ptp4l -i eth0 -m &                  # discipline /dev/ptp0 to grandmaster
+phc2sys -s eth0 -w -m &             # copy PHC time into the system clock
+```
+
+**Drop localization (`ethtool -S` NIC counters vs kernel/socket):**
+
+| Counter / source | Layer implicated |
+|------------------|------------------|
+| `ethtool -S` `rx_no_buffer_count`, `rx_missed_errors` | Host RX ring empty (sw too slow / ring too small) |
+| `ethtool -S` `rx_fifo_errors` | NIC on-chip FIFO overflow (PCIe/host-bandwidth bound) |
+| `/proc/net/udp` `drops`, `netstat -su` | Socket receive buffer overflow (kernel/app) |
+| `/proc/net/softnet_stat` col 2 | Per-CPU backlog drops (NET_RX saturation) |
+| Seq gap with **no** local counters moving | Upstream / wire / A-B feed arbitration |
 
 ---
 

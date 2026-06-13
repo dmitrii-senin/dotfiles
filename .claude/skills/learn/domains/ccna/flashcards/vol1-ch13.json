@@ -12,34 +12,10 @@
       "topic": "subnet-mask-format"
     },
     {
-      "id": "v1c13-02",
-      "front": "Convert /27 to dotted-decimal mask AND wildcard mask.",
-      "back": "/27 = 255.255.255.224 (3 bits in 4th octet → 128+64+32 = 224). Wildcard = 0.0.0.31 (255−224 = 31). Block size = 32.",
-      "topic": "mask-conversion"
-    },
-    {
-      "id": "v1c13-03",
-      "front": "Convert mask 255.255.255.240 to prefix length and identify the block size.",
-      "back": "240 = 11110000 → 4 bits → /28 (24 + 4 = 28). Block size = 256 − 240 = 16. Networks at every multiple of 16 in the 4th octet.",
-      "topic": "mask-conversion"
-    },
-    {
-      "id": "v1c13-04",
-      "front": "Quick conversion table: mask values to bits.",
-      "back": "0 = 0 bits, 128 = 1, 192 = 2, 224 = 3, 240 = 4, 248 = 5, 252 = 6, 254 = 7, 255 = 8. Memorize: 'zero, one-twenty-eight, one-ninety-two, two-twenty-four, two-forty…'",
-      "topic": "mask-conversion"
-    },
-    {
       "id": "v1c13-05",
       "front": "What is the BLOCK SIZE shortcut, and how do you compute it?",
       "back": "Block size = 256 − (mask value in the 'interesting' octet). Tells you the increment between subnet networks. /27 → mask 224 → block size 32 → networks at .0 .32 .64 .96 .128 .160 .192 .224.",
       "topic": "subnetting-shortcuts"
-    },
-    {
-      "id": "v1c13-06",
-      "front": "Wildcard mask formula and example.",
-      "back": "Wildcard = bitwise inverse of subnet mask. Per-octet: 255 − mask_octet. /28 → mask 255.255.255.240 → wildcard 0.0.0.15. Used in ACLs and OSPF `network` statements (NOT subnet masks!).",
-      "topic": "wildcard-mask"
     },
     {
       "id": "v1c13-07",
@@ -52,12 +28,6 @@
       "front": "What does /32 represent?",
       "back": "Single host route. Used for loopback interfaces, host-specific ACL entries (`host` keyword in ACLs is equivalent to wildcard 0.0.0.0 = /32), and BGP next-hop tracking. No network or broadcast — exactly one address.",
       "topic": "special-masks"
-    },
-    {
-      "id": "v1c13-j01",
-      "front": "How many networks and hosts/network exist in classful Class A, B, C?",
-      "back": "Class A: 128 networks (1-127, 0 reserved, 127 loopback) × 16,777,214 hosts each (2^24 - 2). Class B: 16,384 networks × 65,534 hosts each (2^16 - 2). Class C: 2,097,152 networks × 254 hosts each (2^8 - 2).",
-      "topic": "ipv4-classes"
     }
   ]
 }
