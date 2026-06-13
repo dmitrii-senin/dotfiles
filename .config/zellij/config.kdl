@@ -11,6 +11,7 @@
 //   Alt+x       close pane
 //   Alt+r       rename current tab
 //   Alt+n       new tab
+//   Alt+b       break focused pane out into a new tab
 //   Alt+1..9    jump to tab N
 //   Alt+j/k     prev / next tab
 //   Alt+H/L     move tab left / right
@@ -183,6 +184,7 @@ keybinds clear-defaults=true {
         bind "Alt p" { TogglePanePinned; }
         bind "Alt e" { TogglePaneEmbedOrFloating; }
         bind "Alt n" { NewTab; }
+        bind "Alt b" { BreakPane; }
         bind "Alt s" { NewPane "Down"; }
         bind "Alt v" { NewPane "Right"; }
         bind "Alt f" { Run "zsh" { floating true; close_on_exit true; }; }

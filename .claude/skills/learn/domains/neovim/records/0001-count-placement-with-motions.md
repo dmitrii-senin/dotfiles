@@ -17,3 +17,8 @@ General rule: `[count]operator[count]motion` — counts precede what they modify
 ## Revisit
 Re-drill `d2t<x>`, `2fw`, `c3w`, `"a3yy` until count-before-motion is automatic; watch for
 the "count after the motion char" slip.
+
+## Update 2026-06-13 — RESOLVED
+mm / "Find and till on line": `d2t.` and `d3t,` both produced cleanly, and the learner
+articulated the `dt2`/`dt3` literal-char trap unprompted. Count-before-motion is automatic.
+Drop unless it recurs.
